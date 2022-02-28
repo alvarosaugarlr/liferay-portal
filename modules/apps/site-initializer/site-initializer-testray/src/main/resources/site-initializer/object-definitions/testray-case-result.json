@@ -28,16 +28,6 @@
 			"indexed": false,
 			"indexedAsKeyword": false,
 			"label": {
-				"en_US": "Testray Case Id"
-			},
-			"name": "testrayCaseId",
-			"required": false,
-			"type": "Long"
-		},
-		{
-			"indexed": false,
-			"indexedAsKeyword": false,
-			"label": {
 				"en_US": "Testray Component Id"
 			},
 			"name": "testrayComponentId",
@@ -115,10 +105,8 @@
 			"type": "Integer"
 		}
 	],
-	"panelAppOrder": "100",
-	"panelCategoryKey": "site_administration.content",
 	"pluralLabel": {
 		"en_US": "Testray Cases Results"
 	},
-	"scope": "site"
+	"scope": "company"
 }

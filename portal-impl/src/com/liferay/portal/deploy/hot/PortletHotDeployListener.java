@@ -182,7 +182,7 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 			}
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 		}
 
 		String servletContextName = servletContext.getServletContextName();
@@ -445,17 +445,6 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 		}
 	}
 
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), with no direct replacement
-	 */
-	@Deprecated
-	protected void processPortletProperties(
-			String servletContextName, ClassLoader classLoader)
-		throws Exception {
-
-		_processPortletProperties(classLoader);
-	}
-
 	protected void unbindDataSource(String servletContextName) {
 		Boolean dataSourceBindState = _dataSourceBindStates.remove(
 			servletContextName);
@@ -478,7 +467,7 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 			}
 			catch (NamingException namingException) {
 				if (_log.isDebugEnabled()) {
-					_log.debug(namingException, namingException);
+					_log.debug(namingException);
 				}
 			}
 
@@ -489,7 +478,7 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 			}
 			catch (NamingException namingException) {
 				if (_log.isDebugEnabled()) {
-					_log.debug(namingException, namingException);
+					_log.debug(namingException);
 				}
 			}
 		}

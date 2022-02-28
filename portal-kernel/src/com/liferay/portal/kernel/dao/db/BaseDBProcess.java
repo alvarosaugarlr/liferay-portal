@@ -175,10 +175,73 @@ public abstract class BaseDBProcess implements DBProcess {
 		runSQLTemplateString(template, failOnError);
 	}
 
+	protected void addIndexes(
+			Connection connection, List<IndexMetadata> indexMetadatas)
+		throws IOException, SQLException {
+
+		DB db = DBManagerUtil.getDB();
+
+		db.addIndexes(connection, indexMetadatas);
+	}
+
+	protected void alterColumnName(
+			String tableName, String oldColumnName, String newColumnDefinition)
+		throws Exception {
+
+		DB db = DBManagerUtil.getDB();
+
+		db.alterColumnName(
+			connection, tableName, oldColumnName, newColumnDefinition);
+	}
+
+	protected void alterColumnType(
+			String tableName, String columnName, String newColumnType)
+		throws Exception {
+
+		DB db = DBManagerUtil.getDB();
+
+		db.alterColumnType(connection, tableName, columnName, newColumnType);
+	}
+
+	protected void alterTableAddColumn(
+			String tableName, String columnName, String columnType)
+		throws Exception {
+
+		DB db = DBManagerUtil.getDB();
+
+		db.alterTableAddColumn(connection, tableName, columnName, columnType);
+	}
+
+	protected void alterTableDropColumn(String tableName, String columnName)
+		throws Exception {
+
+		DB db = DBManagerUtil.getDB();
+
+		db.alterTableDropColumn(connection, tableName, columnName);
+	}
+
 	protected boolean doHasTable(String tableName) throws Exception {
 		DBInspector dbInspector = new DBInspector(connection);
 
 		return dbInspector.hasTable(tableName, true);
+	}
+
+	protected List<IndexMetadata> dropIndexes(
+			String tableName, String columnName)
+		throws Exception {
+
+		DB db = DBManagerUtil.getDB();
+
+		return db.dropIndexes(connection, tableName, columnName);
+	}
+
+	protected String[] getPrimaryKeyColumnNames(
+			Connection connection, String tableName)
+		throws SQLException {
+
+		DB db = DBManagerUtil.getDB();
+
+		return db.getPrimaryKeyColumnNames(connection, tableName);
 	}
 
 	protected boolean hasColumn(String tableName, String columnName)
@@ -286,6 +349,12 @@ public abstract class BaseDBProcess implements DBProcess {
 				return null;
 			},
 			unsafeConsumer, exceptionMessage);
+	}
+
+	protected void removePrimaryKey(String tableName) throws Exception {
+		DB db = DBManagerUtil.getDB();
+
+		db.removePrimaryKey(connection, tableName);
 	}
 
 	protected Connection connection;

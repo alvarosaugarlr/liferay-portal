@@ -349,7 +349,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 				// See LPS-36174
 
 				if (_log.isDebugEnabled()) {
-					_log.debug(noSuchLayoutException, noSuchLayoutException);
+					_log.debug(noSuchLayoutException);
 				}
 
 				entrySet.remove(plid);
@@ -910,8 +910,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 					}
 					catch (NoSuchLayoutException noSuchLayoutException) {
 						if (_log.isWarnEnabled()) {
-							_log.warn(
-								noSuchLayoutException, noSuchLayoutException);
+							_log.warn(noSuchLayoutException);
 						}
 					}
 				}
@@ -970,11 +969,11 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 			// LPS-52675
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(portalException, portalException);
+				_log.debug(portalException);
 			}
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 		}
 	}
 
@@ -1128,7 +1127,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 		}
 		catch (ConfigurationException configurationException) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(configurationException.getMessage());
+				_log.warn(configurationException);
 			}
 		}
 
@@ -1580,7 +1579,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 				}
 				catch (Exception exception) {
 					if (_log.isDebugEnabled()) {
-						_log.debug(exception, exception);
+						_log.debug(exception);
 					}
 
 					return;

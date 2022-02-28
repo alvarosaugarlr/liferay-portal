@@ -22,8 +22,6 @@ import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 
-import java.lang.reflect.Field;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -47,14 +45,22 @@ public abstract class BaseUpgradeResourceBlock extends UpgradeProcess {
 
 		_removeResourceBlocks(className);
 
-		alter(getTableClass(), new AlterTableDropColumn("resourceBlockId"));
+		alterTableDropColumn(getTableName(), "resourceBlockId");
 	}
 
 	protected abstract String getClassName();
 
 	protected abstract String getPrimaryKeyName();
 
-	protected abstract Class<?> getTableClass();
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #getTableName()}
+	 */
+	@Deprecated
+	protected Class<?> getTableClass() {
+		return null;
+	}
+
+	protected abstract String getTableName();
 
 	protected abstract boolean hasUserId();
 
@@ -241,18 +247,18 @@ public abstract class BaseUpgradeResourceBlock extends UpgradeProcess {
 
 		StringBundler sb = new StringBundler(16);
 
-		Class<?> tableClass = getTableClass();
+		sb.append("select ResourceBlock.companyId, ");
 
-		Field tableNameField = tableClass.getField("TABLE_NAME");
+		String tableName = getTableName();
 
-		String tableName = (String)tableNameField.get(null);
+		sb.append(tableName);
+
+		sb.append(".");
 
 		String primaryKeyName = getPrimaryKeyName();
 
-		sb.append("select ResourceBlock.companyId, ");
-		sb.append(tableName);
-		sb.append(".");
 		sb.append(primaryKeyName);
+
 		sb.append(", ResourceBlockPermission.roleId, ");
 
 		if (hasUserId()) {

@@ -63,18 +63,53 @@ renderResponse.setTitle(LanguageUtil.get(resourceBundle, "import-translation"));
 				<liferay-ui:error exception="<%= XLIFFFileException.MustBeValid.class %>" message="please-enter-a-file-with-a-valid-xliff-file-extension" />
 
 				<div>
-					<react:component
-						module="js/ImportTranslation.es"
-						props='<%=
-							HashMapBuilder.<String, Object>put(
-								"saveDraftBtnId", liferayPortletResponse.getNamespace() + "saveDraftBtn"
-							).put(
-								"submitBtnId", liferayPortletResponse.getNamespace() + "submitBtnId"
-							).put(
-								"workflowPending", importTranslationDisplayContext.isPending()
-							).build()
-						%>'
-					/>
+					<c:choose>
+						<c:when test="<%= importTranslationDisplayContext.isBulkTranslationEnabled() %>">
+							<p class="h3"><liferay-ui:message key="import-files" /></p>
+
+							<p class="text-secondary">
+								<liferay-ui:message key="please-upload-your-translation-files" />
+							</p>
+
+							<div class="mt-4">
+								<p class="h5"><liferay-ui:message key="file-upload" /></p>
+
+								<clay:button
+									disabled="<%= true %>"
+									displayType="secondary"
+									label="select-files"
+									small="<%= true %>"
+								/>
+							</div>
+
+							<react:component
+								module="js/ImportTranslationMultipleFiles"
+								props='<%=
+									HashMapBuilder.<String, Object>put(
+										"saveDraftBtnId", liferayPortletResponse.getNamespace() + "saveDraftBtn"
+									).put(
+										"submitBtnId", liferayPortletResponse.getNamespace() + "submitBtnId"
+									).put(
+										"workflowPending", importTranslationDisplayContext.isPending()
+									).build()
+								%>'
+							/>
+						</c:when>
+						<c:otherwise>
+							<react:component
+								module="js/ImportTranslation.es"
+								props='<%=
+									HashMapBuilder.<String, Object>put(
+										"saveDraftBtnId", liferayPortletResponse.getNamespace() + "saveDraftBtn"
+									).put(
+										"submitBtnId", liferayPortletResponse.getNamespace() + "submitBtnId"
+									).put(
+										"workflowPending", importTranslationDisplayContext.isPending()
+									).build()
+								%>'
+							/>
+						</c:otherwise>
+					</c:choose>
 				</div>
 			</clay:sheet>
 		</clay:container-fluid>

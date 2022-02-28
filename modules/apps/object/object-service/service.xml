@@ -216,6 +216,37 @@
 			<finder-column name="name" />
 		</finder>
 	</entity>
+	<entity local-service="true" name="ObjectFieldSetting" remote-service="true" uuid="true">
+
+		<!-- PK fields -->
+
+		<column name="objectFieldSettingId" primary="true" type="long" />
+
+		<!-- Audit fields -->
+
+		<column name="companyId" type="long" />
+		<column name="userId" type="long" />
+		<column name="userName" type="String" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
+
+		<!-- Other fields -->
+
+		<column name="objectFieldId" type="long" />
+		<column name="name" type="String" />
+		<column name="required" type="boolean" />
+		<column name="value" type="String" />
+
+		<!-- Finder methods -->
+
+		<finder name="ObjectFieldId" return-type="Collection">
+			<finder-column name="objectFieldId" />
+		</finder>
+		<finder name="OFI_N" return-type="ObjectFieldSetting" unique="true">
+			<finder-column name="objectFieldId" />
+			<finder-column name="name" />
+		</finder>
+	</entity>
 	<entity local-service="true" name="ObjectLayout" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
@@ -410,6 +441,38 @@
 			<finder-column name="type" />
 		</finder>
 	</entity>
+	<entity local-service="true" name="ObjectValidationRule" remote-service="true" uuid="true">
+
+		<!-- PK fields -->
+
+		<column name="objectValidationRuleId" primary="true" type="long" />
+
+		<!-- Audit fields -->
+
+		<column name="companyId" type="long" />
+		<column name="userId" type="long" />
+		<column name="userName" type="String" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
+
+		<!-- Other fields -->
+
+		<column name="objectDefinitionId" type="long" />
+		<column name="active" type="boolean" />
+		<column localized="true" name="errorLabel" type="String" />
+		<column name="engine" type="String" />
+		<column name="script" type="String" />
+
+		<!-- Finder methods -->
+
+		<finder name="ObjectDefinitionId" return-type="Collection">
+			<finder-column name="objectDefinitionId" />
+		</finder>
+		<finder name="ODI_A" return-type="Collection">
+			<finder-column name="objectDefinitionId" />
+			<finder-column name="active" />
+		</finder>
+	</entity>
 	<entity local-service="true" name="ObjectView" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
@@ -470,6 +533,37 @@
 			<finder-column name="objectFieldName" />
 		</finder>
 	</entity>
+	<entity local-service="false" name="ObjectViewSortColumn" remote-service="true" uuid="true">
+
+		<!-- PK fields -->
+
+		<column name="objectViewSortColumnId" primary="true" type="long" />
+
+		<!-- Audit fields -->
+
+		<column name="companyId" type="long" />
+		<column name="userId" type="long" />
+		<column name="userName" type="String" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
+
+		<!-- Other fields -->
+
+		<column name="objectViewId" type="long" />
+		<column name="objectFieldName" type="String" />
+		<column name="priority" type="int" />
+		<column name="sortOrder" type="String" />
+
+		<!-- Finder methods -->
+
+		<finder name="ObjectViewId" return-type="Collection">
+			<finder-column name="objectViewId" />
+		</finder>
+		<finder name="OVI_OFN" return-type="Collection">
+			<finder-column name="objectViewId" />
+			<finder-column name="objectFieldName" />
+		</finder>
+	</entity>
 	<exceptions>
 		<exception>DefaultObjectLayout</exception>
 		<exception>DefaultObjectView</exception>
@@ -490,10 +584,12 @@
 		<exception>ObjectFieldLabel</exception>
 		<exception>ObjectFieldName</exception>
 		<exception>ObjectFieldRelationshipType</exception>
+		<exception>ObjectFieldSettingValue</exception>
 		<exception>ObjectLayoutColumnSize</exception>
 		<exception>ObjectRelationshipName</exception>
 		<exception>ObjectRelationshipReverse</exception>
 		<exception>ObjectRelationshipType</exception>
+		<exception>ObjectValidation</exception>
 		<exception>RequiredObjectDefinition</exception>
 		<exception>RequiredObjectField</exception>
 		<exception>RequiredObjectRelationship</exception>

@@ -169,6 +169,64 @@ definition {
 		}
 	}
 
+	@description = "This is a test for LPS-143304. Can add a Related Item Collection to a Display Page Template"
+	@priority = "4"
+	test CanAddAnItemCollectionToADPT {
+		task ("Add a New Display Page Template to Team Extranet Site") {
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-team-extranet");
+
+			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
+				contentType = "Blogs Entry",
+				displayPageTemplateEntryName = "Display Page Template Name",
+				groupName = "Test Site Team Extranet");
+		}
+
+		task ("Add The Blog Entries Collections to the New DPT") {
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-team-extranet");
+
+			DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Template Name");
+
+			PageEditor.addFragment(
+				collectionName = "Compositions",
+				composition = "true",
+				fragmentName = "Blog Entries Collection");
+
+			Button.clickPublish();
+		}
+
+		task ("Export the Display Page Template") {
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-team-extranet");
+
+			DisplayPageTemplatesAdmin.gotoDisplayPageEllipsisItem(
+				displayPageName = "Display Page Template Name",
+				item = "Export");
+
+			DownloadTempFile();
+		}
+
+		task ("Delete the Display Page Template") {
+			DisplayPageTemplatesAdmin.deleteDisplayPage(displayPageName = "Display Page Template Name");
+
+			DisplayPageTemplatesAdmin.viewDisplayPageNotPresent(displayPageName = "Display Page Template Name");
+		}
+
+		task ("Import the Display Page Template Exported and Assert the Fragment Presence") {
+			DisplayPageTemplatesAdmin.importDisplayPageTemplateFromTempFolder();
+
+			DisplayPageTemplatesAdmin.viewDisplayPagePresent(displayPageName = "Display Page Template Name");
+
+			DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Template Name");
+
+			PageEditor.openPreviewMode();
+
+			SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
+
+			AssertElementPresent(
+				key_fragmentName = "entry-card",
+				locator1 = "Masterclass#FRAGMENT_NAME");
+		}
+	}
+
 	@description = "This is a test for LPS-144156. Can Set a Hosted Video URL on a Team Extranet Fragment Video"
 	@priority = "4"
 	test CanSetAHostedVideoURL {
@@ -226,6 +284,79 @@ definition {
 			Masterclass.previewPageandAssertFragment(fragmentName = "video");
 
 			YoutubePortlet.assertVideoTitle(videoTitle = "Life at Liferay - A Look into Liferay Culture");
+		}
+	}
+
+	@description = "This is a test for LPS-146967. Collections are not created correctly for extranet site initializer"
+	@priority = "4"
+	test CollectionsAreNotCreatedCorrectly {
+		task ("Create a Dynamic Collection") {
+			JSONAssetlist.addDynamicAssetListEntryWithItemType(
+				groupName = "Test Site Team Extranet",
+				itemSubtype = "Entry",
+				itemType = "Web Content Article",
+				title = "Dynamic Collection Test");
+		}
+
+		task ("Create a New Collection Page") {
+			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-team-extranet");
+
+			ContentPages.addPublicCollectionPage(
+				collectionName = "Dynamic Collection Test",
+				pageName = "Collection Page Name",
+				tabName = "Collections");
+		}
+
+		task ("Select the Bordered List in Collection Display") {
+			PageEditor.editCollectionDisplay(
+				fragmentName = "Collection Display",
+				listStyle = "Bordered List",
+				selectedName = "Dynamic Collection Test");
+		}
+
+		task ("Preview the Page and Assert the list of Blog Entries") {
+			PageEditor.openPreviewMode();
+
+			SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
+
+			for (var title : list "25 management tips from top industry experts,00 20 gifts you can give to your marketing boss,What the best Management pros do (and you should too),Great people doing a great job in the design industry,When professionals run into problems with marketing") {
+				AssertElementPresent(
+					key_title = "${title}",
+					locator1 = "TeamExtranet#COLLECTION_DISPLAY_LIST");
+			}
+		}
+
+		task ("Edit the Dynamic Collection") {
+			AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-site-team-extranet");
+
+			AssetListsAdmin.editAssetList(assetListTitle = "Dynamic Collection Test");
+
+			AssetListsAdmin.configureItemTypeInDynamicCollection(
+				itemSubtype = "Member",
+				itemType = "Web Content Article");
+		}
+
+		task ("Edit the Collection Page") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Collection Page Name",
+				siteName = "Test Site Team Extranet");
+
+			PageEditor.editCollectionDisplay(
+				fragmentName = "Collection Display",
+				listStyle = "Bordered List",
+				selectedName = "Dynamic Collection Test");
+		}
+
+		task ("Preview the Page and Assert the list of Members") {
+			PageEditor.openPreviewMode();
+
+			SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
+
+			for (var title : list "Jerome Bell,Jane Cooper,Esther Howard,Kristin Watson,Jacob Jones") {
+				AssertElementPresent(
+					key_title = "${title}",
+					locator1 = "TeamExtranet#COLLECTION_DISPLAY_LIST");
+			}
 		}
 	}
 
@@ -670,6 +801,245 @@ definition {
 					index = "1",
 					locator1 = "Fragment#FRAGMENT_BODY");
 			}
+		}
+	}
+
+	@description = "This is a test for LPS-144835. Verify the search Bar Widget can be embedded in a Custom Fragment"
+	@priority = "3"
+	test VerifySearchBarEmbeddedInACustomFragment {
+		task ("Add a Fragment Collection and go to Team Extranet Fragments Admin") {
+			JSONFragment.addFragmentCollection(
+				groupName = "Test Site Team Extranet",
+				name = "Collection Name");
+
+			FragmentsAdminNavigator.openFragmentsAdmin(siteURLKey = "test-site-team-extranet");
+		}
+
+		FragmentsAdminNavigator.gotoCollection(collectionName = "Collection Name");
+
+		FragmentsAdmin.addFragment(fragmentName = "Fragment Name");
+
+		var fragmentHtml = '''<lfr-widget-search-bar>''';
+
+		var htmlSnippet = '''<lfr-''';
+
+		FragmentsEditor.autocompleteFragmentHTML(
+			autocompleteField = "lfr-widget-search-bar",
+			fragmentHtml = "${fragmentHtml}",
+			htmlSnippet = "${htmlSnippet}");
+
+		PortletEntry.publish();
+
+		JSONWebcontent.addWebContent(
+			content = "WC WebContent Content",
+			groupName = "Test Site Team Extranet",
+			title = "WC WebContent Title");
+
+		PagesAdmin.openPagesAdmin(siteURLKey = "test-site-team-extranet");
+
+		ContentPages.addPrivatePage(pageName = "Test Page");
+
+		PageEditor.addFragment(
+			collectionName = "Collection Name",
+			fragmentName = "Fragment Name");
+
+		PageEditor.openPreviewMode();
+
+		AssertElementPresent(locator1 = "Search#EMBEDDED_SEARCH_BAR");
+	}
+
+	@description = "This is a test for LPS-143303. Verify the 'All articles' in Blog Entry link to Blog page"
+	@priority = "3"
+	test VerifyTheAllArticlesLinkInBlogEntryLinkToItsPage {
+		task ("Go to Team Extranet Site") {
+			ApplicationsMenu.gotoSite(site = "Test Site Team Extranet");
+		}
+
+		task ("Go to Blog and Open a Blog Entry") {
+			Navigator.gotoSitePage(
+				pageName = "Blog",
+				siteName = "Test Site Team Extranet");
+
+			Masterclass.goToLink(
+				key_buttonName = "Read More",
+				key_href = "00-20-gifts-you-can-give-to-your-marketing-boss");
+		}
+
+		task ("Click on 'All articles' and assert it redirects to Blog Page") {
+			Masterclass.goToLink(
+				key_buttonName = "All articles",
+				key_href = "blog",
+				key_title = "20 gifts you can give to your marketing boss");
+		}
+	}
+
+	@description = "This is a test for LPS-143303. Verify the 'All articles' in Team Member Page link to Blog Page"
+	@priority = "3"
+	test VerifyTheAllArticlesLinkInTeamMemberLinkToItsPage {
+		task ("Go to Team Extranet Site") {
+			ApplicationsMenu.gotoSite(site = "Test Site Team Extranet");
+		}
+
+		task ("Go to Blog and Open a Blog Entry") {
+			Navigator.gotoSitePage(
+				pageName = "Team",
+				siteName = "Test Site Team Extranet");
+
+			Click(
+				key_imageName = "member",
+				locator1 = "AdaptiveMedia#IMAGE_VARIANT_SOURCE_URL");
+		}
+
+		task ("Click on 'All articles' and assert it redirects to Blog Page") {
+			Masterclass.goToLink(
+				key_buttonName = "All articles",
+				key_href = "blog",
+				key_title = "20 gifts you can give to your marketing boss");
+		}
+	}
+
+	@description = "This is a test for LPS-143303. Verify the 'All open positions' link to Careers page"
+	@priority = "3"
+	test VerifyTheAllOpenPositionsLinkRedirectsToItsPage {
+		task ("Go to Team Extranet Site") {
+			ApplicationsMenu.gotoSite(site = "Test Site Team Extranet");
+		}
+
+		task ("Go to Blog and Open a Blog Entry") {
+			Navigator.gotoSitePage(
+				pageName = "Careers",
+				siteName = "Test Site Team Extranet");
+
+			Click(
+				key_entryTitle = "Growth Product Manager",
+				locator1 = "TeamExtranet#TITLE_LINK");
+		}
+
+		task ("Click on 'All open positions' and assert it redirects to Careers Page") {
+			Masterclass.goToLink(
+				key_buttonName = "All open positions",
+				key_description = "Careers",
+				key_href = "careers");
+		}
+	}
+
+	@description = "This is a test for LPS-143303. Verify all the links present in the Home Page redirect to their respective pages"
+	@priority = "4"
+	test VerifyTheLinksRedirectsToItsPage {
+		task ("Go to Team Extranet Site") {
+			ApplicationsMenu.gotoSite(site = "Test Site Team Extranet");
+		}
+
+		task ("Click in The 'All blog articles' link and assert it redirects to Blog Page") {
+			Masterclass.goToLink(
+				key_buttonName = "All blog articles",
+				key_href = "blog",
+				key_title = "20 gifts you can give to your marketing boss");
+		}
+
+		task ("Go to Team Extranet Site") {
+			ApplicationsMenu.gotoSite(site = "Test Site Team Extranet");
+		}
+
+		task ("Click in The 'All job positions' link and assert it redirects to Careers Page") {
+			Masterclass.goToLink(
+				key_buttonName = "All job positions",
+				key_description = "Careers",
+				key_href = "careers");
+		}
+
+		task ("Go to Team Extranet Site") {
+			ApplicationsMenu.gotoSite(site = "Test Site Team Extranet");
+		}
+
+		task ("Click in The 'All team members' link and assert it redirects to Team Page") {
+			Masterclass.goToLink(
+				key_buttonName = "All team members",
+				key_description = "Team",
+				key_href = "team");
+		}
+	}
+
+	@description = "This is a test for LPS-143303. Verify the Page Titles redirect to their respective pages"
+	@priority = "4"
+	test VerifyThePageTitlesRedirectsToItsPage {
+		task ("Go to Team Extranet Site") {
+			ApplicationsMenu.gotoSite(site = "Test Site Team Extranet");
+		}
+
+		task ("Click on the Careers Card Title and Assert it is redirected to Careers Page") {
+			Click(
+				key_title = "Browse all the open job positions",
+				locator1 = "TeamExtranet#FRAGMENT_HEADING");
+
+			AssertElementPresent(
+				key_description = "Careers",
+				locator1 = "TeamExtranet#FRAGMENT_TEXT_BLOCK");
+		}
+
+		task ("Go to Team Extranet Site") {
+			ApplicationsMenu.gotoSite(site = "Test Site Team Extranet");
+		}
+
+		task ("Click on the Team Card Title and Assert it is redirected to Team Page") {
+			Click(
+				key_title = "Meet the members of the team",
+				locator1 = "TeamExtranet#FRAGMENT_HEADING");
+
+			AssertElementPresent(
+				key_description = "Team",
+				locator1 = "TeamExtranet#FRAGMENT_TEXT_BLOCK");
+		}
+
+		task ("Go to Team Extranet Site") {
+			ApplicationsMenu.gotoSite(site = "Test Site Team Extranet");
+		}
+
+		task ("Click on the Blog Card Title and Assert it is redirected to Blog Page") {
+			Click(
+				key_title = "Stay on top of the latest news",
+				locator1 = "TeamExtranet#FRAGMENT_HEADING");
+
+			AssertElementPresent(
+				key_title = "20 gifts you can give to your marketing boss",
+				locator1 = "TeamExtranet#FRAGMENT_HEADING");
+		}
+	}
+
+	@description = "This is a test for LPS-143303. Verify the 'View More' links redirect to their respective pages"
+	@priority = "4"
+	test VerifyTheViewMoreRedirectsToItsPage {
+		task ("Go to Team Extranet Site") {
+			ApplicationsMenu.gotoSite(site = "Test Site Team Extranet");
+		}
+
+		task ("Click on 'View more' in Careers card and assert it is redirected to Careers Page") {
+			Masterclass.goToLink(
+				key_buttonName = "View more",
+				key_description = "Careers",
+				key_href = "careers");
+		}
+
+		task ("Go to Team Extranet Site") {
+			ApplicationsMenu.gotoSite(site = "Test Site Team Extranet");
+		}
+
+		task ("Click on 'View more' in Team card and assert it is redirected to Team Page") {
+			Masterclass.goToLink(
+				key_buttonName = "View more",
+				key_description = "Team",
+				key_href = "/web/test-site-team-extranet/team");
+		}
+
+		task ("Go to Team Extranet Site") {
+			ApplicationsMenu.gotoSite(site = "Test Site Team Extranet");
+		}
+
+		task ("Click on 'View more' in Blog card and assert it is redirected to Blog Page") {
+			Masterclass.goToLink(
+				key_buttonName = "View more",
+				key_href = "blog",
+				key_title = "20 gifts you can give to your marketing boss");
 		}
 	}
 

@@ -39,6 +39,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.UserLocalService;
@@ -50,20 +51,25 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Validator;
 
+import java.nio.charset.StandardCharsets;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.cxf.jaxrs.ext.MessageContext;
+import org.apache.cxf.jaxrs.utils.HttpUtils;
 import org.apache.cxf.rs.security.oauth2.common.AccessTokenRegistration;
 import org.apache.cxf.rs.security.oauth2.common.Client;
 import org.apache.cxf.rs.security.oauth2.common.OAuthPermission;
@@ -72,6 +78,7 @@ import org.apache.cxf.rs.security.oauth2.common.UserSubject;
 import org.apache.cxf.rs.security.oauth2.grants.code.AbstractAuthorizationCodeDataProvider;
 import org.apache.cxf.rs.security.oauth2.grants.code.AuthorizationCodeRegistration;
 import org.apache.cxf.rs.security.oauth2.grants.code.ServerAuthorizationCodeGrant;
+import org.apache.cxf.rs.security.oauth2.grants.jwt.Constants;
 import org.apache.cxf.rs.security.oauth2.provider.OAuthServiceException;
 import org.apache.cxf.rs.security.oauth2.tokens.bearer.BearerAccessToken;
 import org.apache.cxf.rs.security.oauth2.tokens.refresh.RefreshToken;
@@ -143,7 +150,7 @@ public class LiferayOAuthDataProvider
 
 		accessTokenRegistration.setApprovedScope(approvedScope);
 
-		if (!OAuthConstants.CLIENT_CREDENTIALS_GRANT.equals(
+		if (!_refreshTokenIncompatibleGrants.contains(
 				accessTokenRegistration.getGrantType())) {
 
 			approvedScope.add(OAuthConstants.REFRESH_TOKEN_SCOPE);
@@ -903,6 +910,36 @@ public class LiferayOAuthDataProvider
 			httpServletRequest.getRemoteHost();
 	}
 
+	private User _getUser(UserSubject userSubject) throws Exception {
+		Map<String, String> properties = userSubject.getProperties();
+
+		long companyId = GetterUtil.getLong(
+			properties.get(
+				OAuth2ProviderRESTEndpointConstants.PROPERTY_KEY_COMPANY_ID));
+
+		String subject = properties.get("UUID");
+
+		if (subject != null) {
+			return _userLocalService.getUserByUuidAndCompanyId(
+				subject, companyId);
+		}
+
+		subject = properties.get(CompanyConstants.AUTH_TYPE_EA);
+
+		if (subject != null) {
+			return _userLocalService.getUserByEmailAddress(companyId, subject);
+		}
+
+		subject = properties.get(CompanyConstants.AUTH_TYPE_SN);
+
+		if (subject != null) {
+			return _userLocalService.getUserByScreenName(companyId, subject);
+		}
+
+		return _userLocalService.getUser(
+			GetterUtil.getLong(userSubject.getId()));
+	}
+
 	private void _invokeTransactionally(Runnable runnable) throws Throwable {
 		TransactionInvokerUtil.invoke(
 			TransactionConfig.Factory.create(
@@ -1118,20 +1155,15 @@ public class LiferayOAuthDataProvider
 		long userId = 0;
 		String userName = StringPool.BLANK;
 
-		UserSubject userSubject = serverAccessToken.getSubject();
-
-		if (userSubject != null) {
+		if (serverAccessToken.getSubject() != null) {
 			try {
-				userId = GetterUtil.getLong(userSubject.getId());
+				User user = _getUser(serverAccessToken.getSubject());
 
-				User user = _userLocalService.getUser(userId);
+				userId = user.getUserId();
 
 				userName = user.getFullName();
 			}
 			catch (Exception exception) {
-				_log.error(
-					"Unable to load user " + userSubject.getId(), exception);
-
 				throw new RuntimeException(exception);
 			}
 		}
@@ -1174,6 +1206,15 @@ public class LiferayOAuthDataProvider
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		LiferayOAuthDataProvider.class);
+
+	private static final Set<String> _refreshTokenIncompatibleGrants =
+		Stream.of(
+			OAuthConstants.CLIENT_CREDENTIALS_GRANT, Constants.JWT_BEARER_GRANT,
+			HttpUtils.urlEncode(
+				Constants.JWT_BEARER_GRANT, StandardCharsets.UTF_8.name())
+		).collect(
+			Collectors.toCollection(HashSet::new)
+		);
 
 	@Reference(
 		policy = ReferencePolicy.DYNAMIC,

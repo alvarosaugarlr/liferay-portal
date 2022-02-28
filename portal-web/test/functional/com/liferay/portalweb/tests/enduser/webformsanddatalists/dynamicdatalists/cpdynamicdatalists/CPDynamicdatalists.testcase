@@ -97,6 +97,8 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test AddFormTemplate {
+		property test.name.skip.portal.instance = "CPDynamicdatalists#AddFormTemplate";
+
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
@@ -1490,15 +1492,9 @@ definition {
 			fieldFieldLabel = "Boolean Required",
 			fieldName = "Boolean");
 
-		PortletEntry.publish();
-
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content & Data",
-			portlet = "Dynamic Data Lists");
-
-		DDLNavigator.gotoListRecords();
+		DoubleClick(
+			key_text = "Publish",
+			locator1 = "Button#ANY");
 
 		DDLRecord.viewFirstFieldCP(
 			ddlRecordFieldData = "True",
@@ -1731,7 +1727,6 @@ definition {
 			fieldFieldLabel = "Text");
 	}
 
-	@ignore = "true"
 	@priority = "3"
 	test CopyDataDefinition {
 		Navigator.openURL();
@@ -2524,7 +2519,6 @@ definition {
 			fieldName = "BooleanEdit");
 	}
 
-	@ignore = "true"
 	@priority = "4"
 	test EditBooleanFieldShowLabel {
 		Navigator.openURL();
@@ -2587,7 +2581,7 @@ definition {
 			ddlListName = "List Name");
 
 		DDLRecord.populateFieldBoolean(
-			ddlRecordFieldData = "Yes",
+			ddlRecordFieldData = "True",
 			fieldFieldLabel = "Boolean",
 			fieldName = "Boolean",
 			fieldShowLabel = "No");
@@ -2603,7 +2597,7 @@ definition {
 		DDLNavigator.gotoListRecords(ddlListName = "List Name");
 
 		DDLRecord.viewFirstFieldCP(
-			ddlRecordFieldData = "Yes",
+			ddlRecordFieldData = "True",
 			field = "Boolean",
 			fieldFieldLabel = "Boolean",
 			fieldName = "Boolean",

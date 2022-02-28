@@ -176,12 +176,10 @@ public class KaleoDesignerDisplayContext {
 			KaleoDefinitionVersion kaleoDefinitionVersion)
 		throws PortalException {
 
-		KaleoDefinitionVersion firstKaleoDefinitionVersion =
+		return getUserName(
 			_kaleoDefinitionVersionLocalService.getFirstKaleoDefinitionVersion(
 				kaleoDefinitionVersion.getCompanyId(),
-				kaleoDefinitionVersion.getName());
-
-		return getUserName(firstKaleoDefinitionVersion);
+				kaleoDefinitionVersion.getName()));
 	}
 
 	public String getDuplicateTitle(KaleoDefinition kaleoDefinition) {
@@ -192,12 +190,12 @@ public class KaleoDesignerDisplayContext {
 		String defaultLanguageId = LocalizationUtil.getDefaultLanguageId(
 			kaleoDefinition.getTitle());
 
-		String newTitle = LanguageUtil.format(
-			_getResourceBundle(), "copy-of-x",
-			kaleoDefinition.getTitle(defaultLanguageId));
-
 		return LocalizationUtil.updateLocalization(
-			kaleoDefinition.getTitle(), "title", newTitle, defaultLanguageId);
+			kaleoDefinition.getTitle(), "title",
+			LanguageUtil.format(
+				_getResourceBundle(), "copy-of-x",
+				kaleoDefinition.getTitle(defaultLanguageId)),
+			defaultLanguageId);
 	}
 
 	public List<DropdownItem> getFilterItemsDropdownItems() {
@@ -231,7 +229,7 @@ public class KaleoDesignerDisplayContext {
 		}
 		catch (PortalException portalException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(portalException, portalException);
+				_log.debug(portalException);
 			}
 		}
 
@@ -289,15 +287,11 @@ public class KaleoDesignerDisplayContext {
 				_kaleoDesignerRequestHelper.getLiferayPortletRequest(),
 				getPortletURL());
 
-		String orderByCol = getOrderByCol();
-		String orderByType = getOrderByType();
-
-		OrderByComparator<KaleoDefinitionVersion> orderByComparator =
-			getKaleoDefinitionVersionOrderByComparator(orderByCol, orderByType);
-
-		kaleoDefinitionVersionSearch.setOrderByCol(orderByCol);
-		kaleoDefinitionVersionSearch.setOrderByComparator(orderByComparator);
-		kaleoDefinitionVersionSearch.setOrderByType(orderByType);
+		kaleoDefinitionVersionSearch.setOrderByCol(getOrderByCol());
+		kaleoDefinitionVersionSearch.setOrderByComparator(
+			getKaleoDefinitionVersionOrderByComparator(
+				getOrderByCol(), getOrderByType()));
+		kaleoDefinitionVersionSearch.setOrderByType(getOrderByType());
 
 		_setKaleoDefinitionVersionSearchResults(
 			kaleoDefinitionVersionSearch, status);
@@ -355,8 +349,6 @@ public class KaleoDesignerDisplayContext {
 			};
 		}
 		else {
-			int moreAssets = workflowDefinitionLinks.size() - 2;
-
 			WorkflowDefinitionLink workflowDefinitionLink1 =
 				workflowDefinitionLinks.get(0);
 			WorkflowDefinitionLink workflowDefinitionLink2 =
@@ -365,7 +357,8 @@ public class KaleoDesignerDisplayContext {
 			return new Object[] {
 				_getLocalizedAssetName(workflowDefinitionLink1.getClassName()),
 				_getLocalizedAssetName(workflowDefinitionLink2.getClassName()),
-				moreAssets, _getConfigureAssignementLink()
+				workflowDefinitionLinks.size() - 2,
+				_getConfigureAssignementLink()
 			};
 		}
 	}
@@ -412,7 +405,7 @@ public class KaleoDesignerDisplayContext {
 		}
 		catch (PortalException portalException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(portalException, portalException);
+				_log.debug(portalException);
 			}
 		}
 
@@ -581,7 +574,7 @@ public class KaleoDesignerDisplayContext {
 		}
 		catch (PortalException portalException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(portalException, portalException);
+				_log.debug(portalException);
 			}
 		}
 
@@ -604,7 +597,7 @@ public class KaleoDesignerDisplayContext {
 			}
 			catch (PortalException portalException) {
 				if (_log.isDebugEnabled()) {
-					_log.debug(portalException, portalException);
+					_log.debug(portalException);
 				}
 			}
 		}
@@ -632,7 +625,7 @@ public class KaleoDesignerDisplayContext {
 				}
 				catch (PortalException portalException) {
 					if (_log.isDebugEnabled()) {
-						_log.debug(portalException, portalException);
+						_log.debug(portalException);
 					}
 				}
 			}
@@ -795,17 +788,23 @@ public class KaleoDesignerDisplayContext {
 			kaleoDefinitionVersionActiveComparator.thenComparing(
 				searchContainer.getOrderByComparator()));
 
-		searchContainer.setTotal(kaleoDefinitionVersions.size());
+		List<KaleoDefinitionVersion> filteredKaleoDefinitionVersions =
+			kaleoDefinitionVersions;
 
-		if (kaleoDefinitionVersions.size() >
-				(searchContainer.getEnd() - searchContainer.getStart())) {
+		searchContainer.setResultsAndTotal(
+			() -> {
+				if (filteredKaleoDefinitionVersions.size() >
+						(searchContainer.getEnd() -
+							searchContainer.getStart())) {
 
-			kaleoDefinitionVersions = ListUtil.subList(
-				kaleoDefinitionVersions, searchContainer.getStart(),
-				searchContainer.getEnd());
-		}
+					return ListUtil.subList(
+						filteredKaleoDefinitionVersions,
+						searchContainer.getStart(), searchContainer.getEnd());
+				}
 
-		searchContainer.setResults(kaleoDefinitionVersions);
+				return filteredKaleoDefinitionVersions;
+			},
+			filteredKaleoDefinitionVersions.size());
 	}
 
 	private static final String _HTML =

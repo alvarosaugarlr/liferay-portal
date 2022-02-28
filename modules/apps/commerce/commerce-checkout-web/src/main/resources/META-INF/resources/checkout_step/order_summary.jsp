@@ -41,18 +41,6 @@ if (priceDisplayType.equals(CommercePricingConstants.TAX_INCLUDED_IN_PRICE)) {
 	totalCommerceDiscountValue = commerceOrderPrice.getTotalDiscountValueWithTaxAmount();
 	totalOrderCommerceMoney = commerceOrderPrice.getTotalWithTaxAmount();
 }
-
-String commercePaymentMethodName = StringPool.BLANK;
-
-String commercePaymentMethodKey = commerceOrder.getCommercePaymentMethodKey();
-
-if (commercePaymentMethodKey != null) {
-	commercePaymentMethodName = orderSummaryCheckoutStepDisplayContext.getPaymentMethodName(commercePaymentMethodKey, locale);
-}
-
-String commerceShippingOptionName = commerceOrder.getShippingOptionName();
-
-Map<Long, List<CommerceOrderValidatorResult>> commerceOrderValidatorResultMap = orderSummaryCheckoutStepDisplayContext.getCommerceOrderValidatorResults();
 %>
 
 <div class="commerce-order-summary">
@@ -128,10 +116,14 @@ Map<Long, List<CommerceOrderValidatorResult>> commerceOrderValidatorResultMap = 
 
 								<div class="list-group-subtitle"><%= HtmlUtil.escape(stringJoiner.toString()) %></div>
 
-								<c:if test="<%= !commerceOrderValidatorResultMap.isEmpty() %>">
+								<%
+								Map<Long, List<CommerceOrderValidatorResult>> commerceOrderValidatorResultsMap = orderSummaryCheckoutStepDisplayContext.getCommerceOrderValidatorResultsMap();
+								%>
+
+								<c:if test="<%= !commerceOrderValidatorResultsMap.isEmpty() %>">
 
 									<%
-									List<CommerceOrderValidatorResult> commerceOrderValidatorResults = commerceOrderValidatorResultMap.get(commerceOrderItem.getCommerceOrderItemId());
+									List<CommerceOrderValidatorResult> commerceOrderValidatorResults = commerceOrderValidatorResultsMap.get(commerceOrderItem.getCommerceOrderItemId());
 
 									for (CommerceOrderValidatorResult commerceOrderValidatorResult : commerceOrderValidatorResults) {
 									%>
@@ -459,6 +451,14 @@ Map<Long, List<CommerceOrderValidatorResult>> commerceOrderValidatorResultMap = 
 				</address>
 			</c:if>
 
+			<%
+			String commerceShippingOptionName = StringPool.BLANK;
+
+			if (commerceOrder.getShippingOptionName() != null) {
+				commerceShippingOptionName = orderSummaryCheckoutStepDisplayContext.getShippingOptionName(commerceOrder.getShippingOptionName(), locale);
+			}
+			%>
+
 			<c:if test="<%= Validator.isNotNull(commerceShippingOptionName) %>">
 				<div class="panel-body shipping-method">
 					<h5>
@@ -475,6 +475,14 @@ Map<Long, List<CommerceOrderValidatorResult>> commerceOrderValidatorResultMap = 
 				</div>
 			</c:if>
 
+			<%
+			String commercePaymentMethodName = StringPool.BLANK;
+
+			if (commerceOrder.getCommercePaymentMethodKey() != null) {
+				commercePaymentMethodName = orderSummaryCheckoutStepDisplayContext.getPaymentMethodName(commerceOrder.getCommercePaymentMethodKey(), locale);
+			}
+			%>
+
 			<c:if test="<%= Validator.isNotNull(commercePaymentMethodName) %>">
 				<div class="panel-body payment-method">
 					<h5>
@@ -483,6 +491,38 @@ Map<Long, List<CommerceOrderValidatorResult>> commerceOrderValidatorResultMap = 
 
 					<div class="shipping-description">
 						<%= HtmlUtil.escape(commercePaymentMethodName) %>
+					</div>
+				</div>
+			</c:if>
+
+			<%
+			String deliveryTermEntryName = orderSummaryCheckoutStepDisplayContext.getDeliveryTermEntryName(locale);
+			%>
+
+			<c:if test="<%= Validator.isNotNull(deliveryTermEntryName) %>">
+				<div class="panel-body payment-method">
+					<h5>
+						<liferay-ui:message key="delivery-terms" />
+					</h5>
+
+					<div class="shipping-description">
+						<%= HtmlUtil.escape(deliveryTermEntryName) %>
+					</div>
+				</div>
+			</c:if>
+
+			<%
+			String paymentTermEntryName = orderSummaryCheckoutStepDisplayContext.getPaymentTermEntryName(locale);
+			%>
+
+			<c:if test="<%= Validator.isNotNull(paymentTermEntryName) %>">
+				<div class="panel-body payment-method">
+					<h5>
+						<liferay-ui:message key="payment-terms" />
+					</h5>
+
+					<div class="shipping-description">
+						<%= HtmlUtil.escape(paymentTermEntryName) %>
 					</div>
 				</div>
 			</c:if>

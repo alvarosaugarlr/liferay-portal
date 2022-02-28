@@ -12,7 +12,7 @@
 <tbody>
 <tr>
 	<td>ADD_VARIATION_ICON</td>
-	<td>//*[@class='navbar-nav'] //*[contains(@class, 'btn-sm')]</td>
+	<td>//div[contains(@class, 'justify-content-between')]//*[contains(@class, 'btn-sm')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -68,6 +68,21 @@
 <tr>
 	<td>ASSET_TYPE_DROPDOWN_ITEM</td>
 	<td>//ul[contains(@class,'dropdown-menu')]//li[contains(@class,'asset-selector')]//a[contains(.,'${key_assetType}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>VARIATION_ELLIPSIS</td>
+	<td>//div[contains(., '${key_variation}')]/following-sibling::div[contains(@class, 'more-icon')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>VARIATION_INDEX</td>
+	<td>xpath=(//nav[contains(@role, 'navigation')]//p[contains(@class, 'list-group-title')]/a)[${key_index}]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>VARIATION_TITLE</td>
+	<td>//nav[contains(@role, 'navigation')] //a[contains(text(), '${key_variation}')]</td>
 	<td></td>
 </tr>
 <tr>

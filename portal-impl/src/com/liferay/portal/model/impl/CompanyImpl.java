@@ -291,7 +291,7 @@ public class CompanyImpl extends CompanyBaseImpl {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -338,15 +338,6 @@ public class CompanyImpl extends CompanyBaseImpl {
 		CompanySecurityBag companySecurityBag = getCompanySecurityBag();
 
 		return companySecurityBag._autoLogin;
-	}
-
-	/**
-	 * @deprecated As of Mueller (7.2.x), with no direct replacement
-	 */
-	@Deprecated
-	@Override
-	public boolean isSendPassword() {
-		return false;
 	}
 
 	@Override

@@ -72,41 +72,6 @@ public class LanguageResources {
 
 		};
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #PORTAL_RESOURCE_BUNDLE_LOADER}
-	 */
-	@Deprecated
-	public static com.liferay.portal.kernel.util.ResourceBundleLoader
-		RESOURCE_BUNDLE_LOADER =
-			new com.liferay.portal.kernel.util.ResourceBundleLoader() {
-
-				@Override
-				public ResourceBundle loadResourceBundle(Locale locale) {
-					return LanguageResources.getResourceBundle(locale);
-				}
-
-			};
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             LanguageBuilderUtil#fixValue(String)}
-	 */
-	@Deprecated
-	public static String fixValue(String value) {
-		return LanguageBuilderUtil.fixValue(value);
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
-	 */
-	@Deprecated
-	public static void fixValues(
-		Map<String, String> languageMap, Properties properties) {
-
-		_fixValues(languageMap, properties);
-	}
-
 	public static String getMessage(Locale locale, String key) {
 		if (locale == null) {
 			return null;
@@ -345,7 +310,7 @@ public class LanguageResources {
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(exception, exception);
+				_log.warn(exception);
 			}
 		}
 

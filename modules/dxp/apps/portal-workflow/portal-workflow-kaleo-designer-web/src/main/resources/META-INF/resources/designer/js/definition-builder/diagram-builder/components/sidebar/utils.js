@@ -22,6 +22,22 @@ function isIdDuplicated(elements, id) {
 }
 
 function getModalInfo(itemType) {
+	if (itemType === 'actions') {
+		return {
+			message: Liferay.Language.get(
+				'are-you-sure-you-want-to-delete-all-actions-and-their-settings'
+			),
+			title: Liferay.Language.get('delete-actions'),
+		};
+	}
+	if (itemType === 'assignments') {
+		return {
+			message: Liferay.Language.get(
+				'are-you-sure-you-want-to-delete-all-assignments-and-their-settings'
+			),
+			title: Liferay.Language.get('delete-assignments'),
+		};
+	}
 	if (itemType === 'condition') {
 		return {
 			message: Liferay.Language.get(
@@ -30,7 +46,7 @@ function getModalInfo(itemType) {
 			title: Liferay.Language.get('delete-condition-node'),
 		};
 	}
-	if (itemType === 'end') {
+	else if (itemType === 'end') {
 		return {
 			message: Liferay.Language.get(
 				'are-you-sure-you-want-to-delete-the-selected-end-node'
@@ -92,6 +108,14 @@ function getModalInfo(itemType) {
 				'are-you-sure-you-want-to-delete-the-selected-transition'
 			),
 			title: Liferay.Language.get('delete-transition'),
+		};
+	}
+	else if (itemType === 'timers') {
+		return {
+			message: Liferay.Language.get(
+				'are-you-sure-you-want-to-delete-all-timers-and-their-settings'
+			),
+			title: Liferay.Language.get('delete-timers'),
 		};
 	}
 	else {

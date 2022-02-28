@@ -25,10 +25,8 @@
 			"type": "String"
 		}
 	],
-	"panelAppOrder": "100",
-	"panelCategoryKey": "site_administration.content",
 	"pluralLabel": {
 		"en_US": "Testray Factor Options"
 	},
-	"scope": "site"
+	"scope": "company"
 }

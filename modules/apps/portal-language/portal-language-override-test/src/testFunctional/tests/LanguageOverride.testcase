@@ -58,8 +58,8 @@ definition {
 	@description = "This test filters to only see Overrides."
 	@priority = "4"
 	test CanFilterOverrides {
-		task ("Given that assert no existing keys filter by override") {
-			ManagementBar.setFilterAndOrder(filterBy = "Override");
+		task ("Given that assert no existing keys filter by Any Language") {
+			ManagementBar.setFilterAndOrder(filterBy = "Any Language");
 
 			AssertTextEquals(
 				locator1 = "Search#SEARCH_INFO",
@@ -69,7 +69,7 @@ definition {
 				locator1 = "Message#EMPTY_INFO",
 				value1 = "No language entries were found.");
 
-			Click(locator1 = "LanguageOverride#FILTER_BY_OVERRIDE_REMOVE_OVERRIDE_FILTER");
+			Click(locator1 = "LanguageOverride#FILTER_BY_ANY_LANGUAGE_REMOVE_ANY_LANGUAGE_FILTER");
 
 			AssertTextEquals(
 				key_languageKey = "0-analytics-cloud-connection",
@@ -77,13 +77,13 @@ definition {
 				value1 = "0-analytics-cloud-connection");
 		}
 
-		task ("When add a language key and filters by Overrides") {
+		task ("When add a language key and filters by Any Language") {
 			LanguageOverride.addLanguageKey(
 				languageKey = "text-contains-error",
 				translationOverrideList = "en-US",
 				translationOverrideValueList = "Text contains error");
 
-			ManagementBar.setFilterAndOrder(filterBy = "Override");
+			ManagementBar.setFilterAndOrder(filterBy = "Any Language");
 		}
 
 		task ("Then user can only view Overridden keys") {
@@ -91,7 +91,7 @@ definition {
 				locator1 = "Search#SEARCH_INFO",
 				value1 = "1 Results for");
 
-			AssertElementPresent(locator1 = "LanguageOverride#FILTER_BY_OVERRIDE_FILTER_LABEL");
+			AssertElementPresent(locator1 = "LanguageOverride#FILTER_BY_ANY_LANGUAGE_FILTER_LABEL");
 
 			AssertTextEquals(
 				key_languageKey = "text-contains-error",
@@ -99,8 +99,8 @@ definition {
 				value1 = "text-contains-error");
 
 			AssertTextEquals(
-				locator1 = "LanguageOverride#FILTER_BY_OVERRIDE_LANGUAGE_KEY_OVERRIDDEN_LABEL",
-				value1 = "OVERRIDDEN");
+				locator1 = "LanguageOverride#LANGUAGE_KEY_OVERRIDDEN_LABEL",
+				value1 = "Languages With Override: en_US");
 		}
 	}
 
@@ -116,8 +116,8 @@ definition {
 				translationOverrideValueList = "Text contains error,Le texte contient une erreur,O texto contÃƒÂ©m erro,El texto contiene error");
 		}
 
-		task ("and the user sets the navigation filter to Override") {
-			ManagementBar.setFilterAndOrder(filterBy = "Override");
+		task ("and the user sets the navigation filter to Any Language") {
+			ManagementBar.setFilterAndOrder(filterBy = "Any Language");
 		}
 
 		task ("When the user removes all translation overrides via the Menu Item option") {
@@ -145,8 +145,8 @@ definition {
 				translationOverrideValueList = "Text contains error,Le texte contient une erreur,O texto contÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©m erro,El texto contiene error");
 		}
 
-		task ("and the user sets the navigation filter to Override") {
-			ManagementBar.setFilterAndOrder(filterBy = "Override");
+		task ("and the user sets the navigation filter to Any Language") {
+			ManagementBar.setFilterAndOrder(filterBy = "Any Language");
 		}
 
 		task ("When the user selects a language and removes translation override for the selected language") {
@@ -301,7 +301,7 @@ definition {
 				translationOverrideList = "nl-NL,de-DE,sv-SE",
 				translationOverrideValueList = "edit1,edit2,edit3");
 
-			ManagementBar.setFilterAndOrder(filterBy = "Override");
+			ManagementBar.setFilterAndOrder(filterBy = "Any Language");
 
 			LanguageOverride.goToLanguageKey(languageKey = "a-configuration-with-this-name-already-exists");
 

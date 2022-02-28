@@ -81,7 +81,7 @@ public class FixedCommerceShippingEngine implements CommerceShippingEngine {
 		}
 		catch (PortalException portalException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(portalException, portalException);
+				_log.debug(portalException);
 			}
 		}
 
@@ -148,11 +148,12 @@ public class FixedCommerceShippingEngine implements CommerceShippingEngine {
 				continue;
 			}
 
+			String key = commerceShippingFixedOption.getKey();
 			String name = commerceShippingFixedOption.getName(locale);
 
 			if (_commerceShippingHelper.isFreeShipping(commerceOrder)) {
 				commerceShippingOptions.add(
-					new CommerceShippingOption(name, name, BigDecimal.ZERO));
+					new CommerceShippingOption(key, name, BigDecimal.ZERO));
 
 				continue;
 			}
@@ -185,7 +186,7 @@ public class FixedCommerceShippingEngine implements CommerceShippingEngine {
 			}
 
 			commerceShippingOptions.add(
-				new CommerceShippingOption(name, name, amount));
+				new CommerceShippingOption(key, name, amount));
 		}
 
 		return commerceShippingOptions;

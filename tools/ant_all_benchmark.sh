@@ -45,7 +45,7 @@ function main {
 
 	run_ant_all
 
-	echo "Run 2 without Gracle cache $(echo_time)"
+	echo "Run 2 without Gradle cache $(echo_time)"
 
 	run_ant_all
 

@@ -173,7 +173,7 @@ public class ViewChangesDisplayContext {
 					_language.get(
 						_httpServletRequest, "context-view-is-unavailable"));
 
-				_log.error(exception, exception);
+				_log.error(exception);
 			}
 		}
 
@@ -263,9 +263,6 @@ public class ViewChangesDisplayContext {
 		Set<Long> rootClassNameIds = _getRootClassNameIds(ctClosure);
 
 		return HashMapBuilder.<String, Object>put(
-			"activeCTCollection",
-			_ctCollection.getCtCollectionId() == _activeCTCollectionId
-		).put(
 			"changes",
 			() -> {
 				JSONArray changesJSONArray = JSONFactoryUtil.createJSONArray();
@@ -363,6 +360,9 @@ public class ViewChangesDisplayContext {
 			() -> {
 				ResourceURL dataURL = _renderResponse.createResourceURL();
 
+				dataURL.setParameter(
+					"activeCTCollectionId",
+					String.valueOf(_activeCTCollectionId));
 				dataURL.setParameter("localize", Boolean.TRUE.toString());
 				dataURL.setResourceID("/change_tracking/get_entry_render_data");
 

@@ -16,7 +16,7 @@ import {defaultLanguageId} from '../../../constants';
 import BaseNode from './BaseNode';
 
 export default function ConditionNode({
-	data: {description, label, newNode, script} = {},
+	data: {actions, description, label, newNode, script} = {},
 	descriptionSidebar,
 	id,
 	...otherProps
@@ -27,8 +27,13 @@ export default function ConditionNode({
 		};
 	}
 
+	if (!script) {
+		script = 'returnValue = "Transition Name"';
+	}
+
 	return (
 		<BaseNode
+			actions={actions}
 			className="condition-node"
 			description={description}
 			descriptionSidebar={descriptionSidebar}

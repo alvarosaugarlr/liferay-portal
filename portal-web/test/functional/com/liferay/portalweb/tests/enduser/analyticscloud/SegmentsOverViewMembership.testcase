@@ -41,8 +41,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8490 | Test Summary: Order a Dynamic Segment's Membership Preview Modal"
 	@priority = "3"
 	test OrderDynamicSegmentMembershipPreview {
-		property portal.upstream = "quarantine";
-
 		var usernameList = "user1,user2,user3";
 		var emailList = "user1@liferay.com,user2@liferay.com,user3@liferay.com";
 
@@ -85,7 +83,7 @@ definition {
 
 			ACSegments.createDynamicSegment();
 
-			ACSegments.nameSegment(segmentName = "Dynamic Segment Test");
+			ACUtils.setItemName(itemName = "Dynamic Segment Test");
 		}
 
 		task ("Add a criteria") {
@@ -147,7 +145,7 @@ definition {
 
 			ACSegments.createDynamicSegment();
 
-			ACSegments.nameSegment(segmentName = "Dynamic Segment Test");
+			ACUtils.setItemName(itemName = "Dynamic Segment Test");
 
 			ACSegments.goToSidebarAttributes(criterion = "Individual Attributes");
 
@@ -236,7 +234,7 @@ definition {
 
 			ACSegments.createDynamicSegment();
 
-			ACSegments.nameSegment(segmentName = "Dynamic Segment Test");
+			ACUtils.setItemName(itemName = "Dynamic Segment Test");
 
 			ACSegments.goToSidebarAttributes(criterion = "Individual Attributes");
 
@@ -326,7 +324,7 @@ definition {
 
 			ACSegments.createDynamicSegment();
 
-			ACSegments.nameSegment(segmentName = "Dynamic Segment Test");
+			ACUtils.setItemName(itemName = "Dynamic Segment Test");
 
 			ACSegments.includeAnonymous();
 
@@ -430,7 +428,7 @@ definition {
 
 			ACSegments.createStaticSegment();
 
-			ACSegments.nameSegment(segmentName = "Static Segment Test");
+			ACUtils.setItemName(itemName = "Static Segment Test");
 
 			ACSegments.addStaticMultiMember(tableMember = "${nameList}");
 

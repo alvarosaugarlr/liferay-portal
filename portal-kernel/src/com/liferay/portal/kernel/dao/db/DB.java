@@ -35,18 +35,6 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface DB {
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
-	 */
-	@Deprecated
-	public static final int BARE = 0;
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
-	 */
-	@Deprecated
-	public static final int DEFAULT = 1;
-
 	public static final int SQL_SIZE_NONE = -1;
 
 	public static final int SQL_VARCHAR_MAX_SIZE = Integer.MAX_VALUE;
@@ -54,32 +42,43 @@ public interface DB {
 	public static final int SQL_VARCHAR_MAX_SIZE_THRESHOLD = 9999999;
 
 	public void addIndexes(
+			Connection connection, List<IndexMetadata> indexMetadatas)
+		throws IOException, SQLException;
+
+	/**
+	 *   @deprecated As of Cavanaugh (7.4.x), replaced by {@link
+	 *          #addIndexes(Connection, List)}
+	 */
+	@Deprecated
+	public void addIndexes(
 			Connection connection, String indexesSQL,
 			Set<String> validIndexNames)
 		throws IOException;
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
-	 */
-	@Deprecated
-	public void buildCreateFile(String sqlDir, String databaseName)
-		throws IOException;
+	public void alterColumnName(
+			Connection connection, String tableName, String oldColumnName,
+			String newColumnDefinition)
+		throws Exception;
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
-	 */
-	@Deprecated
-	public void buildCreateFile(
-			String sqlDir, String databaseName, int population)
-		throws IOException;
+	public void alterColumnType(
+			Connection connection, String tableName, String columnName,
+			String newColumnType)
+		throws Exception;
+
+	public void alterTableAddColumn(
+			Connection connection, String tableName, String columnName,
+			String columnType)
+		throws Exception;
+
+	public void alterTableDropColumn(
+			Connection connection, String tableName, String columnName)
+		throws Exception;
 
 	public String buildSQL(String template) throws IOException, SQLException;
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
-	 */
-	@Deprecated
-	public void buildSQLFile(String sqlDir, String fileName) throws IOException;
+	public List<IndexMetadata> dropIndexes(
+			Connection connection, String tableName, String columnName)
+		throws IOException, SQLException;
 
 	public DBType getDBType();
 
@@ -98,6 +97,15 @@ public interface DB {
 
 	public String getPopulateSQL(String databaseName, String sqlContent);
 
+	public String[] getPrimaryKeyColumnNames(
+			Connection connection, String tableName)
+		throws SQLException;
+
+	/**
+	 *   @deprecated As of Cavanaugh (7.4.x), replaced by {@link
+	 *          #getPrimaryKeyColumnNames(Connection, String)}
+	 */
+	@Deprecated
 	public ResultSet getPrimaryKeysResultSet(
 			Connection connection, String tableName)
 		throws SQLException;
@@ -115,27 +123,6 @@ public interface DB {
 	public String getTemplateTrue();
 
 	public String getVersionString();
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             CounterLocalServiceUtil#increment()}
-	 */
-	@Deprecated
-	public long increment();
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             CounterLocalServiceUtil#increment(String)}
-	 */
-	@Deprecated
-	public long increment(String name);
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             CounterLocalServiceUtil#increment(String, int)}
-	 */
-	@Deprecated
-	public long increment(String name, int size);
 
 	public boolean isSupportsAlterColumnName();
 
@@ -157,6 +144,9 @@ public interface DB {
 
 	public void process(UnsafeConsumer<Long, Exception> unsafeConsumer)
 		throws Exception;
+
+	public void removePrimaryKey(Connection connection, String tableName)
+		throws IOException, SQLException;
 
 	public default void runSQL(
 			Connection connection, DBTypeToSQLMap dbTypeToSQLMap)
@@ -185,46 +175,11 @@ public interface DB {
 
 	public void runSQL(String[] sqls) throws IOException, SQLException;
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             DBProcess#runSQLTemplate(String)}
-	 */
-	@Deprecated
-	public void runSQLTemplate(String path)
-		throws IOException, NamingException, SQLException;
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             DBProcess#runSQLTemplate(String, boolean)}
-	 */
-	@Deprecated
-	public void runSQLTemplate(String path, boolean failOnError)
-		throws IOException, NamingException, SQLException;
-
 	public void runSQLTemplateString(
 			Connection connection, String template, boolean failOnError)
 		throws IOException, NamingException, SQLException;
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #runSQLTemplateString(Connection, String, boolean)}
-	 */
-	@Deprecated
-	public void runSQLTemplateString(
-			Connection connection, String template, boolean evaluate,
-			boolean failOnError)
-		throws IOException, NamingException, SQLException;
-
 	public void runSQLTemplateString(String template, boolean failOnError)
-		throws IOException, NamingException, SQLException;
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #runSQLTemplateString(String, boolean)}
-	 */
-	@Deprecated
-	public void runSQLTemplateString(
-			String template, boolean evaluate, boolean failOnError)
 		throws IOException, NamingException, SQLException;
 
 	public void setSupportsStringCaseSensitiveQuery(

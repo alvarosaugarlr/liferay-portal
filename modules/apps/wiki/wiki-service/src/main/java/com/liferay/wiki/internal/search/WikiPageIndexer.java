@@ -135,7 +135,7 @@ public class WikiPageIndexer
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 
 			return;
@@ -285,6 +285,9 @@ public class WikiPageIndexer
 				LocalizationUtil.getLocalizedName(Field.TITLE, languageId),
 				title);
 		}
+
+		document.addNumber(
+			"versionCount", GetterUtil.getDouble(wikiPage.getVersion()));
 
 		return document;
 	}

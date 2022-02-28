@@ -25,10 +25,11 @@ const csvFileContents = `currencyCode,type,name
     USD,site,My Channel 3
     USD,site,My Channel 4
 `;
+const fileSchema = ['currencyCode', 'type', 'name'];
 const jsonlFileContent = `{"currencyCode": "ciao", "type": 1, "name": "test"}`;
 const jsonFileContent = `[{"currencyCode": "ciao", "type": 1, "name": "test"}, {"currencyCode": "ciao", "type": 1, "name": "test"}, {"currencyCode": "ciao", "type": 1, "name": "test"}]`;
-const fileSchema = ['currencyCode', 'type', 'name'];
 const readAsText = jest.fn();
+
 let dummyFileReader;
 
 const onComplete = jest.fn();
@@ -55,6 +56,7 @@ describe('parseFile', () => {
 		});
 
 		file.name = 'test.csv';
+
 		const onProgressEvent = {
 			target: {
 				result: `currencyCode,ty`,
@@ -68,9 +70,14 @@ describe('parseFile', () => {
 		);
 
 		parseFile({
+			extension: 'csv',
 			file,
 			onComplete,
 			onError,
+			options: {
+				csvContainsHeaders: true,
+				csvSeparator: ',',
+			},
 		});
 
 		expect(onComplete).not.toBeCalledWith(fileSchema);
@@ -97,24 +104,37 @@ describe('parseFile', () => {
 		);
 
 		parseFile({
+			extension: 'csv',
 			file,
 			onComplete,
 			onError,
+			options: {
+				csvContainsHeaders: true,
+				csvSeparator: ',',
+			},
 		});
 
-		expect(onComplete).toBeCalledWith(fileSchema);
+		expect(onComplete).toBeCalledWith({
+			extension: 'csv',
+			schema: fileSchema,
+		});
 		expect(onError).not.toBeCalled();
 	});
 });
 
 describe('extractFieldsFromCSV', () => {
-	it('must correctly found file schema', () => {
-		expect(extractFieldsFromCSV(csvFileContents)).toStrictEqual(fileSchema);
+	it('must correctly find file schema', () => {
+		expect(
+			extractFieldsFromCSV(csvFileContents, {
+				csvContainsHeaders: true,
+				csvSeparator: ',',
+			})
+		).toStrictEqual(fileSchema);
 	});
 });
 
 describe('extractFieldsFromJSONL', () => {
-	it('must correctly found file schema', () => {
+	it('must correctly find file schema', () => {
 		expect(extractFieldsFromJSONL(jsonlFileContent)).toStrictEqual(
 			fileSchema
 		);
@@ -122,7 +142,7 @@ describe('extractFieldsFromJSONL', () => {
 });
 
 describe('extractFieldsFromJSON', () => {
-	it('must correctly found file schema', () => {
+	it('must correctly find file schema', () => {
 		expect(extractFieldsFromJSON(jsonFileContent)).toStrictEqual(
 			fileSchema
 		);

@@ -186,6 +186,7 @@ public class AddressCommerceCheckoutStepUtil {
 		throws Exception {
 
 		return _commerceOrderService.updateCommerceOrder(
+			commerceOrder.getExternalReferenceCode(),
 			commerceOrder.getCommerceOrderId(), billingAddressId,
 			shippingAddressId, commerceOrder.getCommercePaymentMethodKey(),
 			commerceOrder.getCommerceShippingMethodId(),

@@ -42,8 +42,10 @@ import com.liferay.commerce.product.service.CommerceChannelLocalService;
 import com.liferay.commerce.product.util.CPInstanceHelper;
 import com.liferay.commerce.service.CommerceOrderItemService;
 import com.liferay.commerce.service.CommerceOrderService;
+import com.liferay.commerce.term.service.CommerceTermEntryLocalService;
 import com.liferay.commerce.util.BaseCommerceCheckoutStep;
 import com.liferay.commerce.util.CommerceCheckoutStep;
+import com.liferay.commerce.util.CommerceShippingEngineRegistry;
 import com.liferay.commerce.util.CommerceShippingHelper;
 import com.liferay.frontend.taglib.servlet.taglib.util.JSPRenderer;
 import com.liferay.petra.string.StringPool;
@@ -147,9 +149,10 @@ public class OrderSummaryCommerceCheckoutStep extends BaseCommerceCheckoutStep {
 				new OrderSummaryCheckoutStepDisplayContext(
 					_commerceChannelLocalService, _commerceOrderHttpHelper,
 					_commerceOrderPriceCalculation,
-					_commerceOrderValidatorRegistry, _commercePaymentEngine,
-					_commerceProductPriceCalculation,
-					_commerceOptionValueHelper, _cpInstanceHelper,
+					_commerceOrderValidatorRegistry, _commerceOptionValueHelper,
+					_commercePaymentEngine, _commerceProductPriceCalculation,
+					_commerceShippingEngineRegistry,
+					_commerceTermEntryLocalService, _cpInstanceHelper,
 					httpServletRequest, _percentageFormatter, _portal);
 
 		CommerceOrder commerceOrder =
@@ -215,7 +218,7 @@ public class OrderSummaryCommerceCheckoutStep extends BaseCommerceCheckoutStep {
 				themeDisplay.getLocale(), commerceOrder);
 		}
 		catch (PortalException portalException) {
-			_log.error(portalException, portalException);
+			_log.error(portalException);
 
 			return false;
 		}
@@ -415,7 +418,13 @@ public class OrderSummaryCommerceCheckoutStep extends BaseCommerceCheckoutStep {
 	private CommerceProductPriceCalculation _commerceProductPriceCalculation;
 
 	@Reference
+	private CommerceShippingEngineRegistry _commerceShippingEngineRegistry;
+
+	@Reference
 	private CommerceShippingHelper _commerceShippingHelper;
+
+	@Reference
+	private CommerceTermEntryLocalService _commerceTermEntryLocalService;
 
 	@Reference
 	private ConfigurationProvider _configurationProvider;

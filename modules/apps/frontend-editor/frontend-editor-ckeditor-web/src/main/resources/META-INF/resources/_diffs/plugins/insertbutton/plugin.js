@@ -254,7 +254,7 @@
 				editor.liferayToolbars.insertToolbar?.hide();
 			};
 
-			const onFocusLoss = () => {
+			const onBlur = () => {
 				requestAnimationFrame(() => {
 					if (this._focusedEditorName !== editor.name) {
 						hide();
@@ -265,8 +265,8 @@
 			const eventListeners = [];
 
 			eventListeners.push(
-				button.on('blur', onFocusLoss),
-				editor.on('blur', onFocusLoss),
+				button.on('blur', onBlur),
+				editor.on('blur', onBlur),
 
 				button.on('click', (event) => {
 					event.cancel();
@@ -288,17 +288,6 @@
 				}),
 
 				editor.on('change', hide),
-
-				CKEDITOR.document.getWindow().on('click', (event) => {
-					const target = event.data.getTarget();
-
-					if (
-						!target.$.closest('.lfr-balloon-editor') &&
-						!target.equals(button)
-					) {
-						hide();
-					}
-				}),
 
 				editor.on('contentDom', () => {
 					const body = editor.document.getBody();

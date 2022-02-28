@@ -10,11 +10,12 @@
  */
 
 export * from './alertDownloadType';
-export * from './autoCloseDownloadAlertTime';
+export * from './autoCloseAlertTime';
 export * from './contentTypes';
 export * from './customEventTypes';
 export * from './extensionFileTypes';
 export * from './listTypes';
+export * from './menuTypes';
 export * from './pageTypes';
 export * from './productTypes';
 export * from './slaNames';

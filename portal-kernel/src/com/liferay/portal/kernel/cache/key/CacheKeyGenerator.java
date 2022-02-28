@@ -32,14 +32,6 @@ public interface CacheKeyGenerator extends Cloneable {
 		return append(sb.getStrings());
 	}
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #append(StringBundler)}
-	 */
-	@Deprecated
-	public CacheKeyGenerator append(
-		com.liferay.portal.kernel.util.StringBundler sb);
-
 	public CacheKeyGenerator clone();
 
 	public Serializable finish();
@@ -51,19 +43,5 @@ public interface CacheKeyGenerator extends Cloneable {
 	public default Serializable getCacheKey(StringBundler sb) {
 		return getCacheKey(sb.getStrings());
 	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #getCacheKey(StringBundler)}
-	 */
-	@Deprecated
-	public Serializable getCacheKey(
-		com.liferay.portal.kernel.util.StringBundler sb);
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), with no direct replacement
-	 */
-	@Deprecated
-	public boolean isCallingGetCacheKeyThreadSafe();
 
 }

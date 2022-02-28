@@ -16,7 +16,6 @@ package com.liferay.commerce.model.impl;
 
 import com.liferay.commerce.model.CommerceOrder;
 import com.liferay.commerce.model.CommerceOrderModel;
-import com.liferay.commerce.model.CommerceOrderSoap;
 import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
@@ -47,12 +46,10 @@ import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Types;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -94,8 +91,14 @@ public class CommerceOrderModelImpl
 		{"commerceShippingMethodId", Types.BIGINT},
 		{"shippingOptionName", Types.VARCHAR},
 		{"purchaseOrderNumber", Types.VARCHAR}, {"couponCode", Types.VARCHAR},
-		{"lastPriceUpdateDate", Types.TIMESTAMP}, {"subtotal", Types.DECIMAL},
-		{"subtotalDiscountAmount", Types.DECIMAL},
+		{"lastPriceUpdateDate", Types.TIMESTAMP},
+		{"deliveryCommerceTermEntryId", Types.BIGINT},
+		{"deliveryCTermEntryDescription", Types.CLOB},
+		{"deliveryCommerceTermEntryName", Types.VARCHAR},
+		{"paymentCommerceTermEntryId", Types.BIGINT},
+		{"paymentCTermEntryDescription", Types.CLOB},
+		{"paymentCommerceTermEntryName", Types.VARCHAR},
+		{"subtotal", Types.DECIMAL}, {"subtotalDiscountAmount", Types.DECIMAL},
 		{"subtotalDiscountPercentLevel1", Types.DECIMAL},
 		{"subtotalDiscountPercentLevel2", Types.DECIMAL},
 		{"subtotalDiscountPercentLevel3", Types.DECIMAL},
@@ -165,6 +168,12 @@ public class CommerceOrderModelImpl
 		TABLE_COLUMNS_MAP.put("purchaseOrderNumber", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("couponCode", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("lastPriceUpdateDate", Types.TIMESTAMP);
+		TABLE_COLUMNS_MAP.put("deliveryCommerceTermEntryId", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("deliveryCTermEntryDescription", Types.CLOB);
+		TABLE_COLUMNS_MAP.put("deliveryCommerceTermEntryName", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("paymentCommerceTermEntryId", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("paymentCTermEntryDescription", Types.CLOB);
+		TABLE_COLUMNS_MAP.put("paymentCommerceTermEntryName", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("subtotal", Types.DECIMAL);
 		TABLE_COLUMNS_MAP.put("subtotalDiscountAmount", Types.DECIMAL);
 		TABLE_COLUMNS_MAP.put("subtotalDiscountPercentLevel1", Types.DECIMAL);
@@ -216,7 +225,7 @@ public class CommerceOrderModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table CommerceOrder (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,externalReferenceCode VARCHAR(75) null,commerceOrderId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,commerceAccountId LONG,commerceCurrencyId LONG,commerceOrderTypeId LONG,billingAddressId LONG,shippingAddressId LONG,commercePaymentMethodKey VARCHAR(75) null,transactionId TEXT null,commerceShippingMethodId LONG,shippingOptionName VARCHAR(255) null,purchaseOrderNumber VARCHAR(75) null,couponCode VARCHAR(75) null,lastPriceUpdateDate DATE null,subtotal DECIMAL(30, 16) null,subtotalDiscountAmount DECIMAL(30, 16) null,subtotalDiscountPercentLevel1 DECIMAL(30, 16) null,subtotalDiscountPercentLevel2 DECIMAL(30, 16) null,subtotalDiscountPercentLevel3 DECIMAL(30, 16) null,subtotalDiscountPercentLevel4 DECIMAL(30, 16) null,shippingAmount DECIMAL(30, 16) null,shippingDiscountAmount DECIMAL(30, 16) null,shippingDiscountPercentLevel1 DECIMAL(30, 16) null,shippingDiscountPercentLevel2 DECIMAL(30, 16) null,shippingDiscountPercentLevel3 DECIMAL(30, 16) null,shippingDiscountPercentLevel4 DECIMAL(30, 16) null,taxAmount DECIMAL(30, 16) null,total DECIMAL(30, 16) null,totalDiscountAmount DECIMAL(30, 16) null,totalDiscountPercentageLevel1 DECIMAL(30, 16) null,totalDiscountPercentageLevel2 DECIMAL(30, 16) null,totalDiscountPercentageLevel3 DECIMAL(30, 16) null,totalDiscountPercentageLevel4 DECIMAL(30, 16) null,subtotalWithTaxAmount DECIMAL(30, 16) null,subtotalDiscountWithTaxAmount DECIMAL(30, 16) null,subtotalDiscountPctLev1WithTax DECIMAL(30, 16) null,subtotalDiscountPctLev2WithTax DECIMAL(30, 16) null,subtotalDiscountPctLev3WithTax DECIMAL(30, 16) null,subtotalDiscountPctLev4WithTax DECIMAL(30, 16) null,shippingWithTaxAmount DECIMAL(30, 16) null,shippingDiscountWithTaxAmount DECIMAL(30, 16) null,shippingDiscountPctLev1WithTax DECIMAL(30, 16) null,shippingDiscountPctLev2WithTax DECIMAL(30, 16) null,shippingDiscountPctLev3WithTax DECIMAL(30, 16) null,shippingDiscountPctLev4WithTax DECIMAL(30, 16) null,totalWithTaxAmount DECIMAL(30, 16) null,totalDiscountWithTaxAmount DECIMAL(30, 16) null,totalDiscountPctLev1WithTax DECIMAL(30, 16) null,totalDiscountPctLev2WithTax DECIMAL(30, 16) null,totalDiscountPctLev3WithTax DECIMAL(30, 16) null,totalDiscountPctLev4WithTax DECIMAL(30, 16) null,advanceStatus VARCHAR(75) null,paymentStatus INTEGER,orderDate DATE null,orderStatus INTEGER,printedNote STRING null,requestedDeliveryDate DATE null,manuallyAdjusted BOOLEAN,status INTEGER,statusByUserId LONG,statusByUserName VARCHAR(75) null,statusDate DATE null)";
+		"create table CommerceOrder (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,externalReferenceCode VARCHAR(75) null,commerceOrderId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,commerceAccountId LONG,commerceCurrencyId LONG,commerceOrderTypeId LONG,billingAddressId LONG,shippingAddressId LONG,commercePaymentMethodKey VARCHAR(75) null,transactionId TEXT null,commerceShippingMethodId LONG,shippingOptionName VARCHAR(255) null,purchaseOrderNumber VARCHAR(75) null,couponCode VARCHAR(75) null,lastPriceUpdateDate DATE null,deliveryCommerceTermEntryId LONG,deliveryCTermEntryDescription TEXT null,deliveryCommerceTermEntryName VARCHAR(75) null,paymentCommerceTermEntryId LONG,paymentCTermEntryDescription TEXT null,paymentCommerceTermEntryName VARCHAR(75) null,subtotal DECIMAL(30, 16) null,subtotalDiscountAmount DECIMAL(30, 16) null,subtotalDiscountPercentLevel1 DECIMAL(30, 16) null,subtotalDiscountPercentLevel2 DECIMAL(30, 16) null,subtotalDiscountPercentLevel3 DECIMAL(30, 16) null,subtotalDiscountPercentLevel4 DECIMAL(30, 16) null,shippingAmount DECIMAL(30, 16) null,shippingDiscountAmount DECIMAL(30, 16) null,shippingDiscountPercentLevel1 DECIMAL(30, 16) null,shippingDiscountPercentLevel2 DECIMAL(30, 16) null,shippingDiscountPercentLevel3 DECIMAL(30, 16) null,shippingDiscountPercentLevel4 DECIMAL(30, 16) null,taxAmount DECIMAL(30, 16) null,total DECIMAL(30, 16) null,totalDiscountAmount DECIMAL(30, 16) null,totalDiscountPercentageLevel1 DECIMAL(30, 16) null,totalDiscountPercentageLevel2 DECIMAL(30, 16) null,totalDiscountPercentageLevel3 DECIMAL(30, 16) null,totalDiscountPercentageLevel4 DECIMAL(30, 16) null,subtotalWithTaxAmount DECIMAL(30, 16) null,subtotalDiscountWithTaxAmount DECIMAL(30, 16) null,subtotalDiscountPctLev1WithTax DECIMAL(30, 16) null,subtotalDiscountPctLev2WithTax DECIMAL(30, 16) null,subtotalDiscountPctLev3WithTax DECIMAL(30, 16) null,subtotalDiscountPctLev4WithTax DECIMAL(30, 16) null,shippingWithTaxAmount DECIMAL(30, 16) null,shippingDiscountWithTaxAmount DECIMAL(30, 16) null,shippingDiscountPctLev1WithTax DECIMAL(30, 16) null,shippingDiscountPctLev2WithTax DECIMAL(30, 16) null,shippingDiscountPctLev3WithTax DECIMAL(30, 16) null,shippingDiscountPctLev4WithTax DECIMAL(30, 16) null,totalWithTaxAmount DECIMAL(30, 16) null,totalDiscountWithTaxAmount DECIMAL(30, 16) null,totalDiscountPctLev1WithTax DECIMAL(30, 16) null,totalDiscountPctLev2WithTax DECIMAL(30, 16) null,totalDiscountPctLev3WithTax DECIMAL(30, 16) null,totalDiscountPctLev4WithTax DECIMAL(30, 16) null,advanceStatus VARCHAR(75) null,paymentStatus INTEGER,orderDate DATE null,orderStatus INTEGER,printedNote STRING null,requestedDeliveryDate DATE null,manuallyAdjusted BOOLEAN,status INTEGER,statusByUserId LONG,statusByUserName VARCHAR(75) null,statusDate DATE null)";
 
 	public static final String TABLE_SQL_DROP = "drop table CommerceOrder";
 
@@ -252,147 +261,6 @@ public class CommerceOrderModelImpl
 		com.liferay.commerce.service.util.ServiceProps.get(
 			"value.object.column.bitmask.enabled.com.liferay.commerce.model.CommerceOrder"),
 		true);
-
-	/**
-	 * Converts the soap model instance into a normal model instance.
-	 *
-	 * @param soapModel the soap model instance to convert
-	 * @return the normal model instance
-	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
-	 */
-	@Deprecated
-	public static CommerceOrder toModel(CommerceOrderSoap soapModel) {
-		if (soapModel == null) {
-			return null;
-		}
-
-		CommerceOrder model = new CommerceOrderImpl();
-
-		model.setMvccVersion(soapModel.getMvccVersion());
-		model.setUuid(soapModel.getUuid());
-		model.setExternalReferenceCode(soapModel.getExternalReferenceCode());
-		model.setCommerceOrderId(soapModel.getCommerceOrderId());
-		model.setGroupId(soapModel.getGroupId());
-		model.setCompanyId(soapModel.getCompanyId());
-		model.setUserId(soapModel.getUserId());
-		model.setUserName(soapModel.getUserName());
-		model.setCreateDate(soapModel.getCreateDate());
-		model.setModifiedDate(soapModel.getModifiedDate());
-		model.setCommerceAccountId(soapModel.getCommerceAccountId());
-		model.setCommerceCurrencyId(soapModel.getCommerceCurrencyId());
-		model.setCommerceOrderTypeId(soapModel.getCommerceOrderTypeId());
-		model.setBillingAddressId(soapModel.getBillingAddressId());
-		model.setShippingAddressId(soapModel.getShippingAddressId());
-		model.setCommercePaymentMethodKey(
-			soapModel.getCommercePaymentMethodKey());
-		model.setTransactionId(soapModel.getTransactionId());
-		model.setCommerceShippingMethodId(
-			soapModel.getCommerceShippingMethodId());
-		model.setShippingOptionName(soapModel.getShippingOptionName());
-		model.setPurchaseOrderNumber(soapModel.getPurchaseOrderNumber());
-		model.setCouponCode(soapModel.getCouponCode());
-		model.setLastPriceUpdateDate(soapModel.getLastPriceUpdateDate());
-		model.setSubtotal(soapModel.getSubtotal());
-		model.setSubtotalDiscountAmount(soapModel.getSubtotalDiscountAmount());
-		model.setSubtotalDiscountPercentageLevel1(
-			soapModel.getSubtotalDiscountPercentageLevel1());
-		model.setSubtotalDiscountPercentageLevel2(
-			soapModel.getSubtotalDiscountPercentageLevel2());
-		model.setSubtotalDiscountPercentageLevel3(
-			soapModel.getSubtotalDiscountPercentageLevel3());
-		model.setSubtotalDiscountPercentageLevel4(
-			soapModel.getSubtotalDiscountPercentageLevel4());
-		model.setShippingAmount(soapModel.getShippingAmount());
-		model.setShippingDiscountAmount(soapModel.getShippingDiscountAmount());
-		model.setShippingDiscountPercentageLevel1(
-			soapModel.getShippingDiscountPercentageLevel1());
-		model.setShippingDiscountPercentageLevel2(
-			soapModel.getShippingDiscountPercentageLevel2());
-		model.setShippingDiscountPercentageLevel3(
-			soapModel.getShippingDiscountPercentageLevel3());
-		model.setShippingDiscountPercentageLevel4(
-			soapModel.getShippingDiscountPercentageLevel4());
-		model.setTaxAmount(soapModel.getTaxAmount());
-		model.setTotal(soapModel.getTotal());
-		model.setTotalDiscountAmount(soapModel.getTotalDiscountAmount());
-		model.setTotalDiscountPercentageLevel1(
-			soapModel.getTotalDiscountPercentageLevel1());
-		model.setTotalDiscountPercentageLevel2(
-			soapModel.getTotalDiscountPercentageLevel2());
-		model.setTotalDiscountPercentageLevel3(
-			soapModel.getTotalDiscountPercentageLevel3());
-		model.setTotalDiscountPercentageLevel4(
-			soapModel.getTotalDiscountPercentageLevel4());
-		model.setSubtotalWithTaxAmount(soapModel.getSubtotalWithTaxAmount());
-		model.setSubtotalDiscountWithTaxAmount(
-			soapModel.getSubtotalDiscountWithTaxAmount());
-		model.setSubtotalDiscountPercentageLevel1WithTaxAmount(
-			soapModel.getSubtotalDiscountPercentageLevel1WithTaxAmount());
-		model.setSubtotalDiscountPercentageLevel2WithTaxAmount(
-			soapModel.getSubtotalDiscountPercentageLevel2WithTaxAmount());
-		model.setSubtotalDiscountPercentageLevel3WithTaxAmount(
-			soapModel.getSubtotalDiscountPercentageLevel3WithTaxAmount());
-		model.setSubtotalDiscountPercentageLevel4WithTaxAmount(
-			soapModel.getSubtotalDiscountPercentageLevel4WithTaxAmount());
-		model.setShippingWithTaxAmount(soapModel.getShippingWithTaxAmount());
-		model.setShippingDiscountWithTaxAmount(
-			soapModel.getShippingDiscountWithTaxAmount());
-		model.setShippingDiscountPercentageLevel1WithTaxAmount(
-			soapModel.getShippingDiscountPercentageLevel1WithTaxAmount());
-		model.setShippingDiscountPercentageLevel2WithTaxAmount(
-			soapModel.getShippingDiscountPercentageLevel2WithTaxAmount());
-		model.setShippingDiscountPercentageLevel3WithTaxAmount(
-			soapModel.getShippingDiscountPercentageLevel3WithTaxAmount());
-		model.setShippingDiscountPercentageLevel4WithTaxAmount(
-			soapModel.getShippingDiscountPercentageLevel4WithTaxAmount());
-		model.setTotalWithTaxAmount(soapModel.getTotalWithTaxAmount());
-		model.setTotalDiscountWithTaxAmount(
-			soapModel.getTotalDiscountWithTaxAmount());
-		model.setTotalDiscountPercentageLevel1WithTaxAmount(
-			soapModel.getTotalDiscountPercentageLevel1WithTaxAmount());
-		model.setTotalDiscountPercentageLevel2WithTaxAmount(
-			soapModel.getTotalDiscountPercentageLevel2WithTaxAmount());
-		model.setTotalDiscountPercentageLevel3WithTaxAmount(
-			soapModel.getTotalDiscountPercentageLevel3WithTaxAmount());
-		model.setTotalDiscountPercentageLevel4WithTaxAmount(
-			soapModel.getTotalDiscountPercentageLevel4WithTaxAmount());
-		model.setAdvanceStatus(soapModel.getAdvanceStatus());
-		model.setPaymentStatus(soapModel.getPaymentStatus());
-		model.setOrderDate(soapModel.getOrderDate());
-		model.setOrderStatus(soapModel.getOrderStatus());
-		model.setPrintedNote(soapModel.getPrintedNote());
-		model.setRequestedDeliveryDate(soapModel.getRequestedDeliveryDate());
-		model.setManuallyAdjusted(soapModel.isManuallyAdjusted());
-		model.setStatus(soapModel.getStatus());
-		model.setStatusByUserId(soapModel.getStatusByUserId());
-		model.setStatusByUserName(soapModel.getStatusByUserName());
-		model.setStatusDate(soapModel.getStatusDate());
-
-		return model;
-	}
-
-	/**
-	 * Converts the soap model instances into normal model instances.
-	 *
-	 * @param soapModels the soap model instances to convert
-	 * @return the normal model instances
-	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
-	 */
-	@Deprecated
-	public static List<CommerceOrder> toModels(CommerceOrderSoap[] soapModels) {
-		if (soapModels == null) {
-			return null;
-		}
-
-		List<CommerceOrder> models = new ArrayList<CommerceOrder>(
-			soapModels.length);
-
-		for (CommerceOrderSoap soapModel : soapModels) {
-			models.add(toModel(soapModel));
-		}
-
-		return models;
-	}
 
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(
 		com.liferay.commerce.service.util.ServiceProps.get(
@@ -639,6 +507,48 @@ public class CommerceOrderModelImpl
 			"lastPriceUpdateDate",
 			(BiConsumer<CommerceOrder, Date>)
 				CommerceOrder::setLastPriceUpdateDate);
+		attributeGetterFunctions.put(
+			"deliveryCommerceTermEntryId",
+			CommerceOrder::getDeliveryCommerceTermEntryId);
+		attributeSetterBiConsumers.put(
+			"deliveryCommerceTermEntryId",
+			(BiConsumer<CommerceOrder, Long>)
+				CommerceOrder::setDeliveryCommerceTermEntryId);
+		attributeGetterFunctions.put(
+			"deliveryCommerceTermEntryDescription",
+			CommerceOrder::getDeliveryCommerceTermEntryDescription);
+		attributeSetterBiConsumers.put(
+			"deliveryCommerceTermEntryDescription",
+			(BiConsumer<CommerceOrder, String>)
+				CommerceOrder::setDeliveryCommerceTermEntryDescription);
+		attributeGetterFunctions.put(
+			"deliveryCommerceTermEntryName",
+			CommerceOrder::getDeliveryCommerceTermEntryName);
+		attributeSetterBiConsumers.put(
+			"deliveryCommerceTermEntryName",
+			(BiConsumer<CommerceOrder, String>)
+				CommerceOrder::setDeliveryCommerceTermEntryName);
+		attributeGetterFunctions.put(
+			"paymentCommerceTermEntryId",
+			CommerceOrder::getPaymentCommerceTermEntryId);
+		attributeSetterBiConsumers.put(
+			"paymentCommerceTermEntryId",
+			(BiConsumer<CommerceOrder, Long>)
+				CommerceOrder::setPaymentCommerceTermEntryId);
+		attributeGetterFunctions.put(
+			"paymentCommerceTermEntryDescription",
+			CommerceOrder::getPaymentCommerceTermEntryDescription);
+		attributeSetterBiConsumers.put(
+			"paymentCommerceTermEntryDescription",
+			(BiConsumer<CommerceOrder, String>)
+				CommerceOrder::setPaymentCommerceTermEntryDescription);
+		attributeGetterFunctions.put(
+			"paymentCommerceTermEntryName",
+			CommerceOrder::getPaymentCommerceTermEntryName);
+		attributeSetterBiConsumers.put(
+			"paymentCommerceTermEntryName",
+			(BiConsumer<CommerceOrder, String>)
+				CommerceOrder::setPaymentCommerceTermEntryName);
 		attributeGetterFunctions.put("subtotal", CommerceOrder::getSubtotal);
 		attributeSetterBiConsumers.put(
 			"subtotal",
@@ -1438,6 +1348,128 @@ public class CommerceOrderModelImpl
 		}
 
 		_lastPriceUpdateDate = lastPriceUpdateDate;
+	}
+
+	@JSON
+	@Override
+	public long getDeliveryCommerceTermEntryId() {
+		return _deliveryCommerceTermEntryId;
+	}
+
+	@Override
+	public void setDeliveryCommerceTermEntryId(
+		long deliveryCommerceTermEntryId) {
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_deliveryCommerceTermEntryId = deliveryCommerceTermEntryId;
+	}
+
+	@JSON
+	@Override
+	public String getDeliveryCommerceTermEntryDescription() {
+		if (_deliveryCommerceTermEntryDescription == null) {
+			return "";
+		}
+		else {
+			return _deliveryCommerceTermEntryDescription;
+		}
+	}
+
+	@Override
+	public void setDeliveryCommerceTermEntryDescription(
+		String deliveryCommerceTermEntryDescription) {
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_deliveryCommerceTermEntryDescription =
+			deliveryCommerceTermEntryDescription;
+	}
+
+	@JSON
+	@Override
+	public String getDeliveryCommerceTermEntryName() {
+		if (_deliveryCommerceTermEntryName == null) {
+			return "";
+		}
+		else {
+			return _deliveryCommerceTermEntryName;
+		}
+	}
+
+	@Override
+	public void setDeliveryCommerceTermEntryName(
+		String deliveryCommerceTermEntryName) {
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_deliveryCommerceTermEntryName = deliveryCommerceTermEntryName;
+	}
+
+	@JSON
+	@Override
+	public long getPaymentCommerceTermEntryId() {
+		return _paymentCommerceTermEntryId;
+	}
+
+	@Override
+	public void setPaymentCommerceTermEntryId(long paymentCommerceTermEntryId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_paymentCommerceTermEntryId = paymentCommerceTermEntryId;
+	}
+
+	@JSON
+	@Override
+	public String getPaymentCommerceTermEntryDescription() {
+		if (_paymentCommerceTermEntryDescription == null) {
+			return "";
+		}
+		else {
+			return _paymentCommerceTermEntryDescription;
+		}
+	}
+
+	@Override
+	public void setPaymentCommerceTermEntryDescription(
+		String paymentCommerceTermEntryDescription) {
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_paymentCommerceTermEntryDescription =
+			paymentCommerceTermEntryDescription;
+	}
+
+	@JSON
+	@Override
+	public String getPaymentCommerceTermEntryName() {
+		if (_paymentCommerceTermEntryName == null) {
+			return "";
+		}
+		else {
+			return _paymentCommerceTermEntryName;
+		}
+	}
+
+	@Override
+	public void setPaymentCommerceTermEntryName(
+		String paymentCommerceTermEntryName) {
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_paymentCommerceTermEntryName = paymentCommerceTermEntryName;
 	}
 
 	@JSON
@@ -2415,6 +2447,18 @@ public class CommerceOrderModelImpl
 		commerceOrderImpl.setPurchaseOrderNumber(getPurchaseOrderNumber());
 		commerceOrderImpl.setCouponCode(getCouponCode());
 		commerceOrderImpl.setLastPriceUpdateDate(getLastPriceUpdateDate());
+		commerceOrderImpl.setDeliveryCommerceTermEntryId(
+			getDeliveryCommerceTermEntryId());
+		commerceOrderImpl.setDeliveryCommerceTermEntryDescription(
+			getDeliveryCommerceTermEntryDescription());
+		commerceOrderImpl.setDeliveryCommerceTermEntryName(
+			getDeliveryCommerceTermEntryName());
+		commerceOrderImpl.setPaymentCommerceTermEntryId(
+			getPaymentCommerceTermEntryId());
+		commerceOrderImpl.setPaymentCommerceTermEntryDescription(
+			getPaymentCommerceTermEntryDescription());
+		commerceOrderImpl.setPaymentCommerceTermEntryName(
+			getPaymentCommerceTermEntryName());
 		commerceOrderImpl.setSubtotal(getSubtotal());
 		commerceOrderImpl.setSubtotalDiscountAmount(
 			getSubtotalDiscountAmount());
@@ -2545,6 +2589,22 @@ public class CommerceOrderModelImpl
 			this.<String>getColumnOriginalValue("couponCode"));
 		commerceOrderImpl.setLastPriceUpdateDate(
 			this.<Date>getColumnOriginalValue("lastPriceUpdateDate"));
+		commerceOrderImpl.setDeliveryCommerceTermEntryId(
+			this.<Long>getColumnOriginalValue("deliveryCommerceTermEntryId"));
+		commerceOrderImpl.setDeliveryCommerceTermEntryDescription(
+			this.<String>getColumnOriginalValue(
+				"deliveryCTermEntryDescription"));
+		commerceOrderImpl.setDeliveryCommerceTermEntryName(
+			this.<String>getColumnOriginalValue(
+				"deliveryCommerceTermEntryName"));
+		commerceOrderImpl.setPaymentCommerceTermEntryId(
+			this.<Long>getColumnOriginalValue("paymentCommerceTermEntryId"));
+		commerceOrderImpl.setPaymentCommerceTermEntryDescription(
+			this.<String>getColumnOriginalValue(
+				"paymentCTermEntryDescription"));
+		commerceOrderImpl.setPaymentCommerceTermEntryName(
+			this.<String>getColumnOriginalValue(
+				"paymentCommerceTermEntryName"));
 		commerceOrderImpl.setSubtotal(
 			this.<BigDecimal>getColumnOriginalValue("subtotal"));
 		commerceOrderImpl.setSubtotalDiscountAmount(
@@ -2871,6 +2931,60 @@ public class CommerceOrderModelImpl
 			commerceOrderCacheModel.lastPriceUpdateDate = Long.MIN_VALUE;
 		}
 
+		commerceOrderCacheModel.deliveryCommerceTermEntryId =
+			getDeliveryCommerceTermEntryId();
+
+		commerceOrderCacheModel.deliveryCommerceTermEntryDescription =
+			getDeliveryCommerceTermEntryDescription();
+
+		String deliveryCommerceTermEntryDescription =
+			commerceOrderCacheModel.deliveryCommerceTermEntryDescription;
+
+		if ((deliveryCommerceTermEntryDescription != null) &&
+			(deliveryCommerceTermEntryDescription.length() == 0)) {
+
+			commerceOrderCacheModel.deliveryCommerceTermEntryDescription = null;
+		}
+
+		commerceOrderCacheModel.deliveryCommerceTermEntryName =
+			getDeliveryCommerceTermEntryName();
+
+		String deliveryCommerceTermEntryName =
+			commerceOrderCacheModel.deliveryCommerceTermEntryName;
+
+		if ((deliveryCommerceTermEntryName != null) &&
+			(deliveryCommerceTermEntryName.length() == 0)) {
+
+			commerceOrderCacheModel.deliveryCommerceTermEntryName = null;
+		}
+
+		commerceOrderCacheModel.paymentCommerceTermEntryId =
+			getPaymentCommerceTermEntryId();
+
+		commerceOrderCacheModel.paymentCommerceTermEntryDescription =
+			getPaymentCommerceTermEntryDescription();
+
+		String paymentCommerceTermEntryDescription =
+			commerceOrderCacheModel.paymentCommerceTermEntryDescription;
+
+		if ((paymentCommerceTermEntryDescription != null) &&
+			(paymentCommerceTermEntryDescription.length() == 0)) {
+
+			commerceOrderCacheModel.paymentCommerceTermEntryDescription = null;
+		}
+
+		commerceOrderCacheModel.paymentCommerceTermEntryName =
+			getPaymentCommerceTermEntryName();
+
+		String paymentCommerceTermEntryName =
+			commerceOrderCacheModel.paymentCommerceTermEntryName;
+
+		if ((paymentCommerceTermEntryName != null) &&
+			(paymentCommerceTermEntryName.length() == 0)) {
+
+			commerceOrderCacheModel.paymentCommerceTermEntryName = null;
+		}
+
 		commerceOrderCacheModel.subtotal = getSubtotal();
 
 		commerceOrderCacheModel.subtotalDiscountAmount =
@@ -3151,6 +3265,12 @@ public class CommerceOrderModelImpl
 	private String _purchaseOrderNumber;
 	private String _couponCode;
 	private Date _lastPriceUpdateDate;
+	private long _deliveryCommerceTermEntryId;
+	private String _deliveryCommerceTermEntryDescription;
+	private String _deliveryCommerceTermEntryName;
+	private long _paymentCommerceTermEntryId;
+	private String _paymentCommerceTermEntryDescription;
+	private String _paymentCommerceTermEntryName;
 	private BigDecimal _subtotal;
 	private BigDecimal _subtotalDiscountAmount;
 	private BigDecimal _subtotalDiscountPercentageLevel1;
@@ -3254,6 +3374,20 @@ public class CommerceOrderModelImpl
 		_columnOriginalValues.put("purchaseOrderNumber", _purchaseOrderNumber);
 		_columnOriginalValues.put("couponCode", _couponCode);
 		_columnOriginalValues.put("lastPriceUpdateDate", _lastPriceUpdateDate);
+		_columnOriginalValues.put(
+			"deliveryCommerceTermEntryId", _deliveryCommerceTermEntryId);
+		_columnOriginalValues.put(
+			"deliveryCTermEntryDescription",
+			_deliveryCommerceTermEntryDescription);
+		_columnOriginalValues.put(
+			"deliveryCommerceTermEntryName", _deliveryCommerceTermEntryName);
+		_columnOriginalValues.put(
+			"paymentCommerceTermEntryId", _paymentCommerceTermEntryId);
+		_columnOriginalValues.put(
+			"paymentCTermEntryDescription",
+			_paymentCommerceTermEntryDescription);
+		_columnOriginalValues.put(
+			"paymentCommerceTermEntryName", _paymentCommerceTermEntryName);
 		_columnOriginalValues.put("subtotal", _subtotal);
 		_columnOriginalValues.put(
 			"subtotalDiscountAmount", _subtotalDiscountAmount);
@@ -3354,6 +3488,12 @@ public class CommerceOrderModelImpl
 		Map<String, String> attributeNames = new HashMap<>();
 
 		attributeNames.put("uuid_", "uuid");
+		attributeNames.put(
+			"deliveryCTermEntryDescription",
+			"deliveryCommerceTermEntryDescription");
+		attributeNames.put(
+			"paymentCTermEntryDescription",
+			"paymentCommerceTermEntryDescription");
 		attributeNames.put(
 			"subtotalDiscountPercentLevel1",
 			"subtotalDiscountPercentageLevel1");

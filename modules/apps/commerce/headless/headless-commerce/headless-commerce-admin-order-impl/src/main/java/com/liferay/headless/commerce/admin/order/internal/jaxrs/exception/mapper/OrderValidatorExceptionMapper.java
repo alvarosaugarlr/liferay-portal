@@ -39,7 +39,7 @@ import org.osgi.service.component.annotations.Component;
 	property = {
 		"osgi.jaxrs.application.select=(osgi.jaxrs.name=Liferay.Headless.Commerce.Admin.Order)",
 		"osgi.jaxrs.extension=true",
-		"osgi.jaxrs.name=Liferay.Headless.Commerce.Admin.Order.OrderValidatorException"
+		"osgi.jaxrs.name=Liferay.Headless.Commerce.Admin.Order.OrderValidatorExceptionMapper"
 	},
 	service = ExceptionMapper.class
 )
@@ -61,7 +61,10 @@ public class OrderValidatorExceptionMapper
 	public Response toResponse(
 		CommerceOrderValidatorException commerceOrderValidatorException) {
 
-		_log.error("General REST exception", commerceOrderValidatorException);
+		if (_log.isDebugEnabled()) {
+			_log.debug(
+				"General REST exception", commerceOrderValidatorException);
+		}
 
 		Response.ResponseBuilder responseBuilder = Response.status(getStatus());
 

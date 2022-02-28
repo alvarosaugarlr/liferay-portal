@@ -120,7 +120,6 @@
 		<Logger level="WARN" name="com.liferay.portal.language.LanguageResources" />
 		<Logger level="ERROR" name="com.liferay.portal.lar" />
 		<Logger level="INFO" name="com.liferay.portal.license" />
-		<Logger level="WARN" name="com.liferay.portal.metadata.TikaRawMetadataProcessor" />
 		<Logger level="ERROR" name="com.liferay.portal.microsofttranslator" />
 		<Logger level="ERROR" name="com.liferay.portal.model.DefaultModelHintsImpl" />
 		<Logger level="WARN" name="com.liferay.portal.patcher.PatcherImpl" />
@@ -263,7 +262,6 @@
 		<Logger level="ERROR" name="net.sf.ehcache.config.DiskStoreConfiguration" />
 		<Logger level="ERROR" name="net.sf.hibernate" />
 		<Logger level="WARN" name="org.apache.aries.jax.rs.whiteboard.activator.CxfJaxrsBundleActivator" />
-		<Logger level="INFO" name="org.apache.axis" />
 		<Logger level="ERROR" name="org.apache.chemistry.opencmis.client.bindings.spi.atompub.HttpUtils" />
 		<Logger level="ERROR" name="org.apache.commons.beanutils" />
 		<Logger level="ERROR" name="org.apache.commons.digester" />

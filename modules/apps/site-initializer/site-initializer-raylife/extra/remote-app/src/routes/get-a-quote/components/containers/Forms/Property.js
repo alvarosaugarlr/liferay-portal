@@ -12,24 +12,29 @@
  * details.
  */
 
-import React, {useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {useFormContext} from 'react-hook-form';
 import {NumberControlledInput} from '../../../../../common/components/connectors/Controlled/Input/Number';
 import {SquareFeatControlledInput} from '../../../../../common/components/connectors/Controlled/Input/WithMask/SquareFeet';
 import {YearControlledInput} from '../../../../../common/components/connectors/Controlled/Input/WithMask/Year';
 import {ControlledSwitch} from '../../../../../common/components/connectors/Controlled/Switch';
 import {TIP_EVENT} from '../../../../../common/utils/events';
+import {ActionTypes, AppContext} from '../../../context/AppContextProvider';
 import useMobileContainer from '../../../hooks/useMobileContainer';
 import {useTriggerContext} from '../../../hooks/useTriggerContext';
-import {SUBSECTION_KEYS} from '../../../utils/constants';
+import {AVAILABLE_STEPS, SUBSECTION_KEYS} from '../../../utils/constants';
 import {isHabitational, isThereSwimming} from '../../../utils/propertyFields';
 import MobileContainer from '../../mobile/MobileContainer';
 
 const setFormPath = (value) => `property.${value}`;
 
 export function FormProperty({form}) {
+	const {isSelected, updateState} = useTriggerContext();
 	const {control, getValues, setValue} = useFormContext();
 
+	const {dispatch} = useContext(AppContext);
+
+	const properties = form?.basics?.properties;
 	const {
 		getMobileSubSection,
 		mobileContainerProps,
@@ -45,10 +50,36 @@ export function FormProperty({form}) {
 	};
 	useEffect(() => {
 		forceValidation();
+
+		if (!isHabitational(form?.basics?.properties?.segment.toLowerCase())) {
+			AVAILABLE_STEPS.PROPERTY.mobileSubSections.map(
+				(mobileSubSection) => {
+					if (
+						mobileSubSection.title ===
+						SUBSECTION_KEYS.PRIMARY_LOCATION
+					) {
+						mobileSubSection.hideContinueButton = false;
+					}
+				}
+			);
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const {isSelected, updateState} = useTriggerContext();
+	useEffect(() => {
+		const getPropertyNameIfNotValid = (isValid, propertyName) =>
+			isValid ? '' : propertyName;
+
+		dispatch({
+			payload: [
+				getPropertyNameIfNotValid(
+					isHabitational(properties?.segment.toLowerCase()),
+					SUBSECTION_KEYS.PREMISES
+				),
+			].filter(Boolean),
+			type: ActionTypes.SET_MOBILE_SUBSECTION_DISABLE,
+		});
+	}, [dispatch, properties]);
 
 	return (
 		<div className="card-content">
@@ -171,12 +202,12 @@ export function FormProperty({form}) {
 			<MobileContainer
 				{...mobileContainerProps}
 				mobileSubSection={getMobileSubSection(
-					SUBSECTION_KEYS.IS_THIS_THE_PRIMARY_LOCATION
+					SUBSECTION_KEYS.PRIMARY_LOCATION
 				)}
 			>
 				<ControlledSwitch
 					control={control}
-					label={SUBSECTION_KEYS.IS_THIS_THE_PRIMARY_LOCATION}
+					label={SUBSECTION_KEYS.PRIMARY_LOCATION}
 					moreInfoProps={{
 						callback: () =>
 							updateState(
@@ -193,6 +224,13 @@ export function FormProperty({form}) {
 						},
 					}}
 					name={setFormPath('isPrimaryBusinessLocation')}
+					onSelect={
+						isHabitational(
+							form?.basics?.properties?.segment.toLowerCase()
+						)
+							? nextStep
+							: null
+					}
 					rules={{required: true}}
 				/>
 			</MobileContainer>
@@ -200,35 +238,59 @@ export function FormProperty({form}) {
 			{isHabitational(
 				form?.basics?.properties?.segment.toLowerCase()
 			) && (
-				<ControlledSwitch
-					control={control}
-					inputProps={{
-						onChange: (value) => {
-							setValue(setFormPath('isThereSwimming'), value, {
-								shouldValidate: true,
-							});
+				<MobileContainer
+					{...mobileContainerProps}
+					mobileSubSection={getMobileSubSection(
+						SUBSECTION_KEYS.PREMISES
+					)}
+				>
+					<div className="mb-4">
+						<ControlledSwitch
+							control={control}
+							inputProps={{
+								onChange: (value) => {
+									AVAILABLE_STEPS.PROPERTY.mobileSubSections.map(
+										(mobileSubSection) => {
+											if (
+												mobileSubSection.title ===
+												SUBSECTION_KEYS.PREMISES
+											) {
+												mobileSubSection.hideContinueButton = false;
+											}
+										}
+									);
 
-							if (value === 'false') {
-								setValue(
-									setFormPath('isThereDivingBoards'),
-									''
-								);
-							}
-						},
-					}}
-					label="Are there swimming pool(s) on the premises?"
-					name={setFormPath('isThereSwimming')}
-					rules={{required: true}}
-				/>
-			)}
+									setValue(
+										setFormPath('isThereSwimming'),
+										value,
+										{
+											shouldValidate: true,
+										}
+									);
 
-			{isThereSwimming(form?.property?.isThereSwimming) && (
-				<ControlledSwitch
-					control={control}
-					label="Are there diving boards or slides?"
-					name={setFormPath('isThereDivingBoards')}
-					rules={{required: true}}
-				/>
+									if (value === 'false') {
+										setValue(
+											setFormPath('isThereDivingBoards'),
+											''
+										);
+									}
+								},
+							}}
+							label={SUBSECTION_KEYS.SWIMMING_POOL}
+							name={setFormPath('isThereSwimming')}
+							rules={{required: true}}
+						/>
+					</div>
+
+					{isThereSwimming(form?.property?.isThereSwimming) && (
+						<ControlledSwitch
+							control={control}
+							label={SUBSECTION_KEYS.DIVING_BOARDS}
+							name={setFormPath('isThereDivingBoards')}
+							rules={{required: true}}
+						/>
+					)}
+				</MobileContainer>
 			)}
 		</div>
 	);

@@ -383,7 +383,7 @@ public class ServletResponseUtil {
 				}
 				catch (IOException ioException) {
 					if (_log.isWarnEnabled()) {
-						_log.warn(ioException, ioException);
+						_log.warn(ioException);
 					}
 				}
 			}
@@ -491,7 +491,7 @@ public class ServletResponseUtil {
 			}
 			catch (Exception exception) {
 				if (_log.isDebugEnabled()) {
-					_log.debug(exception, exception);
+					_log.debug(exception);
 				}
 
 				mimeTypesContentDispositionInline = new String[0];
@@ -552,11 +552,11 @@ public class ServletResponseUtil {
 			isClientAbortException(ioException)) {
 
 			if (_log.isWarnEnabled()) {
-				_log.warn(ioException.getMessage());
+				_log.warn(ioException);
 			}
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(ioException, ioException);
+				_log.debug(ioException);
 			}
 		}
 		else {

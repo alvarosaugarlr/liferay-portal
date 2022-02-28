@@ -125,36 +125,30 @@ public class SelectUserGroupManagementToolbarDisplayContext {
 		UserGroupDisplayTerms searchTerms =
 			(UserGroupDisplayTerms)userGroupSearch.getSearchTerms();
 
-		List<UserGroup> results = null;
-		int total = 0;
-
 		if (filterManageableUserGroups) {
-			List<UserGroup> userGroups = UserGroupLocalServiceUtil.search(
-				themeDisplay.getCompanyId(), searchTerms.getKeywords(), null,
-				QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				userGroupSearch.getOrderByComparator());
+			List<UserGroup> userGroups = UsersAdminUtil.filterUserGroups(
+				themeDisplay.getPermissionChecker(),
+				UserGroupLocalServiceUtil.search(
+					themeDisplay.getCompanyId(), searchTerms.getKeywords(),
+					null, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+					userGroupSearch.getOrderByComparator()));
 
-			userGroups = UsersAdminUtil.filterUserGroups(
-				themeDisplay.getPermissionChecker(), userGroups);
-
-			total = userGroups.size();
-
-			results = ListUtil.subList(
-				userGroups, userGroupSearch.getStart(),
-				userGroupSearch.getEnd());
+			userGroupSearch.setResultsAndTotal(
+				() -> ListUtil.subList(
+					userGroups, userGroupSearch.getStart(),
+					userGroupSearch.getEnd()),
+				userGroups.size());
 		}
 		else {
-			total = UserGroupLocalServiceUtil.searchCount(
-				themeDisplay.getCompanyId(), searchTerms.getKeywords(), null);
-
-			results = UserGroupLocalServiceUtil.search(
-				themeDisplay.getCompanyId(), searchTerms.getKeywords(), null,
-				userGroupSearch.getStart(), userGroupSearch.getEnd(),
-				userGroupSearch.getOrderByComparator());
+			userGroupSearch.setResultsAndTotal(
+				() -> UserGroupLocalServiceUtil.search(
+					themeDisplay.getCompanyId(), searchTerms.getKeywords(),
+					null, userGroupSearch.getStart(), userGroupSearch.getEnd(),
+					userGroupSearch.getOrderByComparator()),
+				UserGroupLocalServiceUtil.searchCount(
+					themeDisplay.getCompanyId(), searchTerms.getKeywords(),
+					null));
 		}
-
-		userGroupSearch.setResults(results);
-		userGroupSearch.setTotal(total);
 
 		_userGroupSearch = userGroupSearch;
 
@@ -174,7 +168,7 @@ public class SelectUserGroupManagementToolbarDisplayContext {
 			return PortalUtil.getSelectedUser(_httpServletRequest);
 		}
 		catch (PortalException portalException) {
-			_log.error(portalException, portalException);
+			_log.error(portalException);
 
 			return null;
 		}

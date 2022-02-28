@@ -14,6 +14,7 @@
 
 package com.liferay.commerce.initializer.util;
 
+import com.liferay.account.model.AccountEntry;
 import com.liferay.commerce.account.constants.CommerceAccountConstants;
 import com.liferay.commerce.account.exception.NoSuchAccountGroupException;
 import com.liferay.commerce.account.model.CommerceAccount;
@@ -52,7 +53,7 @@ import com.liferay.portal.kernel.service.RegionLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.FileUtil;
-import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
+import com.liferay.portal.kernel.util.FriendlyURLNormalizer;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.FileNotFoundException;
@@ -119,7 +120,7 @@ public class CommerceAccountsImporter {
 		CommerceAccount commerceAccount =
 			_commerceAccountLocalService.fetchCommerceAccountByReferenceCode(
 				serviceContext.getCompanyId(),
-				FriendlyURLNormalizerUtil.normalize(name));
+				_friendlyURLNormalizer.normalize(name));
 
 		if (commerceAccount != null) {
 			return;
@@ -141,7 +142,7 @@ public class CommerceAccountsImporter {
 		commerceAccount = _commerceAccountLocalService.addCommerceAccount(
 			name, CommerceAccountConstants.DEFAULT_PARENT_ACCOUNT_ID, email,
 			taxId, commerceAccountType, true,
-			FriendlyURLNormalizerUtil.normalize(name), serviceContext);
+			_friendlyURLNormalizer.normalize(name), serviceContext);
 
 		String twoLetterISOCode = jsonObject.getString("country");
 
@@ -159,7 +160,7 @@ public class CommerceAccountsImporter {
 				regionId = region.getRegionId();
 			}
 			catch (PortalException portalException) {
-				_log.error(portalException, portalException);
+				_log.error(portalException);
 			}
 		}
 
@@ -170,7 +171,7 @@ public class CommerceAccountsImporter {
 		// Add Commerce Address
 
 		_commerceAddressLocalService.addCommerceAddress(
-			commerceAccount.getModelClassName(),
+			AccountEntry.class.getName(),
 			commerceAccount.getCommerceAccountId(), commerceAccount.getName(),
 			StringPool.BLANK, street1, StringPool.BLANK, StringPool.BLANK, city,
 			zip, regionId, country.getCountryId(), StringPool.BLANK, true, true,
@@ -243,7 +244,7 @@ public class CommerceAccountsImporter {
 			for (int i = 0; i < priceListsJSONArray.length(); i++) {
 				try {
 					String externalReferenceCode =
-						FriendlyURLNormalizerUtil.normalize(
+						_friendlyURLNormalizer.normalize(
 							priceListsJSONArray.getString(i));
 
 					CommercePriceList commercePriceList =
@@ -262,8 +263,7 @@ public class CommerceAccountsImporter {
 					}
 				}
 				catch (NoSuchPriceListException noSuchPriceListException) {
-					_log.error(
-						noSuchPriceListException, noSuchPriceListException);
+					_log.error(noSuchPriceListException);
 				}
 			}
 		}
@@ -280,7 +280,7 @@ public class CommerceAccountsImporter {
 						i);
 
 					String externalReferenceCode =
-						FriendlyURLNormalizerUtil.normalize(accountGroupName);
+						_friendlyURLNormalizer.normalize(accountGroupName);
 
 					CommerceAccountGroup commerceAccountGroup =
 						_commerceAccountGroupLocalService.
@@ -320,9 +320,7 @@ public class CommerceAccountsImporter {
 				catch (NoSuchAccountGroupException
 							noSuchAccountGroupException) {
 
-					_log.error(
-						noSuchAccountGroupException,
-						noSuchAccountGroupException);
+					_log.error(noSuchAccountGroupException);
 				}
 			}
 		}
@@ -357,6 +355,9 @@ public class CommerceAccountsImporter {
 
 	@Reference
 	private CountryLocalService _countryLocalService;
+
+	@Reference
+	private FriendlyURLNormalizer _friendlyURLNormalizer;
 
 	@Reference
 	private OrganizationLocalService _organizationLocalService;

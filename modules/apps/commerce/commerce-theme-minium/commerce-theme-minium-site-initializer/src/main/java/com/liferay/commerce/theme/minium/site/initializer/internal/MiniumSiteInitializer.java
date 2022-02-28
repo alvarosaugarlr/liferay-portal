@@ -272,7 +272,7 @@ public class MiniumSiteInitializer implements SiteInitializer {
 			throw initializationException;
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 
 			throw new InitializationException(exception);
 		}
@@ -888,14 +888,14 @@ public class MiniumSiteInitializer implements SiteInitializer {
 
 		_commerceShippingFixedOptionLocalService.addCommerceShippingFixedOption(
 			serviceContext.getUserId(), commerceShippingMethod.getGroupId(),
-			commerceShippingMethod.getCommerceShippingMethodId(),
-			HashMapBuilder.put(
-				serviceContext.getLocale(), name
-			).build(),
+			commerceShippingMethod.getCommerceShippingMethodId(), price,
 			HashMapBuilder.put(
 				serviceContext.getLocale(), description
 			).build(),
-			price, 0);
+			HashMapBuilder.put(
+				serviceContext.getLocale(), name
+			).build(),
+			0);
 	}
 
 	private void _setDefaultCatalogImage(

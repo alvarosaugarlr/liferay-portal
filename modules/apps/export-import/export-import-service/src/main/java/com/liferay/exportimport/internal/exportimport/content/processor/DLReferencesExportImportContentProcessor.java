@@ -265,9 +265,7 @@ public class DLReferencesExportImportContentProcessor
 									noSuchFileEntryException) {
 
 							if (_log.isDebugEnabled()) {
-								_log.debug(
-									noSuchFileEntryException,
-									noSuchFileEntryException);
+								_log.debug(noSuchFileEntryException);
 							}
 
 							fileEntry = _dlAppLocalService.getFileEntry(
@@ -299,10 +297,10 @@ public class DLReferencesExportImportContentProcessor
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 			else if (_log.isWarnEnabled()) {
-				_log.warn(exception.getMessage());
+				_log.warn(exception);
 			}
 		}
 
@@ -339,7 +337,7 @@ public class DLReferencesExportImportContentProcessor
 			return configuration.validateFileEntryReferences();
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 		}
 
 		return true;
@@ -565,10 +563,10 @@ public class DLReferencesExportImportContentProcessor
 				}
 				catch (PortalException portalException) {
 					if (_log.isDebugEnabled()) {
-						_log.debug(portalException, portalException);
+						_log.debug(portalException);
 					}
 					else if (_log.isWarnEnabled()) {
-						_log.warn(portalException.getMessage());
+						_log.warn(portalException);
 					}
 
 					if (content.startsWith("[#dl-reference=", endPos)) {

@@ -24,8 +24,12 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.translation.model.TranslationEntry;
+import com.liferay.translation.web.internal.configuration.FFBulkTranslationConfiguration;
+import com.liferay.util.JS;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.io.StringWriter;
 
 import java.util.List;
 import java.util.Locale;
@@ -34,6 +38,9 @@ import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+
 /**
  * @author Alicia García
  */
@@ -41,8 +48,10 @@ public class ImportTranslationResultsDisplayContext implements Serializable {
 
 	public ImportTranslationResultsDisplayContext(
 		long classNameId, long classPK, long companyId, long groupId,
-		Map<String, String> failureMessages, String fileName,
-		List<String> successMessages, String title, int workflowAction,
+		Map<String, String> failureMessages,
+		FFBulkTranslationConfiguration ffBulkTranslationConfiguration,
+		String fileName, List<String> successMessages, String title,
+		int workflowAction,
 		WorkflowDefinitionLinkLocalService workflowDefinitionLinkLocalService) {
 
 		_classNameId = classNameId;
@@ -50,6 +59,7 @@ public class ImportTranslationResultsDisplayContext implements Serializable {
 		_companyId = companyId;
 		_groupId = groupId;
 		_failureMessages = failureMessages;
+		_ffBulkTranslationConfiguration = ffBulkTranslationConfiguration;
 		_fileName = fileName;
 		_successMessages = successMessages;
 		_title = title;
@@ -64,6 +74,25 @@ public class ImportTranslationResultsDisplayContext implements Serializable {
 
 	public int getFailureMessagesCount() {
 		return _failureMessages.size();
+	}
+
+	public String getFailureMessagesCSVDataURL(Locale locale)
+		throws IOException {
+
+		StringWriter stringWriter = new StringWriter();
+
+		CSVPrinter csvPrinter = new CSVPrinter(
+			stringWriter,
+			CSVFormat.DEFAULT.withHeader(
+				LanguageUtil.get(locale, "file-name"),
+				LanguageUtil.get(locale, "error-message")));
+
+		for (Map.Entry<String, String> entry : _failureMessages.entrySet()) {
+			csvPrinter.printRecord(entry.getKey(), entry.getValue());
+		}
+
+		return "data:text/csv;charset=utf-8," +
+			JS.encodeURIComponent(stringWriter.toString());
 	}
 
 	public String getFileName() {
@@ -142,6 +171,10 @@ public class ImportTranslationResultsDisplayContext implements Serializable {
 		return _title;
 	}
 
+	public boolean isDownloadCSVReportEnabled() {
+		return _ffBulkTranslationConfiguration.enabled();
+	}
+
 	private String _getLayoutSuccessMessageLabel(Locale locale) {
 		if ((getSuccessMessagesCount() > 1) &&
 			(getFailureMessagesCount() == 0)) {
@@ -191,6 +224,8 @@ public class ImportTranslationResultsDisplayContext implements Serializable {
 	private final long _classPK;
 	private final long _companyId;
 	private final Map<String, String> _failureMessages;
+	private final FFBulkTranslationConfiguration
+		_ffBulkTranslationConfiguration;
 	private final String _fileName;
 	private final long _groupId;
 	private String _redirect;

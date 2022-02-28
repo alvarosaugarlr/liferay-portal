@@ -33,7 +33,7 @@ definition {
 	macro addViaDDLDisplayPG {
 		var key_ddlDataDefinitionName = "${ddlDataDefinitionName}";
 
-		Click(locator1 = "DDL#TOOLBAR_ADD");
+		Click(locator1 = "Button#PLUS");
 	}
 
 	macro clearFieldDocumentsAndMedia {
@@ -1065,7 +1065,7 @@ definition {
 				locator1 = "DDLRecord#FIELD_1",
 				value1 = "${fieldFieldLabel}");
 
-			AssertTextEquals.assertPartialText(
+			AssertElementPresent(
 				locator1 = "DDLRecord#FIELD_1",
 				value1 = "${ddlRecordFieldData}");
 		}

@@ -14,16 +14,17 @@
 
 import ClayLink from '@clayui/link';
 import PropTypes from 'prop-types';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 
 import SaveTemplate from '../SaveTemplate';
 import {
 	FILE_SCHEMA_EVENT,
 	SCHEMA_SELECTED_EVENT,
 	TEMPLATE_SELECTED_EVENT,
-	TEMPLATE_SOILED,
+	TEMPLATE_SOILED_EVENT,
 } from '../constants';
 import getFieldsFromSchema from '../getFieldsFromSchema';
+import {getAvailableMappings} from '../utilities/mappings';
 import ImportMappingItem from './ImportMappingItem';
 import ImportSubmit from './ImportSubmit';
 
@@ -35,102 +36,83 @@ function ImportForm({
 	mappedFields,
 	portletNamespace,
 }) {
-	const [fileFields, setFileFields] = useState();
 	const [dbFields, setDbFields] = useState();
+	const [formEvaluated, setFormEvaluated] = useState(false);
+	const [fileFields, setFileFields] = useState();
 	const [fieldsSelections, setFieldsSelections] = useState({});
+	const [mappingsToBeEvaluated, setMappingsToBeEvaluated] = useState(
+		mappedFields
+	);
 	const useTemplateMappingRef = useRef();
 
-	const onFieldChange = useCallback((selectedItem, field) => {
+	const formIsValid = useMemo(() => {
+		if (!Object.keys(fieldsSelections).length || !dbFields) {
+			return false;
+		}
+
+		const requiredFieldNotFilled = dbFields.some(
+			(dbField) => dbField.required && !fieldsSelections[dbField.name]
+		);
+
+		return !requiredFieldNotFilled;
+	}, [fieldsSelections, dbFields]);
+
+	const updateFieldMapping = (fileField, dbFieldName) => {
 		setFieldsSelections((prevSelections) => ({
 			...prevSelections,
-			[field]: selectedItem,
+			[dbFieldName]: fileField,
 		}));
 
-		Liferay.fire(TEMPLATE_SOILED);
-	}, []);
+		Liferay.fire(TEMPLATE_SOILED_EVENT);
+	};
 
 	useEffect(() => {
 		if (dbFields && fileFields && !useTemplateMappingRef.current) {
-			const newFieldsSelection = {};
+			const availableMappings = getAvailableMappings(
+				mappingsToBeEvaluated,
+				fileFields,
+				dbFields
+			);
 
-			fileFields?.forEach((field) => {
-				newFieldsSelection[field] = null;
-
-				if (dbFields.includes(field)) {
-					newFieldsSelection[field] = field;
-				}
-			});
-			setFieldsSelections(newFieldsSelection);
+			setFieldsSelections(availableMappings);
 		}
-	}, [dbFields, fileFields]);
+	}, [dbFields, fileFields, mappingsToBeEvaluated]);
 
 	useEffect(() => {
-		function handleSchemaUpdated(event) {
-			const newSchema = event.schema;
-			if (newSchema) {
-				const newDBFields = getFieldsFromSchema(newSchema);
+		function handleSchemaUpdated({schema}) {
+			if (schema) {
+				const newDBFields = getFieldsFromSchema(schema);
+
 				setDbFields(newDBFields);
 			}
 		}
 
-		function handleFileSchemaUpdate(event) {
-			const fileSchema = event.schema;
-			setFileFields(fileSchema);
+		function handleFileSchemaUpdate({schema}) {
+			setFileFields(schema);
 		}
 
-		function handleTemplateSelect(event) {
-			const {template} = event;
-
+		function handleTemplateSelect({template}) {
 			if (template) {
-				useTemplateMappingRef.current = true;
-				setFieldsSelections(template.mapping);
-			}
-			else {
-				useTemplateMappingRef.current = false;
+				setMappingsToBeEvaluated(template.mappings);
 			}
 		}
 
-		const handleTemplateDirty = () => {
-			useTemplateMappingRef.current = false;
-		};
-
-		Liferay.on(SCHEMA_SELECTED_EVENT, handleSchemaUpdated);
 		Liferay.on(FILE_SCHEMA_EVENT, handleFileSchemaUpdate);
+		Liferay.on(SCHEMA_SELECTED_EVENT, handleSchemaUpdated);
 		Liferay.on(TEMPLATE_SELECTED_EVENT, handleTemplateSelect);
-		Liferay.on(TEMPLATE_SOILED, handleTemplateDirty);
 
 		return () => {
-			Liferay.detach(SCHEMA_SELECTED_EVENT, handleSchemaUpdated);
 			Liferay.detach(FILE_SCHEMA_EVENT, handleFileSchemaUpdate);
+			Liferay.detach(SCHEMA_SELECTED_EVENT, handleSchemaUpdated);
 			Liferay.detach(TEMPLATE_SELECTED_EVENT, handleTemplateSelect);
-			Liferay.detach(TEMPLATE_SOILED, handleTemplateDirty);
 		};
 	}, []);
 
-	useEffect(() => {
-		if (mappedFields) {
-			setFileFields(Object.keys(mappedFields));
-			setDbFields(Object.values(mappedFields));
-		}
-	}, [mappedFields]);
-
-	const selectableFields =
-		dbFields?.filter(
-			(field) =>
-				!Object.values(fieldsSelections).find(
-					(selected) => selected === field.value
-				)
-		) || [];
-
-	const hasSelectedField = Object.values(fieldsSelections).find(
-		(selection) => selection !== null
-	);
-
-	const disableButtons = !(hasSelectedField && dbFields && fileFields);
+	const formIsVisible = fileFields?.length > 0 && dbFields?.length > 0;
 
 	return (
 		<>
-			{fileFields && (dbFields || fileFields) && (
+			{formIsVisible && (
 				<div className="card import-mapping-table">
 					<h4 className="card-header">
 						{Liferay.Language.get('import-mappings')}
@@ -139,14 +121,24 @@ function ImportForm({
 					<div className="card-body">
 						<div className="lfr-form-content">
 							<div className="autofit-section">
-								{fileFields?.map((field) => (
+								{dbFields?.map((dbField) => (
 									<ImportMappingItem
-										field={field}
-										key={field}
-										onChange={onFieldChange}
+										dbField={dbField}
+										fileFields={fileFields}
+										formEvaluated={formEvaluated}
+										key={dbField.name}
 										portletNamespace={portletNamespace}
-										selectableFields={selectableFields}
-										selectedField={fieldsSelections[field]}
+										selectedFileField={
+											fieldsSelections[dbField.name] || ''
+										}
+										updateFieldMapping={(
+											selectedFileField
+										) =>
+											updateFieldMapping(
+												selectedFileField,
+												dbField.name
+											)
+										}
 									/>
 								))}
 							</div>
@@ -154,27 +146,31 @@ function ImportForm({
 					</div>
 				</div>
 			)}
+
 			<div className="mt-4" id="formButtons">
 				<div className="sheet-footer">
 					<ClayLink className="btn btn-secondary" href={backUrl}>
 						{Liferay.Language.get('cancel')}
 					</ClayLink>
 
-					<span>
-						<SaveTemplate
-							forceDisable={disableButtons}
-							formSaveAsTemplateDataQuerySelector={
-								formDataQuerySelector
-							}
-							formSaveAsTemplateURL={formSaveAsTemplateURL}
-							portletNamespace={portletNamespace}
-						/>
-					</span>
+					<SaveTemplate
+						evaluateForm={() => setFormEvaluated(true)}
+						formIsValid={formIsValid}
+						formIsVisible={formIsVisible}
+						formSaveAsTemplateDataQuerySelector={
+							formDataQuerySelector
+						}
+						formSaveAsTemplateURL={formSaveAsTemplateURL}
+						portletNamespace={portletNamespace}
+						type="import"
+					/>
 
 					<ImportSubmit
-						disabled={disableButtons}
+						evaluateForm={() => setFormEvaluated(true)}
 						formDataQuerySelector={formDataQuerySelector}
 						formImportURL={formImportURL}
+						formIsValid={formIsValid}
+						formIsVisible={formIsVisible}
 						portletNamespace={portletNamespace}
 					/>
 				</div>
@@ -182,6 +178,10 @@ function ImportForm({
 		</>
 	);
 }
+
+ImportForm.defaultProps = {
+	mappedFields: {},
+};
 
 ImportForm.propTypes = {
 	backUrl: PropTypes.string.isRequired,

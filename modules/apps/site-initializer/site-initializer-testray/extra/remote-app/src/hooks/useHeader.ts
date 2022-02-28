@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-console */
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
@@ -21,13 +19,28 @@ import {
 	HeaderTabs,
 	HeaderTitle,
 	HeaderTypes,
+	initialState,
 } from '../context/HeaderContext';
-import usePrevious from './usePrevious';
 
-const useHeader = () => {
-	const [{heading}, dispatch] = useContext(HeaderContext);
+type UseHeader = {
+	shouldUpdate?: boolean;
+	timeout?: number;
+	useHeading?: HeaderTitle[];
+	useTabs?: HeaderTabs[];
+};
 
-	const prevHeading = usePrevious(heading);
+const DEFAULT_TIMEOUT = 0;
+
+const useHeader = ({
+	shouldUpdate = true,
+	timeout = DEFAULT_TIMEOUT,
+	useHeading = initialState.heading,
+	useTabs = initialState.tabs,
+}: UseHeader = {}) => {
+	const [, dispatch] = useContext(HeaderContext);
+
+	const useHeadingString = JSON.stringify(useHeading);
+	const useTabsString = JSON.stringify(useTabs);
 
 	const setHeading = useCallback(
 		(newHeading: HeaderTitle[] = [], append?: boolean) => {
@@ -45,8 +58,23 @@ const useHeader = () => {
 		[dispatch]
 	);
 
+	useEffect(() => {
+		if (shouldUpdate && useHeadingString) {
+			setTimeout(() => {
+				setHeading(JSON.parse(useHeadingString));
+			}, timeout);
+		}
+	}, [setHeading, shouldUpdate, timeout, useHeadingString]);
+
+	useEffect(() => {
+		if (shouldUpdate && useTabsString) {
+			setTimeout(() => {
+				setTabs(JSON.parse(useTabsString));
+			}, timeout);
+		}
+	}, [setTabs, shouldUpdate, timeout, useTabsString]);
+
 	return {
-		prevHeading,
 		setHeading,
 		setTabs,
 	};

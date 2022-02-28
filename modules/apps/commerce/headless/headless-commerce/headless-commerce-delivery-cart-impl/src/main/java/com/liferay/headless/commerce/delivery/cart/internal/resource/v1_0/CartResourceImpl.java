@@ -370,6 +370,7 @@ public class CartResourceImpl extends BaseCartResourceImpl {
 		}
 
 		_commerceOrderService.updateCommerceOrder(
+			commerceOrder.getExternalReferenceCode(),
 			commerceOrder.getCommerceOrderId(),
 			commerceOrder.getBillingAddressId(),
 			commerceOrder.getShippingAddressId(),
@@ -448,6 +449,7 @@ public class CartResourceImpl extends BaseCartResourceImpl {
 
 		if (useAsBilling) {
 			_commerceOrderService.updateCommerceOrder(
+				commerceOrder.getExternalReferenceCode(),
 				commerceOrder.getCommerceOrderId(),
 				commerceOrder.getShippingAddressId(),
 				commerceOrder.getShippingAddressId(),
@@ -492,6 +494,7 @@ public class CartResourceImpl extends BaseCartResourceImpl {
 		}
 
 		return _commerceOrderService.updateCommerceOrder(
+			commerceOrder.getExternalReferenceCode(),
 			commerceOrder.getCommerceOrderId(),
 			commerceOrder.getBillingAddressId(),
 			commerceOrder.getShippingAddressId(),
@@ -745,6 +748,7 @@ public class CartResourceImpl extends BaseCartResourceImpl {
 			commerceOrder.getCommerceAccountId());
 
 		commerceOrder = _commerceOrderService.updateCommerceOrder(
+			commerceOrder.getExternalReferenceCode(),
 			commerceOrder.getCommerceOrderId(),
 			GetterUtil.get(
 				cart.getBillingAddressId(),

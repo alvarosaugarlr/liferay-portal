@@ -1,0 +1,61 @@
+<html>
+<head>
+<title>ObjectCustomViews</title>
+</head>
+
+<body>
+<table border="1" cellpadding="1" cellspacing="1">
+<thead>
+<tr><td rowspan="1" colspan="3">ObjectCustomViews</td></tr>
+</thead>
+
+<tbody>
+	<tr>
+		<td>ADD_VIEW_NAME</td>
+		<td>//input[contains(@id,'listObjectCustomViewName')]</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>OBJECT_VIEW_LABEL</td>
+		<td>//div[(@class = 'dnd-td') and contains (.,'${key_viewLabel}')]</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>OBJECT_VIEWS_TAB</td>
+		<td>//a[contains(text(),'Views')]</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SELECT_OBJECT_VIEWS</td>
+		<td>//a[contains(text(),'${key_label}')]</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>OBJECT_VIEWS_NAME</td>
+		<td>//label[contains(text(),'Name')]/..//input[contains(@class,'form-control')]</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>OBJECT_VIEW_KEBAB_MENU</td>
+		<td>//a[contains(text(),'${key_objectCustomViewLabel}')]/ancestor::div[contains(@class,'dnd-tr')]//*[contains(@class,'lexicon-icon-ellipsis')]</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>CUSTOM_VIEW_BOOLEAN_CHECKBOX</td>
+		<td>//input[contains(@class,'custom-control-input')]</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>VIEW_BUILDER_TAB</td>
+		<td>//button[contains(text(), 'View Builder')]</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>CHECKBOX_COLUMN_OPTION</td>
+		<td>//label[contains(.,'${key_columnOption}')]/input[@type='checkbox']</td>
+		<td></td>
+	</tr>
+</tbody>
+</table>
+</body>
+</html>

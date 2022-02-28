@@ -40,7 +40,7 @@ const METADATAS = [
 		indexedLanguageId: '',
 		label: {[defaultLanguageId]: Liferay.Language.get('author')},
 		listTypeDefinitionId: true,
-		name: 'author',
+		name: 'creator',
 		required: false,
 		type: 'metadata',
 	},
@@ -53,7 +53,7 @@ const METADATAS = [
 		indexedLanguageId: '',
 		label: {[defaultLanguageId]: Liferay.Language.get('creation-date')},
 		listTypeDefinitionId: true,
-		name: 'creationDate',
+		name: 'dateCreated',
 		required: false,
 		type: 'metadata',
 	},
@@ -66,7 +66,7 @@ const METADATAS = [
 		indexedLanguageId: '',
 		label: {[defaultLanguageId]: Liferay.Language.get('modified-date')},
 		listTypeDefinitionId: true,
-		name: 'modifiedDate',
+		name: 'dateModified',
 		required: false,
 		type: 'metadata',
 	},
@@ -83,7 +83,7 @@ const METADATAS = [
 			),
 		},
 		listTypeDefinitionId: true,
-		name: 'workflowStatus',
+		name: 'status',
 		required: false,
 		type: 'metadata',
 	},
@@ -137,7 +137,8 @@ const viewReducer = (state: TState, action: TAction) => {
 			filteredItems.map((field: TObjectField, index: number) => {
 				if (field.checked === true) {
 					viewColumn.push({
-						objectFieldName: field.label[defaultLanguageId],
+						label: field.label[defaultLanguageId],
+						objectFieldName: field.name,
 						priority: index,
 					});
 				}
@@ -162,7 +163,9 @@ const viewReducer = (state: TState, action: TAction) => {
 			};
 		}
 		case TYPES.ADD_OBJECT_FIELDS: {
-			const {objectFields, objectViewColumns} = action.payload;
+			const {objectFields, objectView} = action.payload;
+
+			const {objectViewColumns} = objectView;
 
 			const objectFieldsWithCheck = objectFields.map(
 				(field: TObjectField) => {
@@ -187,19 +190,35 @@ const viewReducer = (state: TState, action: TAction) => {
 			newObjectFields.forEach((field) => {
 				objectViewColumns.forEach(
 					(column: {objectFieldName: string}) => {
-						if (
-							column.objectFieldName ===
-							field.label[defaultLanguageId]
-						) {
+						if (column.objectFieldName === field.name) {
 							field.checked = true;
 						}
 					}
 				);
 			});
 
+			const newObjectViewColumns: TObjectViewColumn[] = [];
+
+			objectViewColumns.forEach((viewColumn: TObjectViewColumn) => {
+				newObjectFields.forEach((objectField: TObjectField) => {
+					if (objectField.name === viewColumn.objectFieldName) {
+						newObjectViewColumns.push({
+							...viewColumn,
+							label: objectField.label[defaultLanguageId],
+						});
+					}
+				});
+			});
+
+			const newObjectView = {
+				...objectView,
+				objectViewColumns: newObjectViewColumns,
+			};
+
 			return {
 				...state,
 				objectFields: newObjectFields,
+				objectView: newObjectView,
 			};
 		}
 		case TYPES.CHANGE_OBJECT_VIEW_NAME: {
@@ -251,6 +270,8 @@ const viewReducer = (state: TState, action: TAction) => {
 
 			const newState = {...state};
 
+			const objectFields = newState.objectFields;
+
 			const viewColumn = newState.objectView?.objectViewColumns.filter(
 				(viewColumn) => viewColumn.objectFieldName !== objectFieldName
 			);
@@ -262,6 +283,12 @@ const viewReducer = (state: TState, action: TAction) => {
 				};
 			});
 
+			objectFields.forEach((field) => {
+				if (objectFieldName === field.name) {
+					field.checked = false;
+				}
+			});
+
 			const newObjectView = {
 				...state.objectView,
 				objectViewColumns: newViewColumn,
@@ -269,6 +296,7 @@ const viewReducer = (state: TState, action: TAction) => {
 
 			return {
 				...state,
+				objectFields,
 				objectView: newObjectView,
 			};
 		}

@@ -21,6 +21,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ALERT_MESSAGE</td>
+	<td>//div[label[contains(.,'${key_fieldLabel}')]]//div[contains(@class,'text-danger')][normalize-space()='${key_alertMessage}']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ANSWER</td>
 	<td>//div[label[contains(.,'Answer')]]/input[@type='password']</td>
 	<td></td>
@@ -52,7 +57,7 @@
 </tr>
 <tr>
 	<td>BORDER_BOTTOM_INPUT_FIELD</td>
-	<td>//div[contains(@class,'label')][normalize-space()='${key_borderBottom}']/following-sibling::div[1]//div[label[normalize-space(text())='${key_fieldLabel}']]/input</td>
+	<td>//button[contains(@class,'collapse-icon')][normalize-space()='${key_borderBottom}']/following-sibling::div[1]//div[label[normalize-space(text())='${key_fieldLabel}']]/input</td>
 	<td></td>
 </tr>
 <tr>
@@ -116,11 +121,6 @@
 	<td></td>
 </tr>
 <tr>
-	<td>CUSTOM_TITLE</td>
-	<td>//input[contains(@id,'customTitle')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>DATA_DEFINITION</td>
 	<td>//div[label[contains(.,'Data Definition')]]/input[@type='text']</td>
 	<td></td>
@@ -148,6 +148,16 @@
 <tr>
 	<td>INPUT_CONTAINS_TITLE</td>
 	<td>//input[contains(@title,'${key_titleName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DISCONTINUED_DATE</td>
+	<td>//input[not(contains(@type,'disabled')) and contains(@id,'discontinuedDate')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DISCONTINUED_DATE_DISABLED</td>
+	<td>//input[contains(@class,'disabled') and contains(@id,'discontinuedDate')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -523,6 +533,11 @@
 <tr>
 	<td>REMINDER_QUERY</td>
 	<td>//input[contains(@id,'reminderQueryAnswer')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REPLACEMENT</td>
+	<td>//input[contains(@id,'replacement')]/following-sibling::input[contains(@type,'text')]</td>
 	<td></td>
 </tr>
 <tr>

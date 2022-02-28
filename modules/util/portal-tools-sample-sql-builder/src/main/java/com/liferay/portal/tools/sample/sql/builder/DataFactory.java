@@ -152,6 +152,7 @@ import com.liferay.fragment.model.FragmentEntryModel;
 import com.liferay.fragment.model.impl.FragmentCollectionModelImpl;
 import com.liferay.fragment.model.impl.FragmentEntryLinkModelImpl;
 import com.liferay.fragment.model.impl.FragmentEntryModelImpl;
+import com.liferay.friendly.url.internal.util.FriendlyURLNormalizerImpl;
 import com.liferay.friendly.url.model.FriendlyURLEntryLocalization;
 import com.liferay.friendly.url.model.FriendlyURLEntryLocalizationModel;
 import com.liferay.friendly.url.model.FriendlyURLEntryMappingModel;
@@ -199,6 +200,7 @@ import com.liferay.message.boards.model.impl.MBMessageModelImpl;
 import com.liferay.message.boards.model.impl.MBThreadFlagModelImpl;
 import com.liferay.message.boards.model.impl.MBThreadModelImpl;
 import com.liferay.message.boards.social.MBActivityKeys;
+import com.liferay.normalizer.Normalizer;
 import com.liferay.petra.io.unsync.UnsyncBufferedReader;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.CharPool;
@@ -259,7 +261,7 @@ import com.liferay.portal.kernel.theme.NavItem;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
-import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
+import com.liferay.portal.kernel.util.FriendlyURLNormalizer;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -442,6 +444,13 @@ public class DataFactory {
 
 		_firstNames = _readLines("user_name/first_names.txt");
 		_lastNames = _readLines("user_name/last_names.txt");
+
+		_friendlyURLNormalizer = new FriendlyURLNormalizerImpl();
+
+		Field field = ReflectionUtil.getDeclaredField(
+			FriendlyURLNormalizerImpl.class, "_normalizer");
+
+		field.set(_friendlyURLNormalizer, (Normalizer)s -> s);
 	}
 
 	public RoleModel getAdministratorRoleModel() {
@@ -5587,8 +5596,7 @@ public class DataFactory {
 				}
 				catch (NoSuchMethodException noSuchMethodException) {
 					if (_log.isDebugEnabled()) {
-						_log.debug(
-							noSuchMethodException, noSuchMethodException);
+						_log.debug(noSuchMethodException);
 					}
 				}
 			}
@@ -6366,8 +6374,7 @@ public class DataFactory {
 		groupModel.setMembershipRestriction(
 			GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION);
 		groupModel.setFriendlyURL(
-			StringPool.FORWARD_SLASH +
-				FriendlyURLNormalizerUtil.normalize(name));
+			StringPool.FORWARD_SLASH + _friendlyURLNormalizer.normalize(name));
 		groupModel.setSite(site);
 		groupModel.setActive(true);
 
@@ -6957,6 +6964,9 @@ public class DataFactory {
 				else if (name.equals("CdnURL")) {
 					name = "CDNURL";
 				}
+				else if (name.equals("DeliveryCTermEntryDescription")) {
+					name = "DeliveryCommerceTermEntryDescription";
+				}
 				else if (name.equals("DeliverySubTypeSettings")) {
 					name = "DeliverySubscriptionTypeSettings";
 				}
@@ -6974,6 +6984,9 @@ public class DataFactory {
 				}
 				else if (name.equals("LPageTemplateStructureRelId")) {
 					name = "LayoutPageTemplateStructureRelId";
+				}
+				else if (name.equals("PaymentCTermEntryDescription")) {
+					name = "PaymentCommerceTermEntryDescription";
 				}
 				else if (name.equals("ShippingDiscountPercentLevel1")) {
 					name = "ShippingDiscountPercentageLevel1";
@@ -7350,6 +7363,7 @@ public class DataFactory {
 	private final String _dlDDMStructureLayoutContent;
 	private final SimpleCounter _dLFileEntryIdCounter;
 	private final List<String> _firstNames;
+	private final FriendlyURLNormalizer _friendlyURLNormalizer;
 	private final SimpleCounter _futureDateCounter;
 	private long _globalGroupId;
 	private final SimpleCounter _groupCounter;

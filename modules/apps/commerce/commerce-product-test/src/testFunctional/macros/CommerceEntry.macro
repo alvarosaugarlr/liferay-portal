@@ -1,5 +1,47 @@
 definition {
 
+	@summary = "Add a new user that is part of an account(the creation of a new account, the membership and the user's role are optional)"
+	macro addAccountEntryUser {
+		Variables.assertDefined(parameterList = "${accountName},${userEmailAddress},${userFirstName},${userLastName},${userScreenName}");
+
+		if (("${createNewAccount}" == "true") && isSet(accountType)) {
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "${accountName}",
+				accountEntryType = "${accountType}");
+		}
+
+		JSONAccountEntryUser.addAccountEntryUser(
+			accountEntryName = "${accountName}",
+			userEmailAddress = "${userEmailAddress}",
+			userFirstName = "${userFirstName}",
+			userLastName = "${userLastName}",
+			userScreenName = "${userScreenName}");
+
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "${agreeToTermsAndAnswerReminderQuery}",
+			requireReset = "${requireReset}",
+			userEmailAddress = "${userEmailAddress}");
+
+		if (isSet(userSiteMembership)) {
+			JSONUser.addUserToSite(
+				groupName = "${userSiteMembership}",
+				userEmailAddress = "${userEmailAddress}");
+		}
+
+		if (isSet(userRole)) {
+			ApplicationsMenu.gotoPortlet(
+				category = "Accounts",
+				panel = "Control Panel",
+				portlet = "Accounts");
+
+			LexiconEntry.gotoEntry(rowEntry = "${accountName}");
+
+			Accounts.addAssigneeToRoleViaUsersTab(
+				accountRoleTitle = "${userRole}",
+				accountUserName = "${userEmailAddress}");
+		}
+	}
+
 	macro addFullDescriptionViaCKEditor {
 		Type.typeCKEditor(
 			locator1 = "CKEditor#BODY_FIELD",
@@ -389,6 +431,8 @@ definition {
 			label = "Catalog");
 
 		Click(locator1 = "Button#SUBMIT");
+
+		WaitForPageLoad();
 
 		AssertSelectedLabel(
 			key_fieldLabel = "Catalog",

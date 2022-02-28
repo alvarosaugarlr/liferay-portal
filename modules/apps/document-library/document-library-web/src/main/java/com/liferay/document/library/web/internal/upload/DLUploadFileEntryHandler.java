@@ -92,7 +92,8 @@ public class DLUploadFileEntryHandler implements UploadFileEntryHandler {
 		throws PortalException {
 
 		_dlValidator.validateFileSize(
-			fileName, uploadPortletRequest.getSize(parameterName));
+			fileName, uploadPortletRequest.getContentType(parameterName),
+			uploadPortletRequest.getSize(parameterName));
 
 		String uniqueFileName = _uniqueFileNameProvider.provide(
 			fileName,
@@ -139,7 +140,7 @@ public class DLUploadFileEntryHandler implements UploadFileEntryHandler {
 		}
 		catch (PortalException portalException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(portalException, portalException);
+				_log.debug(portalException);
 			}
 
 			return false;
@@ -161,7 +162,7 @@ public class DLUploadFileEntryHandler implements UploadFileEntryHandler {
 		}
 		catch (NoSuchFileEntryException noSuchFileEntryException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(noSuchFileEntryException, noSuchFileEntryException);
+				_log.debug(noSuchFileEntryException);
 			}
 
 			return null;

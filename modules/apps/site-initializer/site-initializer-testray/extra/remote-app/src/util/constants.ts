@@ -12,13 +12,6 @@
  * details.
  */
 
-export const PAGINATION_DELTA = [20, 50, 75, 100, 200];
-
-export const PAGINATION = {
-	delta: [20, 50, 75, 100, 200],
-	ellipsisBuffer: 3,
-};
-
 export const DATA_COLORS = {
 	'metrics.blocked': '#F8D72E',
 	'metrics.failed': '#E73A45',
@@ -26,3 +19,116 @@ export const DATA_COLORS = {
 	'metrics.passed': '#3CD587',
 	'metrics.test-fix': '#59BBFC',
 };
+
+export const LABEL_GREATER_THAN_99 = '> 99';
+export const LABEL_LESS_THAN_1 = '< 1';
+
+export const PAGINATION_DELTA = [20, 50, 75, 100, 200];
+
+export const PAGINATION = {
+	delta: [20, 50, 75, 100, 200],
+	ellipsisBuffer: 3,
+};
+
+export enum TEST_STATUS {
+	Blocked = 4,
+	'Did Not Run' = 6,
+	Failed = 3,
+	'In Progress' = 1,
+	'Passed' = 2,
+	'Test Fix' = 7,
+	'Untested' = 0,
+}
+
+export const TEST_STATUS_LABEL = {
+	0: 'Untested',
+	1: 'In Progress',
+	2: 'Passed',
+	3: 'Failed',
+	4: 'Blocked',
+	6: 'Did Not Run',
+	7: 'Test Fix',
+};
+
+export const MANAGE_DROPDOWN = [
+	{
+		items: [
+			{icon: 'plus', label: 'New Project', path: '/'},
+			{icon: 'cog', label: 'Case Types', path: '/'},
+		],
+		title: 'System',
+	},
+	{
+		items: [
+			{
+				icon: 'cog',
+				label: 'Categories',
+				path: '/',
+			},
+			{
+				icon: 'cog',
+				label: 'Options',
+				path: '/',
+			},
+		],
+		title: 'Enviroment Factors',
+	},
+	{
+		items: [
+			{
+				icon: 'pencil',
+				label: 'Manage User',
+				path: '/',
+			},
+			{
+				icon: 'pencil',
+				label: 'Manager User Groups',
+				path: '/',
+			},
+			{
+				icon: 'pencil',
+				label: 'Manage Roles',
+				path: '/',
+			},
+		],
+		title: '',
+	},
+	{
+		items: [
+			{
+				icon: 'filter',
+				label: 'Manage Indexers',
+				path: '/',
+			},
+			{
+				icon: 'pencil',
+				label: 'Manage Server',
+				path: '/',
+			},
+		],
+		title: '',
+	},
+];
+
+export const USER_DROPDOWN = [
+	{
+		items: [
+			{
+				icon: 'user',
+				label: 'Manage Accounts',
+				path: '/manage/user',
+			},
+			{
+				icon: 'logout',
+				label: 'Sign Out',
+				path: `${window.location.origin}/c/portal/logout`,
+			},
+		],
+		title: '',
+	},
+];
+
+const getStatusLabel = (status: number): string =>
+	(TEST_STATUS_LABEL as any)[status];
+
+export {getStatusLabel};

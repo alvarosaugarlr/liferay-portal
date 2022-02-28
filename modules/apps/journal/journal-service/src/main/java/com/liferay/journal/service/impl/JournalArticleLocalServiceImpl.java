@@ -179,7 +179,7 @@ import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
-import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
+import com.liferay.portal.kernel.util.FriendlyURLNormalizer;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.GroupSubscriptionCheckSubscriptionSender;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -517,7 +517,7 @@ public class JournalArticleLocalServiceImpl
 		}
 		catch (IOException ioException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(ioException, ioException);
+				_log.debug(ioException);
 			}
 		}
 
@@ -775,7 +775,7 @@ public class JournalArticleLocalServiceImpl
 		}
 		catch (IOException ioException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(ioException, ioException);
+				_log.debug(ioException);
 			}
 		}
 
@@ -2050,14 +2050,12 @@ public class JournalArticleLocalServiceImpl
 
 		if (status == WorkflowConstants.STATUS_ANY) {
 			articles = journalArticlePersistence.findByG_UT(
-				groupId,
-				FriendlyURLNormalizerUtil.normalizeWithEncoding(urlTitle), 0, 1,
-				orderByComparator);
+				groupId, _friendlyURLNormalizer.normalizeWithEncoding(urlTitle),
+				0, 1, orderByComparator);
 		}
 		else {
 			articles = journalArticlePersistence.findByG_UT_ST(
-				groupId,
-				FriendlyURLNormalizerUtil.normalizeWithEncoding(urlTitle),
+				groupId, _friendlyURLNormalizer.normalizeWithEncoding(urlTitle),
 				status, 0, 1, orderByComparator);
 		}
 
@@ -3264,8 +3262,7 @@ public class JournalArticleLocalServiceImpl
 		}
 		else {
 			articles = journalArticlePersistence.findByG_UT_ST(
-				groupId,
-				FriendlyURLNormalizerUtil.normalizeWithEncoding(urlTitle),
+				groupId, _friendlyURLNormalizer.normalizeWithEncoding(urlTitle),
 				WorkflowConstants.STATUS_APPROVED, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, new ArticleVersionComparator());
 		}
@@ -4008,7 +4005,7 @@ public class JournalArticleLocalServiceImpl
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 
 			return false;
@@ -5676,7 +5673,7 @@ public class JournalArticleLocalServiceImpl
 		}
 		catch (IOException ioException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(ioException, ioException);
+				_log.debug(ioException);
 			}
 		}
 
@@ -6292,7 +6289,7 @@ public class JournalArticleLocalServiceImpl
 		}
 		catch (IOException ioException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(ioException, ioException);
+				_log.debug(ioException);
 			}
 		}
 
@@ -7446,7 +7443,7 @@ public class JournalArticleLocalServiceImpl
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -7627,7 +7624,7 @@ public class JournalArticleLocalServiceImpl
 			content = XMLUtil.formatXML(document);
 		}
 		catch (DocumentException documentException) {
-			_log.error(documentException, documentException);
+			_log.error(documentException);
 		}
 
 		return content;
@@ -7966,7 +7963,7 @@ public class JournalArticleLocalServiceImpl
 				article.getGroupId(), portletId, null);
 		}
 		catch (PortalException portalException) {
-			_log.error(portalException, portalException);
+			_log.error(portalException);
 		}
 
 		LiferayPortletRequest liferayPortletRequest =
@@ -7989,7 +7986,7 @@ public class JournalArticleLocalServiceImpl
 				liferayPortletRequest, null, defaultArticleURL);
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 		}
 
 		return StringPool.BLANK;
@@ -8038,7 +8035,7 @@ public class JournalArticleLocalServiceImpl
 			return journalServiceConfiguration.indexAllArticleVersionsEnabled();
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 		}
 
 		return false;
@@ -8266,7 +8263,7 @@ public class JournalArticleLocalServiceImpl
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -8560,7 +8557,7 @@ public class JournalArticleLocalServiceImpl
 		}
 		catch (DocumentException documentException) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(documentException, documentException);
+				_log.warn(documentException);
 			}
 		}
 	}
@@ -8715,7 +8712,6 @@ public class JournalArticleLocalServiceImpl
 
 						if (_log.isDebugEnabled()) {
 							_log.debug(
-								noSuchFriendlyURLEntryLocalizationException,
 								noSuchFriendlyURLEntryLocalizationException);
 						}
 					}
@@ -9301,6 +9297,9 @@ public class JournalArticleLocalServiceImpl
 
 	@Reference
 	private FieldsToDDMFormValuesConverter _fieldsToDDMFormValuesConverter;
+
+	@Reference
+	private FriendlyURLNormalizer _friendlyURLNormalizer;
 
 	@Reference
 	private GroupLocalService _groupLocalService;

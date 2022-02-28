@@ -17,6 +17,7 @@ import {fireEvent, render} from '@testing-library/react';
 import React from 'react';
 
 import {StoreContextProvider} from '../../../../../src/main/resources/META-INF/resources/page_editor/app/contexts/StoreContext';
+import {StyleErrorsContextProvider} from '../../../../../src/main/resources/META-INF/resources/page_editor/app/contexts/StyleErrorsContext';
 import {ColorPicker} from '../../../../../src/main/resources/META-INF/resources/page_editor/common/components/ColorPicker/ColorPicker';
 
 const CONFIG = {
@@ -69,14 +70,16 @@ const renderColorPicker = ({
 }) =>
 	render(
 		<StoreContextProvider initialState={{}} reducer={(state) => state}>
-			<ColorPicker
-				config={CONFIG}
-				editedTokenValues={editedTokenValues}
-				field={field}
-				onValueSelect={onValueSelect}
-				tokenValues={TOKEN_VALUES}
-				value={value}
-			/>
+			<StyleErrorsContextProvider>
+				<ColorPicker
+					config={CONFIG}
+					editedTokenValues={editedTokenValues}
+					field={field}
+					onValueSelect={onValueSelect}
+					tokenValues={TOKEN_VALUES}
+					value={value}
+				/>
+			</StyleErrorsContextProvider>
 		</StoreContextProvider>
 	);
 

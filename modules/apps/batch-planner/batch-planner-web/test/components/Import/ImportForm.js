@@ -13,7 +13,7 @@
  */
 
 import '@testing-library/jest-dom/extend-expect';
-import {act, cleanup, fireEvent, render, within} from '@testing-library/react';
+import {act, cleanup, render} from '@testing-library/react';
 import React from 'react';
 
 import {
@@ -75,76 +75,30 @@ describe('ImportForm', () => {
 		fileSchema.forEach((field) => getByLabelText(field));
 	});
 
-	it('must have button disabled with no selection', () => {
-		const {getByText} = render(<ImportForm {...BASE_PROPS} />);
-
-		act(() => {
-			Liferay.fire(SCHEMA_SELECTED_EVENT, {
-				schema: SCHEMA,
-			});
-			Liferay.fire(FILE_SCHEMA_EVENT, {
-				schema: fileSchema,
-			});
-		});
-
-		expect(getByText(Liferay.Language.get('import'))).toBeDisabled();
-	});
-
-	it('must select the item on user click dropdown item', () => {
-		const selectedField = 'type';
+	it('must automatically map matching field names', () => {
 		const {getAllByRole} = render(<ImportForm {...BASE_PROPS} />);
 
 		act(() => {
 			Liferay.fire(SCHEMA_SELECTED_EVENT, {
 				schema: SCHEMA,
 			});
+
 			Liferay.fire(FILE_SCHEMA_EVENT, {
 				schema: fileSchema,
 			});
 		});
 
-		act(() => {
-			fireEvent.click(getAllByRole('button')[0]);
+		getAllByRole('combobox').forEach((dbFieldSelect) => {
+			if (!dbFieldSelect.id.startsWith('input-')) {
+				return;
+			}
+
+			if (dbFieldSelect.value) {
+				expect(fileSchema).toContain(dbFieldSelect.value);
+			}
+			else {
+				expect(fileSchema).not.toContain(dbFieldSelect.value);
+			}
 		});
-
-		act(() => {
-			fireEvent.click(
-				within(getAllByRole('list')[0]).getByText(selectedField)
-			);
-		});
-
-		expect(getAllByRole('button')[0].textContent).toBe(selectedField);
-	});
-
-	it('must not show previously selected items on other dropdowns', () => {
-		const selectedField = 'type';
-		const {getAllByRole} = render(<ImportForm {...BASE_PROPS} />);
-
-		act(() => {
-			Liferay.fire(SCHEMA_SELECTED_EVENT, {
-				schema: SCHEMA,
-			});
-			Liferay.fire(FILE_SCHEMA_EVENT, {
-				schema: fileSchema,
-			});
-		});
-
-		act(() => {
-			fireEvent.click(getAllByRole('button')[0]);
-		});
-
-		act(() => {
-			fireEvent.click(
-				within(getAllByRole('list')[0]).getByText(selectedField)
-			);
-		});
-
-		act(() => {
-			fireEvent.click(getAllByRole('button')[1]);
-		});
-
-		expect(
-			within(getAllByRole('list')[1]).queryByText(selectedField)
-		).toBeNull();
 	});
 });

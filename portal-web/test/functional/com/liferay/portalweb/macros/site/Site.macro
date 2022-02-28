@@ -83,7 +83,13 @@ definition {
 			}
 		}
 
-		WaitForPageLoad();
+		while (IsElementNotPresent(key_itemName = "Site Configuration", locator1 = "ListGroupItem#ITEM_TEXT")) {
+			WaitForPageLoad();
+		}
+
+		WaitForElementPresent(
+			key_itemName = "Site Configuration",
+			locator1 = "ListGroupItem#ITEM_TEXT");
 
 		Click(
 			key_itemName = "Site Configuration",
@@ -206,6 +212,13 @@ definition {
 			locator1 = "ListGroupItem#ITEM_TEXT");
 
 		Navigator.gotoNavTab(navTab = "Site URL");
+
+		if (isSet(pageVirtualHosts)) {
+			Type(
+				key_text = "Virtual Host",
+				locator1 = "TextInput#ANY",
+				value1 = "${pageVirtualHostURL}");
+		}
 
 		if (isSet(publicVirtualHosts)) {
 			Type(

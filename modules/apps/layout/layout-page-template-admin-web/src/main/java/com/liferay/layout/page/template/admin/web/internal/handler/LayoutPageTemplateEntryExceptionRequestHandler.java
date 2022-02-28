@@ -46,7 +46,7 @@ public class LayoutPageTemplateEntryExceptionRequestHandler {
 		ActionRequest actionRequest, PortalException portalException) {
 
 		if (_log.isDebugEnabled()) {
-			_log.debug(portalException, portalException);
+			_log.debug(portalException);
 		}
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
@@ -98,7 +98,7 @@ public class LayoutPageTemplateEntryExceptionRequestHandler {
 			errorMessage = LanguageUtil.get(
 				themeDisplay.getLocale(), "an-unexpected-error-occurred");
 
-			_log.error(portalException.getMessage());
+			_log.error(portalException);
 		}
 
 		return JSONUtil.put("error", errorMessage);

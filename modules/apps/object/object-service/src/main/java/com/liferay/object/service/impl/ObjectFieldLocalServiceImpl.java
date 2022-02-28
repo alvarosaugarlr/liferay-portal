@@ -26,8 +26,11 @@ import com.liferay.object.field.business.type.ObjectFieldBusinessTypeServicesTra
 import com.liferay.object.internal.petra.sql.dsl.DynamicObjectDefinitionTable;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
+import com.liferay.object.model.ObjectFieldSetting;
+import com.liferay.object.service.ObjectFieldSettingLocalService;
 import com.liferay.object.service.base.ObjectFieldLocalServiceBaseImpl;
 import com.liferay.object.service.persistence.ObjectDefinitionPersistence;
+import com.liferay.object.service.persistence.ObjectFieldSettingPersistence;
 import com.liferay.object.service.persistence.ObjectLayoutColumnPersistence;
 import com.liferay.object.service.persistence.ObjectViewColumnPersistence;
 import com.liferay.object.service.persistence.ObjectViewPersistence;
@@ -73,7 +76,8 @@ public class ObjectFieldLocalServiceImpl
 			long userId, long listTypeDefinitionId, long objectDefinitionId,
 			String businessType, String dbType, boolean indexed,
 			boolean indexedAsKeyword, String indexedLanguageId,
-			Map<Locale, String> labelMap, String name, boolean required)
+			Map<Locale, String> labelMap, String name, boolean required,
+			List<ObjectFieldSetting> objectFieldSettings)
 		throws PortalException {
 
 		name = StringUtil.trim(name);
@@ -96,6 +100,13 @@ public class ObjectFieldLocalServiceImpl
 			runSQL(
 				DynamicObjectDefinitionTable.getAlterTableAddColumnSQL(
 					dbTableName, objectField.getDBColumnName(), dbType));
+		}
+
+		for (ObjectFieldSetting objectFieldSetting : objectFieldSettings) {
+			_objectFieldSettingLocalService.addObjectFieldSetting(
+				userId, objectField.getObjectFieldId(),
+				objectFieldSetting.getName(), objectFieldSetting.isRequired(),
+				objectFieldSetting.getValue());
 		}
 
 		return objectField;
@@ -174,6 +185,19 @@ public class ObjectFieldLocalServiceImpl
 	}
 
 	@Override
+	public ObjectField getObjectField(long objectFieldId)
+		throws PortalException {
+
+		ObjectField objectField = objectFieldPersistence.findByPrimaryKey(
+			objectFieldId);
+
+		objectField.setObjectFieldSettings(
+			_objectFieldSettingPersistence.findByObjectFieldId(objectFieldId));
+
+		return objectField;
+	}
+
+	@Override
 	public ObjectField getObjectField(long objectDefinitionId, String name)
 		throws PortalException {
 
@@ -214,7 +238,7 @@ public class ObjectFieldLocalServiceImpl
 			long objectFieldId, long listTypeDefinitionId, String businessType,
 			String dbType, boolean indexed, boolean indexedAsKeyword,
 			String indexedLanguageId, Map<Locale, String> labelMap, String name,
-			boolean required)
+			boolean required, List<ObjectFieldSetting> objectFieldSettings)
 		throws PortalException {
 
 		ObjectField objectField = objectFieldPersistence.findByPrimaryKey(
@@ -261,7 +285,13 @@ public class ObjectFieldLocalServiceImpl
 		objectField.setName(name);
 		objectField.setRequired(required);
 
-		return objectFieldPersistence.update(objectField);
+		objectField = objectFieldPersistence.update(objectField);
+
+		_addObjectFieldSettings(
+			objectField.getUserId(), objectField.getObjectFieldId(),
+			objectFieldSettings);
+
+		return objectField;
 	}
 
 	private ObjectField _addObjectField(
@@ -305,6 +335,58 @@ public class ObjectFieldLocalServiceImpl
 		return objectFieldPersistence.update(objectField);
 	}
 
+	private void _addObjectFieldSettings(
+			long userId, long objectFieldId,
+			List<ObjectFieldSetting> newObjectFieldSettings)
+		throws PortalException {
+
+		List<ObjectFieldSetting> oldObjectFieldSettings =
+			_objectFieldSettingPersistence.findByObjectFieldId(objectFieldId);
+
+		for (ObjectFieldSetting oldObjectFieldSetting :
+				oldObjectFieldSettings) {
+
+			boolean removeOldObjectFieldSetting = true;
+
+			for (ObjectFieldSetting newObjectFieldSetting :
+					newObjectFieldSettings) {
+
+				if (Objects.equals(
+						newObjectFieldSetting.getName(),
+						oldObjectFieldSetting.getName())) {
+
+					removeOldObjectFieldSetting = false;
+
+					break;
+				}
+			}
+
+			if (removeOldObjectFieldSetting) {
+				_objectFieldSettingPersistence.remove(oldObjectFieldSetting);
+			}
+		}
+
+		for (ObjectFieldSetting newObjectFieldSetting :
+				newObjectFieldSettings) {
+
+			ObjectFieldSetting oldObjectFieldSetting =
+				_objectFieldSettingPersistence.fetchByOFI_N(
+					objectFieldId, newObjectFieldSetting.getName());
+
+			if (oldObjectFieldSetting == null) {
+				_objectFieldSettingLocalService.addObjectFieldSetting(
+					userId, objectFieldId, newObjectFieldSetting.getName(),
+					newObjectFieldSetting.isRequired(),
+					newObjectFieldSetting.getValue());
+			}
+			else {
+				_objectFieldSettingLocalService.updateObjectFieldSetting(
+					oldObjectFieldSetting.getObjectFieldSettingId(),
+					newObjectFieldSetting.getValue());
+			}
+		}
+	}
+
 	private ObjectField _deleteObjectField(ObjectField objectField)
 		throws PortalException {
 
@@ -321,6 +403,9 @@ public class ObjectFieldLocalServiceImpl
 		}
 
 		objectField = objectFieldPersistence.remove(objectField);
+
+		_objectFieldSettingPersistence.removeByObjectFieldId(
+			objectField.getObjectFieldId());
 
 		_objectLayoutColumnPersistence.removeByObjectFieldId(
 			objectField.getObjectFieldId());
@@ -443,6 +528,8 @@ public class ObjectFieldLocalServiceImpl
 	private final Map<String, String> _businessTypes = HashMapBuilder.put(
 		"BigDecimal", "PrecisionDecimal"
 	).put(
+		"Blob", "LargeFile"
+	).put(
 		"Boolean", "Boolean"
 	).put(
 		"Clob", "LongText"
@@ -466,6 +553,12 @@ public class ObjectFieldLocalServiceImpl
 		_objectFieldBusinessTypeServicesTracker;
 
 	@Reference
+	private ObjectFieldSettingLocalService _objectFieldSettingLocalService;
+
+	@Reference
+	private ObjectFieldSettingPersistence _objectFieldSettingPersistence;
+
+	@Reference
 	private ObjectLayoutColumnPersistence _objectLayoutColumnPersistence;
 
 	@Reference
@@ -475,9 +568,10 @@ public class ObjectFieldLocalServiceImpl
 	private ObjectViewPersistence _objectViewPersistence;
 
 	private final Set<String> _reservedNames = SetUtil.fromArray(
-		"companyid", "createdate", "groupid", "id", "lastpublishdate",
-		"modifieddate", "status", "statusbyuserid", "statusbyusername",
-		"statusdate", "userid", "username");
+		"actions", "companyid", "createdate", "creator", "datecreated",
+		"datemodified", "externalreferencecode", "groupid", "id",
+		"lastpublishdate", "modifieddate", "status", "statusbyuserid",
+		"statusbyusername", "statusdate", "userid", "username");
 
 	@Reference
 	private UserLocalService _userLocalService;

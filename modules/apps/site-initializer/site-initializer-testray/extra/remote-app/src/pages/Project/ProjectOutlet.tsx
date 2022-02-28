@@ -13,82 +13,112 @@
  */
 
 import {useQuery} from '@apollo/client';
-import {useCallback, useEffect} from 'react';
+import {useCallback, useContext, useEffect} from 'react';
 import {Outlet, useLocation, useParams} from 'react-router-dom';
 
-import {getTestrayProject} from '../../graphql/queries/testrayProject';
+import {HeaderContext, HeaderTypes} from '../../context/HeaderContext';
+import {CTypePagination} from '../../graphql/queries';
+import {
+	TestrayProject,
+	TestrayProjectQuery,
+	getTestrayProject,
+	getTestrayProjects,
+} from '../../graphql/queries/testrayProject';
 import useHeader from '../../hooks/useHeader';
 
-type TestrayProject = {
-	c: {
-		testrayProject: {
-			description: string;
-			name: string;
-		};
-	};
-};
-
 const ProjectOutlet = () => {
-	const {projectId} = useParams();
-
+	const {projectId, ...otherParams} = useParams();
+	const {pathname} = useLocation();
 	const {setHeading, setTabs} = useHeader();
 
-	const {data} = useQuery<TestrayProject>(getTestrayProject, {
+	const [, dispatch] = useContext(HeaderContext);
+
+	const {data} = useQuery<TestrayProjectQuery>(getTestrayProject, {
 		variables: {testrayProjectId: projectId},
 	});
 
+	const {data: dataTestrayProjects} = useQuery<
+		CTypePagination<'testrayProjects', TestrayProject>
+	>(getTestrayProjects, {
+		variables: {
+			pageSize: 100,
+		},
+	});
+
+	const testrayProjects = dataTestrayProjects?.c?.testrayProjects?.items;
+
+	const hasOtherParams = !!Object.values(otherParams).length;
 	const testrayProject = data?.c.testrayProject;
-
-	const {pathname} = useLocation();
-
-	const currentPath = pathname
-		.split('/')
-		.filter(Boolean)
-		.slice(0, -1)
-		.join('/');
 
 	const getPath = useCallback(
 		(path: string) => {
-			const relativePath = `/${currentPath}/${path}`;
+			const relativePath = `/project/${projectId}/${path}`;
 
 			return {
 				active: relativePath === pathname,
 				path: relativePath,
 			};
 		},
-		[currentPath, pathname]
+		[projectId, pathname]
 	);
 
 	useEffect(() => {
-		if (testrayProject) {
-			setHeading([{category: 'PROJECT', title: testrayProject.name}]);
+		if (testrayProjects) {
+			dispatch({
+				payload: [
+					{
+						items: [
+							{
+								divider: true,
+								label: 'Project Directory',
+								path: '/',
+							},
+							...testrayProjects.map((testrayProject) => ({
+								label: testrayProject.name,
+								path: `/project/${testrayProject.testrayProjectId}/routines`,
+							})),
+						],
+					},
+				],
+				type: HeaderTypes.SET_DROPDOWN,
+			});
 		}
-	}, [setHeading, testrayProject]);
+	}, [dispatch, testrayProjects]);
 
 	useEffect(() => {
-		setTabs([
-			{
-				...getPath('overview'),
-				title: 'Overview',
-			},
-			{
-				...getPath('routines'),
-				title: 'Routines',
-			},
-			{
-				...getPath('suites'),
-				title: 'Suites',
-			},
-			{
-				...getPath('cases'),
-				title: 'Cases',
-			},
-			{
-				...getPath('requirements'),
-				title: 'Requirements',
-			},
-		]);
-	}, [getPath, setTabs]);
+		if (testrayProject && !hasOtherParams) {
+			setHeading([{category: 'PROJECT', title: testrayProject.name}]);
+		}
+	}, [setHeading, testrayProject, hasOtherParams]);
+
+	useEffect(() => {
+		if (!hasOtherParams) {
+			setTimeout(() => {
+				setTabs([
+					{
+						...getPath('overview'),
+						title: 'Overview',
+					},
+					{
+						...getPath('routines'),
+						title: 'Routines',
+					},
+					{
+						...getPath('suites'),
+						title: 'Suites',
+					},
+					{
+						...getPath('cases'),
+						title: 'Cases',
+					},
+					{
+						...getPath('requirements'),
+						title: 'Requirements',
+					},
+				]);
+			}, 0);
+		}
+	}, [getPath, setTabs, hasOtherParams]);
 
 	if (testrayProject) {
 		return <Outlet context={{testrayProject}} />;

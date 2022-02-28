@@ -16,12 +16,12 @@ definition {
 	tearDown {
 		var testPortalInstance = PropsUtil.get("test.portal.instance");
 
+		Raylife.tearDownCP();
+
 		if ("${testPortalInstance}" == "true") {
 			PortalInstances.tearDownCP();
 		}
 		else {
-			Raylife.tearDownCP();
-
 			User.logoutPG();
 		}
 	}

@@ -365,6 +365,12 @@
 			<property name="description" value="Finds private methods that throw unnecessary exception." />
 			<message key="exception.unnecessary" value="Method ''{0}'' throws unnecessary {1}. All methods calling ''{0}'' throw ''Exception''." />
 		</module>
+		<module name="com.liferay.source.formatter.checkstyle.check.ExceptionMapperAnnotationCheck">
+			<property name="category" value="Bug Prevention" />
+			<property name="description" value="Performs several checks on classes with @Reference annotation." />
+			<message key="osgi.jaxrs.name.incorrect" value="The value of ''osgi.jaxrs.name'' should end with ''{0}''" />
+			<property name="enabled" value="false" />
+		</module>
 		<module name="com.liferay.source.formatter.checkstyle.check.ExceptionMessageCheck">
 			<property name="category" value="Styling" />
 			<property name="description" value="Validates messages that are passed to exceptions." />
@@ -648,6 +654,11 @@
 			<message key="unbind.static.policy.missing" value="Specify ''unbind'' method. Use ''unbind = {0}'' when ''unbind'' method is not needed. See https://osgi.org/javadoc/r4v43/cmpn/org/osgi/service/component/annotations/Reference.html#unbind()" />
 			<message key="volatile.missing" value="Variable ''{0}'' should be volatile" />
 		</module>
+		<module name="com.liferay.source.formatter.checkstyle.check.ResourceImplCheck">
+			<property name="category" value="Bug Prevention" />
+			<property name="description" value="Performs several checks on `*ResourceImpl` classes (except `Base*ResourceImpl` classes)." />
+			<message key="invalid.method.parameter.annotation" value="Remove annotation ''{0}'' from method parameter ''{1}''" />
+		</module>
 		<module name="com.liferay.source.formatter.checkstyle.check.SelfReferenceCheck">
 			<property name="category" value="Bug Prevention" />
 			<property name="description" value="Finds cases of unnecessary reference to its own class." />
@@ -773,6 +784,7 @@
 			<property name="category" value="Performance" />
 			<property name="description" value="Finds cases where an `Exception` is swallowed without being processed." />
 			<message key="exception.unprocessed" value="Unprocessed exception ''{0}'', see LPS-36174" />
+			<message key="missing.debug.log.json.exception" value="Missing debug logging for ''JSONException''" />
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.check.UnusedMethodCheck">
 			<property name="allowedMethodNames" value="readObject,writeObject" />

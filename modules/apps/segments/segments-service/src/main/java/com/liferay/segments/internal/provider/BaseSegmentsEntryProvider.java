@@ -249,10 +249,10 @@ public abstract class BaseSegmentsEntryProvider
 				}
 				catch (PortalException portalException) {
 					if (_log.isDebugEnabled()) {
-						_log.debug(portalException, portalException);
+						_log.debug(portalException);
 					}
 					else if (_log.isWarnEnabled()) {
-						_log.warn(portalException.getMessage());
+						_log.warn(portalException);
 					}
 				}
 
@@ -295,7 +295,7 @@ public abstract class BaseSegmentsEntryProvider
 				}
 			}
 			catch (PortalException portalException) {
-				_log.error(portalException, portalException);
+				_log.error(portalException);
 			}
 
 			Criteria.Conjunction modelConjunction = getConjunction(

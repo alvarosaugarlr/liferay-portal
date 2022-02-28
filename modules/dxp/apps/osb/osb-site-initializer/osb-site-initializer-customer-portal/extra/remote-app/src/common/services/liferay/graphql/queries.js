@@ -210,6 +210,24 @@ export const addTeamMembersInvitation = gql`
 	}
 `;
 
+export const associateUserAccountWithAccountAndAccountRole = gql`
+	mutation associateUserAccountWithAccountAndAccountRole(
+		$emailAddress: String!
+		$accountKey: String!
+		$accountRoleId: Long!
+	) {
+		createAccountUserAccountByExternalReferenceCodeByEmailAddress(
+			emailAddress: $emailAddress
+			externalReferenceCode: $accountKey
+		)
+		createAccountByExternalReferenceCodeAccountRoleUserAccountByEmailAddress(
+			accountRoleId: $accountRoleId
+			emailAddress: $emailAddress
+			externalReferenceCode: $accountKey
+		)
+	}
+`;
+
 export const getAccountFlags = gql`
 	query getAccountFlags($filter: String) {
 		c {
@@ -265,9 +283,9 @@ export const getAccountSubscriptionGroups = gql`
 `;
 
 export const getKoroneikiAccounts = gql`
-	query getKoroneikiAccounts($filter: String) {
+	query getKoroneikiAccounts($filter: String, $pageSize: Int = 20) {
 		c {
-			koroneikiAccounts(filter: $filter) {
+			koroneikiAccounts(filter: $filter, pageSize: $pageSize) {
 				items {
 					accountKey
 					code
@@ -307,8 +325,8 @@ export const getListTypeDefinitions = gql`
 `;
 
 export const getAccounts = gql`
-	query getAccounts {
-		accounts {
+	query getAccounts($pageSize: Int = 20) {
+		accounts(pageSize: $pageSize) {
 			items {
 				externalReferenceCode
 				name

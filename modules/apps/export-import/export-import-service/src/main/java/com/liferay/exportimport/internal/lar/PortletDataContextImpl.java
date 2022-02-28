@@ -87,12 +87,14 @@ import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.TeamLocalServiceUtil;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalServiceUtil;
+import com.liferay.portal.kernel.util.AggregateClassLoader;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.DateRange;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.KeyValuePair;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -339,7 +341,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 						role.getDescriptiveName());
 				}
 				catch (PortalException portalException) {
-					_log.error(portalException, portalException);
+					_log.error(portalException);
 				}
 			}
 
@@ -1531,7 +1533,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -1972,7 +1974,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 			}
 			catch (Exception exception) {
 				if (_log.isDebugEnabled()) {
-					_log.debug(exception, exception);
+					_log.debug(exception);
 				}
 			}
 		}
@@ -2192,7 +2194,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 			return getUserId(auditedModel.getUserUuid());
 		}
 		catch (SystemException systemException) {
-			_log.error(systemException, systemException);
+			_log.error(systemException);
 		}
 
 		return 0;
@@ -2601,7 +2603,9 @@ public class PortletDataContextImpl implements PortletDataContext {
 	private void _initXStream() {
 		ClassLoader classLoader =
 			XStreamConfiguratorRegistryUtil.getConfiguratorsClassLoader(
-				XStream.class.getClassLoader());
+				AggregateClassLoader.getAggregateClassLoader(
+					PortalClassLoaderUtil.getClassLoader(),
+					XStream.class.getClassLoader()));
 
 		long modifiedCount = XStreamConfiguratorRegistryUtil.getModifiedCount();
 

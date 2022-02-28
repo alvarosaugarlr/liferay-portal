@@ -31,8 +31,10 @@ export const SUBSECTION_KEYS = {
 	BUSINESS_EMAIL: 'Business Email',
 	BUSINESS_FEDERAL_EMPLOYER_IDENTIFICATION_NUMBER:
 		'Does your business have a Federal Employer Identification Number (FEIN)?',
-	BUSINESS_WEBSITE: 'Business Website',
+	BUSINESS_WEBSITE: 'Business Website (optional)',
 	BUSINESS_YEAR_OPERATION: 'Does your business operate year round?',
+	CITY: 'City',
+	DIVING_BOARDS: 'Are there diving boards or slides?',
 	DO_YOU_HAVE_RAYLIFE_POLICY: 'Do you have a Raylife Auto policy?',
 	DO_YOU_OWN_THE_BUILDING_AT: 'Do you own the building at ',
 	DO_YOU_SELL_PRODUCTS_UNDER_OWN_BRAND:
@@ -44,13 +46,13 @@ export const SUBSECTION_KEYS = {
 		'What do you anticipate your annual payroll will be for all employees over the next 12 months?',
 	FEDERAL_EMPLOYER_IDENTIFICATION_NUMBER:
 		'Federal Employer Identification Number (FEIN)',
+	FIRST_NAME: 'First Name',
 	HOW_MANY_SQUARE_FEET_OF_THE_BUILDING:
 		'How many square feet of the building does your business occupy?',
 	HOW_MANY_STORIES_IS_THIS_BUILDING: 'How many stories is this building?',
 	HOW_MANY_TOTAL_SQUARE_FEET_IS_THE_BUILDING:
 		'How many total square feet is the building?',
-	IS_THIS_THE_PRIMARY_LOCATION:
-		'Is this the primary location where you conduct business?',
+	LAST_NAME: 'Last Name',
 	LEGAL_ENTITY: 'Legal Entity',
 	OWNERS_ANNUAL_PAYROLL:
 		'What do you anticipate your annual payroll will be for all owner(s) over the next 12 months?',
@@ -58,6 +60,12 @@ export const SUBSECTION_KEYS = {
 		'Percent of sales from used merchandise?',
 	PHONE: 'Phone',
 	PHYSICAL_ADDRESS: 'Physical Address',
+	PHYSICAL_BUSINESS_ADDRESS: 'Physical Business Address',
+	PREMISES: 'Premises',
+	PRIMARY_LOCATION:
+		'Is this the primary location where you conduct business?',
+	STATE: 'State',
+	SWIMMING_POOL: 'Are there swimming pool(s) on the premises?',
 	WHAT_PERCENTAGE_OF_OVERALL_INVOLVE_DELIVERY:
 		'What percentage of overall sales involve delivery?',
 	WHAT_YEAR_WAS_THE_BUILDING_CONSTRUCTED:
@@ -65,6 +73,7 @@ export const SUBSECTION_KEYS = {
 	YEAR_BUSINESS_STARTED: 'What year did you start your business?',
 	YEAR_OF_INDUSTRY_EXPERIENCE: 'Years of industry experience?',
 	YOUR_NAME: 'Your Name',
+	ZIP: 'ZIP',
 };
 
 export const AVAILABLE_STEPS = {
@@ -268,9 +277,15 @@ export const AVAILABLE_STEPS = {
 			},
 			{
 				active: false,
-				hideContinueButton: false,
+				hideContinueButton: true,
 				hideInputLabel: true,
-				title: SUBSECTION_KEYS.IS_THIS_THE_PRIMARY_LOCATION,
+				title: SUBSECTION_KEYS.PRIMARY_LOCATION,
+			},
+			{
+				active: false,
+				hideContinueButton: false,
+				hideInputLabel: false,
+				title: SUBSECTION_KEYS.PREMISES,
 			},
 		],
 		section: 'property',

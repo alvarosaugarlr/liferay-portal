@@ -86,6 +86,21 @@ create table ObjectField (
 	required BOOLEAN
 );
 
+create table ObjectFieldSetting (
+	mvccVersion LONG default 0 not null,
+	uuid_ VARCHAR(75) null,
+	objectFieldSettingId LONG not null primary key,
+	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	modifiedDate DATE null,
+	objectFieldId LONG,
+	name VARCHAR(75) null,
+	required BOOLEAN,
+	value VARCHAR(75) null
+);
+
 create table ObjectLayout (
 	mvccVersion LONG default 0 not null,
 	uuid_ VARCHAR(75) null,
@@ -178,6 +193,22 @@ create table ObjectRelationship (
 	type_ VARCHAR(75) null
 );
 
+create table ObjectValidationRule (
+	mvccVersion LONG default 0 not null,
+	uuid_ VARCHAR(75) null,
+	objectValidationRuleId LONG not null primary key,
+	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	modifiedDate DATE null,
+	objectDefinitionId LONG,
+	active_ BOOLEAN,
+	errorLabel STRING null,
+	engine VARCHAR(75) null,
+	script VARCHAR(75) null
+);
+
 create table ObjectView (
 	mvccVersion LONG default 0 not null,
 	uuid_ VARCHAR(75) null,
@@ -204,4 +235,19 @@ create table ObjectViewColumn (
 	objectViewId LONG,
 	objectFieldName VARCHAR(75) null,
 	priority INTEGER
+);
+
+create table ObjectViewSortColumn (
+	mvccVersion LONG default 0 not null,
+	uuid_ VARCHAR(75) null,
+	objectViewSortColumnId LONG not null primary key,
+	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	modifiedDate DATE null,
+	objectViewId LONG,
+	objectFieldName VARCHAR(75) null,
+	priority INTEGER,
+	sortOrder VARCHAR(75) null
 );

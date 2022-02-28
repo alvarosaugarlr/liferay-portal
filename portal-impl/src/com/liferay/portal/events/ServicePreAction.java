@@ -121,6 +121,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.portlet.PortletMode;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
+import javax.portlet.WindowState;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -879,7 +880,7 @@ public class ServicePreAction extends Action {
 			// LPS-52675
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(noSuchUserException, noSuchUserException);
+				_log.debug(noSuchUserException);
 			}
 
 			return null;
@@ -941,7 +942,7 @@ public class ServicePreAction extends Action {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 
 			CookieKeys.addSupportCookie(
@@ -1541,8 +1542,11 @@ public class ServicePreAction extends Action {
 		themeDisplay.setShowPortalIcon(true);
 		themeDisplay.setShowSignInIcon(
 			!signedIn &&
-			!Objects.equals(
-				PropsValues.AUTH_LOGIN_PORTLET_NAME, themeDisplay.getPpid()));
+			!(Objects.equals(
+				PropsValues.AUTH_LOGIN_PORTLET_NAME, themeDisplay.getPpid()) &&
+			  Objects.equals(
+				  ParamUtil.getString(httpServletRequest, "p_p_state"),
+				  WindowState.MAXIMIZED.toString())));
 
 		boolean showSignOutIcon = signedIn;
 
@@ -1851,7 +1855,7 @@ public class ServicePreAction extends Action {
 				}
 				catch (NoSuchGroupException noSuchGroupException) {
 					if (_log.isWarnEnabled()) {
-						_log.warn(noSuchGroupException, noSuchGroupException);
+						_log.warn(noSuchGroupException);
 					}
 
 					return layouts;

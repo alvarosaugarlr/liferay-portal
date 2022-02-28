@@ -128,7 +128,7 @@ import com.liferay.portal.kernel.service.RecentLayoutSetBranchLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.WorkflowInstanceLinkLocalService;
-import com.liferay.portal.kernel.service.permission.GroupPermissionUtil;
+import com.liferay.portal.kernel.service.permission.GroupPermission;
 import com.liferay.portal.kernel.servlet.ServletResponseConstants;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.upload.UploadRequestSizeException;
@@ -1049,7 +1049,7 @@ public class StagingImpl implements Staging {
 			errorType = ServletResponseConstants.SC_FILE_CUSTOM_EXCEPTION;
 		}
 		else if (exception instanceof ExportImportRuntimeException) {
-			_log.error(exception, exception);
+			_log.error(exception);
 
 			ExportImportRuntimeException exportImportRuntimeException =
 				(ExportImportRuntimeException)exception;
@@ -1106,13 +1106,20 @@ public class StagingImpl implements Staging {
 							"live-environment-and-the-staging-environment");
 			}
 			else {
+				long maxSize = _dlValidator.getMaxAllowableSize(null);
+
+				if (exception instanceof FileSizeException) {
+					FileSizeException fileSizeException =
+						(FileSizeException)exception;
+
+					maxSize = fileSizeException.getMaxSize();
+				}
+
 				errorMessage = LanguageUtil.format(
 					locale,
 					"please-enter-a-file-with-a-valid-file-size-no-larger-" +
 						"than-x",
-					LanguageUtil.formatStorageSize(
-						_dlValidator.getMaxAllowableSize(), locale),
-					false);
+					LanguageUtil.formatStorageSize(maxSize, locale), false);
 			}
 
 			errorType = ServletResponseConstants.SC_FILE_SIZE_EXCEPTION;
@@ -1736,15 +1743,12 @@ public class StagingImpl implements Staging {
 
 				long scopeGroupId = stagingGroup.getGroupId();
 
-				boolean hasManageStagingPermission =
-					GroupPermissionUtil.contains(
-						permissionChecker, scopeGroupId,
-						ActionKeys.MANAGE_STAGING);
-				boolean hasPublishStagingPermission =
-					GroupPermissionUtil.contains(
-						permissionChecker, scopeGroupId,
-						ActionKeys.PUBLISH_STAGING);
-				boolean hasViewStagingPermission = GroupPermissionUtil.contains(
+				boolean hasManageStagingPermission = _groupPermission.contains(
+					permissionChecker, scopeGroupId, ActionKeys.MANAGE_STAGING);
+				boolean hasPublishStagingPermission = _groupPermission.contains(
+					permissionChecker, scopeGroupId,
+					ActionKeys.PUBLISH_STAGING);
+				boolean hasViewStagingPermission = _groupPermission.contains(
 					permissionChecker, scopeGroupId, ActionKeys.VIEW_STAGING);
 
 				if (hasManageStagingPermission || hasPublishStagingPermission ||
@@ -1755,7 +1759,7 @@ public class StagingImpl implements Staging {
 			}
 			catch (Exception exception) {
 				if (_log.isDebugEnabled()) {
-					_log.debug(exception, exception);
+					_log.debug(exception);
 				}
 			}
 		}
@@ -3389,7 +3393,7 @@ public class StagingImpl implements Staging {
 			// LPS-52675
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(noSuchGroupException, noSuchGroupException);
+				_log.debug(noSuchGroupException);
 			}
 
 			RemoteExportException remoteExportException =
@@ -3404,7 +3408,7 @@ public class StagingImpl implements Staging {
 			// LPS-52675
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(principalException, principalException);
+				_log.debug(principalException);
 			}
 
 			RemoteExportException remoteExportException =
@@ -3419,7 +3423,7 @@ public class StagingImpl implements Staging {
 			// LPS-52675
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(remoteAuthException, remoteAuthException);
+				_log.debug(remoteAuthException);
 			}
 
 			remoteAuthException.setURL(remoteURL);
@@ -3431,7 +3435,7 @@ public class StagingImpl implements Staging {
 			// LPS-52675
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(systemException, systemException);
+				_log.debug(systemException);
 			}
 
 			RemoteExportException remoteExportException =
@@ -3526,9 +3530,7 @@ public class StagingImpl implements Staging {
 				// LPS-52675
 
 				if (_log.isDebugEnabled()) {
-					_log.debug(
-						noSuchLayoutBranchException,
-						noSuchLayoutBranchException);
+					_log.debug(noSuchLayoutBranchException);
 				}
 			}
 		}
@@ -3549,9 +3551,7 @@ public class StagingImpl implements Staging {
 				// LPS-52675
 
 				if (_log.isDebugEnabled()) {
-					_log.debug(
-						noSuchLayoutRevisionException,
-						noSuchLayoutRevisionException);
+					_log.debug(noSuchLayoutRevisionException);
 				}
 			}
 		}
@@ -3801,7 +3801,7 @@ public class StagingImpl implements Staging {
 			ExportImportConfiguration exportImportConfiguration)
 		throws PortalException {
 
-		GroupPermissionUtil.check(
+		_groupPermission.check(
 			PermissionThreadLocal.getPermissionChecker(),
 			exportImportConfiguration.getGroupId(), ActionKeys.PUBLISH_STAGING);
 	}
@@ -3877,8 +3877,7 @@ public class StagingImpl implements Staging {
 			// LPS-52675
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(
-					noSuchLayoutBranchException, noSuchLayoutBranchException);
+				_log.debug(noSuchLayoutBranchException);
 			}
 		}
 
@@ -3998,7 +3997,7 @@ public class StagingImpl implements Staging {
 			return stagingConfiguration.stagingUseVirtualHostForRemoteSite();
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 		}
 
 		return false;
@@ -4066,6 +4065,9 @@ public class StagingImpl implements Staging {
 
 	@Reference
 	private GroupLocalService _groupLocalService;
+
+	@Reference
+	private GroupPermission _groupPermission;
 
 	@Reference
 	private LayoutBranchLocalService _layoutBranchLocalService;

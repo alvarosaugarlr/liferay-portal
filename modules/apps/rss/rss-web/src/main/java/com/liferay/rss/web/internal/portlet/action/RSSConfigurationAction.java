@@ -75,7 +75,7 @@ public class RSSConfigurationAction extends DefaultConfigurationAction {
 		throws Exception {
 
 		UnicodeProperties unicodeProperties = PropertiesParamUtil.getProperties(
-			actionRequest, _PARAMETER_NAME_PREFIX);
+			actionRequest, "preferences--");
 
 		long entriesPerFeed = GetterUtil.getLong(
 			unicodeProperties.getProperty("entriesPerFeed"));
@@ -120,7 +120,5 @@ public class RSSConfigurationAction extends DefaultConfigurationAction {
 		setPreference(actionRequest, "urls", urls);
 		setPreference(actionRequest, "titles", titles);
 	}
-
-	private static final String _PARAMETER_NAME_PREFIX = "preferences--";
 
 }

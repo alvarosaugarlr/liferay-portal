@@ -371,9 +371,7 @@ definition {
 
 		ClickNoError(locator1 = "Staging#STAGING_PUBLISH_TO_LIVE_BUTTON");
 
-		Pause(locator1 = "3000");
-
-		AssertTextEquals(
+		WaitForElementPresent(
 			locator1 = "Staging#PROCESS_SUCCESSFUL",
 			value1 = "Successful");
 

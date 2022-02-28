@@ -47,7 +47,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.FileUtil;
-import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
+import com.liferay.portal.kernel.util.FriendlyURLNormalizer;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
@@ -115,7 +115,7 @@ public class WelcomeSiteInitializer implements SiteInitializer {
 			_addDefaultGuestPublicLayout(groupId);
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 
 			throw new InitializationException(exception);
 		}
@@ -138,7 +138,7 @@ public class WelcomeSiteInitializer implements SiteInitializer {
 
 		User user = _getUser(group.getCompanyId());
 
-		String friendlyURL = FriendlyURLNormalizerUtil.normalizeWithEncoding(
+		String friendlyURL = _friendlyURLNormalizer.normalizeWithEncoding(
 			PropsValues.DEFAULT_GUEST_PUBLIC_LAYOUT_FRIENDLY_URL);
 
 		ServiceContext serviceContext = new ServiceContext();
@@ -222,7 +222,7 @@ public class WelcomeSiteInitializer implements SiteInitializer {
 		}
 	}
 
-	private long _getTreeImageId(
+	private String _getTreeImageId(
 			long groupId, long userId, long plid, ServiceContext serviceContext)
 		throws Exception {
 
@@ -259,7 +259,8 @@ public class WelcomeSiteInitializer implements SiteInitializer {
 			_FILE_NAME_TREE_IMAGE,
 			MimeTypesUtil.getContentType(_FILE_NAME_TREE_IMAGE), false);
 
-		return fileEntry.getFileEntryId();
+		return StringUtil.quote(
+			String.valueOf(fileEntry.getFileEntryId()), CharPool.QUOTE);
 	}
 
 	private User _getUser(long companyId) throws PortalException {
@@ -296,11 +297,31 @@ public class WelcomeSiteInitializer implements SiteInitializer {
 
 			Class<?> clazz = getClass();
 
+			String releaseInfo = StringPool.BLANK;
+
+			if (_HTTP_HEADER_VERSION_VERBOSITY_PARTIAL) {
+				releaseInfo = ReleaseInfo.getName();
+			}
+			else if (!_HTTP_HEADER_VERSION_VERBOSITY_DEFAULT) {
+				releaseInfo = ReleaseInfo.getReleaseInfo();
+			}
+
+			releaseInfo = StringUtil.replace(
+				releaseInfo, CharPool.OPEN_PARENTHESIS, "<br>(");
+
 			String pageElementJSON = StringUtil.replace(
 				StringUtil.read(
 					clazz.getClassLoader(), _PATH + "page-element.json"),
-				"\"[£", "£]\"",
+				"\"[$", "$]\"",
 				HashMapBuilder.put(
+					"RELEASE_INFO",
+					StringUtil.quote(releaseInfo + ".", CharPool.QUOTE)
+				).put(
+					"TREE_IMAGE_ID",
+					_getTreeImageId(
+						layout.getGroupId(), layout.getUserId(),
+						layout.getPlid(), serviceContext)
+				).put(
 					"WELCOME_TO_LIFERAY_I18N_JSON_VALUE",
 					() -> {
 						JSONObject jsonObject =
@@ -317,30 +338,6 @@ public class WelcomeSiteInitializer implements SiteInitializer {
 
 						return jsonObject.toJSONString();
 					}
-				).build());
-
-			String releaseInfo = StringPool.BLANK;
-
-			if (_HTTP_HEADER_VERSION_VERBOSITY_PARTIAL) {
-				releaseInfo = ReleaseInfo.getName();
-			}
-			else if (!_HTTP_HEADER_VERSION_VERBOSITY_DEFAULT) {
-				releaseInfo = ReleaseInfo.getReleaseInfo();
-			}
-
-			releaseInfo = StringUtil.replace(
-				releaseInfo, CharPool.OPEN_PARENTHESIS, "<br>(");
-
-			pageElementJSON = StringUtil.replace(
-				pageElementJSON, "[$", "$]",
-				HashMapBuilder.put(
-					"RELEASE_INFO", releaseInfo + "."
-				).put(
-					"TREE_IMAGE_ID",
-					String.valueOf(
-						_getTreeImageId(
-							layout.getGroupId(), layout.getUserId(),
-							layout.getPlid(), serviceContext))
 				).build());
 
 			_layoutPageTemplatesImporter.importPageElement(
@@ -369,6 +366,9 @@ public class WelcomeSiteInitializer implements SiteInitializer {
 		WelcomeSiteInitializer.class);
 
 	private Bundle _bundle;
+
+	@Reference
+	private FriendlyURLNormalizer _friendlyURLNormalizer;
 
 	@Reference
 	private GroupLocalService _groupLocalService;

@@ -25,10 +25,12 @@
 
 <div>
 	<liferay-ui:error embed="<%= false %>" exception="<%= ObjectDefinitionNameException.MustBeginWithUpperCaseLetter.class %>" message="the-first-character-of-a-name-must-be-an-upper-case-letter" />
+	<liferay-ui:error embed="<%= false %>" exception="<%= ObjectDefinitionNameException.MustNotBeDuplicate.class %>" message="this-name-is-already-in-use-try-another-one" />
+	<liferay-ui:error embed="<%= false %>" exception="<%= ObjectDefinitionNameException.MustOnlyContainLettersAndDigits.class %>" message="name-must-only-contain-letters-and-digits" />
 	<liferay-ui:error embed="<%= false %>" key="importObjectDefinitionErrorMessage" message="the-structure-was-not-successfully-imported" />
 
 	<react:component
-		module="js/modals/ImportObjectDefinitionModal"
+		module="js/components/ModalImportObjectDefinition"
 		props='<%=
 			HashMapBuilder.<String, Object>put(
 				"importObjectDefinitionURL",

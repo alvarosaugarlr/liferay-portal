@@ -206,10 +206,6 @@ definition {
 			dmDocumentTitle = "Document_1.jpg",
 			siteName = "Site Name");
 
-		DMNavigator.gotoDocumentPG(dmDocumentTitle = "Document_1.jpg");
-
-		DMDocument.previewImage(dmDocumentFileName = "Document_1.jpg");
-
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		DMDocument.deleteCP(dmDocumentTitle = "Document_1.jpg");

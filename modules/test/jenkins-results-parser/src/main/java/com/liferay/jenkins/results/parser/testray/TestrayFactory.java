@@ -36,13 +36,7 @@ public class TestrayFactory {
 	public static TestrayAttachment newTestrayAttachment(
 		TestrayCaseResult testrayCaseResult, String name, String key) {
 
-		TestrayServer testrayServer = testrayCaseResult.getTestrayServer();
-
-		if (testrayServer instanceof RsyncTestrayServer) {
-			return new RsyncTestrayAttachment(testrayCaseResult, name, key);
-		}
-
-		return new S3TestrayAttachment(testrayCaseResult, name, key);
+		return new DefaultTestrayAttachment(testrayCaseResult, name, key);
 	}
 
 	public static TestrayAttachmentRecorder newTestrayAttachmentRecorder(
@@ -134,32 +128,15 @@ public class TestrayFactory {
 	}
 
 	public static TestrayServer newTestrayServer(String testrayServerURL) {
-		return newTestrayServer(testrayServerURL, "RSYNC");
-	}
-
-	public static TestrayServer newTestrayServer(
-		String testrayServerURL, String testrayServerType) {
-
-		if (JenkinsResultsParserUtil.isNullOrEmpty(testrayServerType)) {
-			testrayServerType = "RSYNC";
-		}
-
-		String key = testrayServerURL + "_" + testrayServerType;
-
-		TestrayServer testrayServer = _testrayServers.get(key);
+		TestrayServer testrayServer = _testrayServers.get(testrayServerURL);
 
 		if (testrayServer != null) {
 			return testrayServer;
 		}
 
-		if (testrayServerType.equals("S3")) {
-			testrayServer = new S3TestrayServer(testrayServerURL);
-		}
-		else {
-			testrayServer = new RsyncTestrayServer(testrayServerURL);
-		}
+		testrayServer = new DefaultTestrayServer(testrayServerURL);
 
-		_testrayServers.put(key, testrayServer);
+		_testrayServers.put(testrayServerURL, testrayServer);
 
 		return testrayServer;
 	}

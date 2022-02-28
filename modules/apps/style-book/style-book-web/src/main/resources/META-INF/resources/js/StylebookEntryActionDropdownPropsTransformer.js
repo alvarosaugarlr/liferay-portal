@@ -38,12 +38,7 @@ const ACTIONS = {
 	},
 
 	markAsDefaultStyleBookEntry({markAsDefaultStyleBookEntryURL, message}) {
-		if (message !== '') {
-			if (confirm(message)) {
-				submitForm(document.hrefFm, markAsDefaultStyleBookEntryURL);
-			}
-		}
-		else {
+		if (confirm(message)) {
 			submitForm(document.hrefFm, markAsDefaultStyleBookEntryURL);
 		}
 	},
@@ -100,6 +95,16 @@ export default function propsTransformer({
 	portletNamespace,
 	...otherProps
 }) {
+	const onClick = (event, item) => {
+		const action = item.data?.action;
+
+		if (action) {
+			event.preventDefault();
+
+			ACTIONS[action](item.data, portletNamespace);
+		}
+	};
+
 	return {
 		...otherProps,
 		actions: actions.map((item) => {
@@ -108,17 +113,12 @@ export default function propsTransformer({
 				items: item.items?.map((child) => {
 					return {
 						...child,
-						onClick(event) {
-							const action = child.data?.action;
-
-							if (action) {
-								event.preventDefault();
-
-								ACTIONS[action](child.data, portletNamespace);
-							}
-						},
+						onClick: (event) => onClick(event, child),
 					};
 				}),
+				onClick: item.items
+					? () => {}
+					: (event) => onClick(event, item),
 			};
 		}),
 	};

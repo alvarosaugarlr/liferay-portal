@@ -166,6 +166,8 @@ public class AssetCategoriesSelectorDisplayContext {
 			"namespace", _renderResponse.getNamespace()
 		).put(
 			"nodes", getCategoriesJSONArray()
+		).put(
+			"selectedCategoryIds", getSelectedCategoryIds()
 		).build();
 	}
 

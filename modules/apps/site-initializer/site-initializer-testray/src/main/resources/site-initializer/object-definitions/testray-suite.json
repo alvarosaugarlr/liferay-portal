@@ -55,10 +55,8 @@
 			"type": "String"
 		}
 	],
-	"panelAppOrder": "100",
-	"panelCategoryKey": "site_administration.content",
 	"pluralLabel": {
 		"en_US": "Testray Suites"
 	},
-	"scope": "site"
+	"scope": "company"
 }

@@ -155,10 +155,6 @@ public interface Build {
 
 	public long getStatusDuration(String status);
 
-	public String getStatusReport();
-
-	public String getStatusReport(int indentSize);
-
 	public String getStatusSummary();
 
 	public Map<String, String> getStopPropertiesTempMap();
@@ -166,6 +162,10 @@ public interface Build {
 	public TestClassResult getTestClassResult(String testClassName);
 
 	public List<TestClassResult> getTestClassResults();
+
+	public List<URL> getTestrayAttachmentURLs();
+
+	public List<URL> getTestrayS3AttachmentURLs();
 
 	public JSONObject getTestReportJSONObject(boolean checkCache);
 

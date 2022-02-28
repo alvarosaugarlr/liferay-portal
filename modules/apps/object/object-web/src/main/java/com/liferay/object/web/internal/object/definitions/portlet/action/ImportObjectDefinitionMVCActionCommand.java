@@ -83,12 +83,17 @@ public class ImportObjectDefinitionMVCActionCommand
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 
 			if (exception instanceof
 					ObjectDefinitionNameException.
-						MustBeginWithUpperCaseLetter) {
+						MustBeginWithUpperCaseLetter ||
+				exception instanceof
+					ObjectDefinitionNameException.MustNotBeDuplicate ||
+				exception instanceof
+					ObjectDefinitionNameException.
+						MustOnlyContainLettersAndDigits) {
 
 				SessionErrors.add(actionRequest, exception.getClass());
 			}

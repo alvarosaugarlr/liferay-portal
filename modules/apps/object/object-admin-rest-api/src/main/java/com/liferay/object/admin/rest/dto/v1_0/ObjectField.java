@@ -361,6 +361,38 @@ public class ObjectField implements Serializable {
 
 	@Schema
 	@Valid
+	public ObjectFieldSetting[] getObjectFieldSettings() {
+		return objectFieldSettings;
+	}
+
+	public void setObjectFieldSettings(
+		ObjectFieldSetting[] objectFieldSettings) {
+
+		this.objectFieldSettings = objectFieldSettings;
+	}
+
+	@JsonIgnore
+	public void setObjectFieldSettings(
+		UnsafeSupplier<ObjectFieldSetting[], Exception>
+			objectFieldSettingsUnsafeSupplier) {
+
+		try {
+			objectFieldSettings = objectFieldSettingsUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected ObjectFieldSetting[] objectFieldSettings;
+
+	@Schema
+	@Valid
 	public RelationshipType getRelationshipType() {
 		return relationshipType;
 	}
@@ -606,6 +638,26 @@ public class ObjectField implements Serializable {
 			sb.append("\"");
 		}
 
+		if (objectFieldSettings != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"objectFieldSettings\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < objectFieldSettings.length; i++) {
+				sb.append(String.valueOf(objectFieldSettings[i]));
+
+				if ((i + 1) < objectFieldSettings.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
+
 		if (relationshipType != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -659,10 +711,11 @@ public class ObjectField implements Serializable {
 	@GraphQLName("BusinessType")
 	public static enum BusinessType {
 
-		BOOLEAN("Boolean"), DATE("Date"), DECIMAL("Decimal"),
-		INTEGER("Integer"), LONG_INTEGER("LongInteger"), LONG_TEXT("LongText"),
-		PICKLIST("Picklist"), PRECISION_DECIMAL("PrecisionDecimal"),
-		RELATIONSHIP("Relationship"), TEXT("Text");
+		ATTACHMENT("Attachment"), BOOLEAN("Boolean"), DATE("Date"),
+		DECIMAL("Decimal"), INTEGER("Integer"), LONG_INTEGER("LongInteger"),
+		LONG_TEXT("LongText"), PICKLIST("Picklist"),
+		PRECISION_DECIMAL("PrecisionDecimal"), RELATIONSHIP("Relationship"),
+		TEXT("Text");
 
 		@JsonCreator
 		public static BusinessType create(String value) {

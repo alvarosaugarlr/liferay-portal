@@ -177,12 +177,17 @@ public abstract class TopLevelBuild extends BaseBuild {
 
 		TopLevelBuild topLevelBuild = getTopLevelBuild();
 
+		sb.append("/");
+
+		sb.append(
+			JenkinsResultsParserUtil.toDateString(
+				new Date(topLevelBuild.getStartTime()), "yyyy-MM",
+				"America/Los_Angeles"));
+
 		JenkinsMaster jenkinsMaster = topLevelBuild.getJenkinsMaster();
 
 		sb.append("/");
 		sb.append(jenkinsMaster.getName());
-		sb.append("/");
-		sb.append(topLevelBuild.getStartTime());
 		sb.append("/");
 		sb.append(topLevelBuild.getJobName());
 		sb.append("/");
@@ -481,23 +486,6 @@ public abstract class TopLevelBuild extends BaseBuild {
 
 	public List<String> getProjectNames() {
 		return Collections.emptyList();
-	}
-
-	@Override
-	public String getStatusReport(int indentSize) {
-		String statusReport = super.getStatusReport(indentSize);
-
-		if (getDownstreamBuildCount(null) > 0) {
-			while (statusReport.endsWith("\n")) {
-				statusReport = statusReport.substring(
-					0, statusReport.length() - 1);
-			}
-
-			statusReport += " / ";
-		}
-
-		return statusReport + "Update took " + _updateDuration +
-			" milliseconds.\n";
 	}
 
 	@Override

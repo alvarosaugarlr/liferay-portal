@@ -12,17 +12,36 @@
  * details.
  */
 
-import {Link} from 'react-router-dom';
+import {useEffect} from 'react';
 
 import {Avatar, AvatarGroup} from '../../components/Avatar';
+import Code from '../../components/Code';
 import Container from '../../components/Layout/Container';
 import ProgressBar from '../../components/ProgressBar';
+import StatusBadge from '../../components/StatusBadge';
 import Table from '../../components/Table';
 import QATable from '../../components/Table/QATable';
+import useHeader from '../../hooks/useHeader';
 import {progress, routines, subtask, tasks} from '../../util/mock';
 
 const TestFlowTasks: React.FC = () => {
 	const {assigned} = routines[0];
+
+	const {setHeading, setTabs} = useHeader();
+
+	useEffect(() => {
+		setTimeout(() => {
+			setHeading([
+				{
+					category: 'TASK',
+					title:
+						' [master] ci:test:analytics-cloud - 987 - 2022-02-07[16:07:08] ',
+				},
+			]);
+
+			setTabs([]);
+		}, 0);
+	}, [setHeading, setTabs]);
 
 	return (
 		<>
@@ -34,15 +53,9 @@ const TestFlowTasks: React.FC = () => {
 								{
 									title: 'Status',
 									value: (
-										<Link
-											to={`/testflow/${subtask[1].status
-												.toLowerCase()
-												.replace(' ', '_')}`}
-										>
-											<span className="label label-inverse-secondary">
-												{subtask[1].status.toUpperCase()}
-											</span>
-										</Link>
+										<StatusBadge type="passed">
+											Passed
+										</StatusBadge>
 									),
 								},
 								{
@@ -81,7 +94,11 @@ const TestFlowTasks: React.FC = () => {
 							]}
 						/>
 
-						<ProgressBar items={tasks[1]} legend />
+						<ProgressBar
+							displayTotalCompleted={false}
+							items={tasks[1]}
+							legend
+						/>
 					</div>
 				</div>
 			</Container>
@@ -95,26 +112,33 @@ const TestFlowTasks: React.FC = () => {
 			<Container className="mt-3" title="Subtasks">
 				<Table
 					columns={[
-						{key: 'name', value: 'Name'},
 						{
+							clickable: true,
+							key: 'name',
+							value: 'Name',
+						},
+						{
+							clickable: true,
 							key: 'status',
-							render: (value: string) => (
-								<Link
-									to={`/testflow/${value
-										.toLowerCase()
-										.replace(' ', '_')}`}
-								>
-									<span className="label label-inverse-secondary">
-										{value.toUpperCase()}
-									</span>
-								</Link>
+							render: () => (
+								<StatusBadge type="blocked">
+									Blocked
+								</StatusBadge>
 							),
+
 							value: 'Status',
 						},
-						{key: 'score', value: 'Score'},
-						{key: 'tests', value: 'Tests'},
-						{key: 'erro', value: 'Errors'},
+						{clickable: true, key: 'score', value: 'Score'},
+						{clickable: true, key: 'tests', value: 'Tests'},
 						{
+							clickable: true,
+							key: 'error',
+							render: (value) => <Code>{value}</Code>,
+							size: 'xl',
+							value: 'Errors',
+						},
+						{
+							clickable: true,
 							key: 'assignee',
 							render: (assignee: any) => (
 								<Avatar
@@ -123,14 +147,16 @@ const TestFlowTasks: React.FC = () => {
 									url={assignee[0].url}
 								/>
 							),
-
+							size: 'sm',
 							value: 'Assignee',
 						},
 					]}
 					items={subtask}
+					navigateTo={() => '/testflow/subtasks'}
 				/>
 			</Container>
 		</>
 	);
 };
-export {TestFlowTasks};
+
+export default TestFlowTasks;

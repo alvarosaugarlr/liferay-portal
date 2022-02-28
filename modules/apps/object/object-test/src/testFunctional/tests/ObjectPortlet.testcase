@@ -324,7 +324,7 @@ definition {
 
 		ObjectAdmin.addObjectFieldViaUI(
 			fieldLabel = "Field String",
-			fieldType = "String");
+			fieldType = "Text");
 
 		ObjectAdmin.goToDetailsTab();
 
@@ -605,6 +605,7 @@ definition {
 			scope = "site");
 
 		ObjectAdmin.addObjectFieldViaAPI(
+			fieldBusinessType = "Text",
 			fieldLabelName = "Custom Field",
 			fieldName = "customObjectField",
 			fieldType = "String",
@@ -637,6 +638,8 @@ definition {
 				resourceName = "com.liferay.portal.kernel.model.Group",
 				roleTitle = "Regular Role");
 		}
+
+		Navigator.openURL();
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Users",

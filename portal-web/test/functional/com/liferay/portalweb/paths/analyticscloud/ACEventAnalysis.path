@@ -44,6 +44,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>FILTER_DONE_BUTTON</td>
+	<td>//*[contains(@class,'show-overflow')]//*[contains(@class,'button-root')and text()='Done']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>EDIT_PENCIL</td>
 	<td>//button[contains(@class,'btn-secondary')]//*[contains(@class,'pencil')]</td>
 	<td></td>
@@ -58,6 +63,11 @@
 	<td>//input[contains(@class,'input-root') and @id='endValue']</td>
 	<td></td>
 </tr>
+<tr>
+	<td>LIST_ORDER</td>
+	<td>xpath=(//span[@aria-haspopup='true'])[${index}]</td>
+	<td></td>
+</tr>
 <!-- REMOVE_BUTTON -->
 <tr>
 	<td>REMOVE_BUTTON</td>
@@ -68,6 +78,11 @@
 <tr>
 	<td>VIEW_TOTAL_NUMBER_RELATED_COLUMN_INFORMATION</td>
 	<td>//span[text()='${key_columnInformationValue}']/ancestor::tr//span[text()='${key_totalEventsValue}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>EDITOR_LABEL</td>
+	<td>//div[text()='${key_attributeName}']/..//div[contains(@class,'label-root')]</td>
 	<td></td>
 </tr>
 <tr>

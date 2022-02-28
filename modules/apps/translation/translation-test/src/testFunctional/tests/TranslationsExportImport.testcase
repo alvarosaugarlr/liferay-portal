@@ -1,4 +1,4 @@
-@component-name = "portal-collaboration"
+@component-name = "portal-lima"
 definition {
 
 	property portal.acceptance = "true";
@@ -28,7 +28,6 @@ definition {
 	test CanExportMultipleWCsWithMultipleLanguages {
 		property osgi.module.configuration.file.names = "com.liferay.journal.web.internal.configuration.FFBulkTranslationConfiguration.config";
 		property osgi.module.configurations = "bulkTranslationEnabled=&quot;true&quot;";
-		property portal.acceptance = "false";
 
 		for (var i : list "1,2,3") {
 			JSONWebcontent.addWebContent(
@@ -171,7 +170,7 @@ definition {
 			operation = "unzip",
 			titleTranslation = "Titulodelcontenidoweb1",
 			translationFileName = "WebContentTitle1-en_US-es_ES",
-			translationZipFileName = "Web Content Article Translations-en_US",
+			translationZipFileName = "WCGeneralName",
 			webContentContent = "WebContent1",
 			webContentDescription = "Description1",
 			webContentTitle = "WebContentTitle1");
@@ -183,7 +182,7 @@ definition {
 			operation = "zip",
 			titleTranslation = "Titulodelcontenidoweb3",
 			translationFileName = "WebContentTitle3-en_US-es_ES",
-			translationZipFileName = "Web Content Article Translations-en_US",
+			translationZipFileName = "WCGeneralName",
 			webContentContent = "WebContent3",
 			webContentDescription = "Description3",
 			webContentTitle = "WebContentTitle3");
@@ -429,7 +428,6 @@ definition {
 	test CanImportWithLongInputs {
 		property osgi.module.configuration.file.names = "com.liferay.journal.web.internal.configuration.FFBulkTranslationConfiguration.config";
 		property osgi.module.configurations = "bulkTranslationEnabled=&quot;true&quot;";
-		property portal.acceptance = "false";
 
 		JSONWebcontent.addWebContent(
 			content = "WebContentContent",
@@ -549,7 +547,7 @@ definition {
 			operation = "unzip",
 			titleTranslation = "Titulodelcontenidoweb1",
 			translationFileName = "WebContentTitle1-en_US-es_ES",
-			translationZipFileName = "Web Content Article Translations-en_US",
+			translationZipFileName = "WCGeneralName",
 			webContentContent = "WebContent1",
 			webContentDescription = "Description1",
 			webContentTitle = "WebContentTitle1");
@@ -557,16 +555,16 @@ definition {
 		Translations.updateTranslateFileID(
 			translationEntryType = "JournalArticle",
 			translationFileName = "WebContentTitle1-en_US-ja_JP",
-			translationZipFileName = "Web Content Article Translations-en_US");
+			translationZipFileName = "WCGeneralName");
 
 		Translations.translateFile(
 			contentTranslation = "Webコンテンツ3",
 			descriptionTranslation = "説明3",
-			encoding = "utf8",
+			encoding = "false",
 			operation = "false",
 			titleTranslation = "Webコンテンツのタイトル3",
 			translationFileName = "WebContentTitle3-en_US-ja_JP",
-			translationZipFileName = "Web Content Article Translations-en_US",
+			translationZipFileName = "WCGeneralName",
 			webContentContent = "WebContent3",
 			webContentDescription = "Description3",
 			webContentTitle = "WebContentTitle3");
@@ -578,7 +576,7 @@ definition {
 			operation = "zip",
 			titleTranslation = "Titulodelcontenidoweb3",
 			translationFileName = "WebContentTitle3-en_US-es_ES",
-			translationZipFileName = "Web Content Article Translations-en_US",
+			translationZipFileName = "WCGeneralName",
 			webContentContent = "WebContent3",
 			webContentDescription = "Description3",
 			webContentTitle = "WebContentTitle3");
@@ -589,7 +587,7 @@ definition {
 
 		Translations.importTranslation(
 			errorMessage = "1 Error: Some files could not be published, check them and upload another file.",
-			errorMessageItem = "The translation file does not correspond to this web content.",
+			errorMessageItem = "The XLIFF file contains a translation for an invalid model.",
 			failFileName = "WebContentTitle1-en_US-ja_JP.xlf",
 			fileName = "Web Content Article Translations-en_US_translated.zip",
 			filePath = "",

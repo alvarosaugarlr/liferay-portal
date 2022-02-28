@@ -15,16 +15,20 @@
 package com.liferay.digital.signature.manager.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.digital.signature.configuration.DigitalSignatureConfiguration;
 import com.liferay.digital.signature.manager.DSEnvelopeManager;
 import com.liferay.digital.signature.model.DSDocument;
 import com.liferay.digital.signature.model.DSEnvelope;
 import com.liferay.digital.signature.model.DSRecipient;
 import com.liferay.petra.function.UnsafeConsumer;
+import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.Base64;
 import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.test.util.IdempotentRetryAssert;
 import com.liferay.portal.test.rule.Inject;
@@ -37,8 +41,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +53,7 @@ import org.junit.runner.RunWith;
 /**
  * @author Brian Wing Shun Chan
  */
+@Ignore
 @RunWith(Arquillian.class)
 public class DSEnvelopeManagerTest {
 
@@ -55,6 +63,52 @@ public class DSEnvelopeManagerTest {
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
 			PermissionCheckerMethodTestRule.INSTANCE);
+
+	@BeforeClass
+	public static void setUpClass() throws Exception {
+		_configurationProvider.saveCompanyConfiguration(
+			DigitalSignatureConfiguration.class, TestPropsValues.getCompanyId(),
+			HashMapDictionaryBuilder.<String, Object>put(
+				"accountBaseURI",
+				TestPropsUtil.get("digital.signature.account.base.uri")
+			).put(
+				"apiAccountId",
+				TestPropsUtil.get("digital.signature.api.accountId")
+			).put(
+				"apiUsername",
+				TestPropsUtil.get("digital.signature.api.username")
+			).put(
+				"enabled", true
+			).put(
+				"integrationKey",
+				TestPropsUtil.get("digital.signature.integration.key")
+			).put(
+				"rsaPrivateKey",
+				TestPropsUtil.get("digital.signature.rsa.private.key")
+			).put(
+				"siteSettingsStrategy",
+				TestPropsUtil.get("digital.signature.site.settings.strategy")
+			).build());
+	}
+
+	@AfterClass
+	public static void tearDownClass() throws Exception {
+		_configurationProvider.saveCompanyConfiguration(
+			DigitalSignatureConfiguration.class, TestPropsValues.getCompanyId(),
+			HashMapDictionaryBuilder.<String, Object>put(
+				"accountBaseURI", ""
+			).put(
+				"apiAccountId", ""
+			).put(
+				"apiUsername", ""
+			).put(
+				"enabled", false
+			).put(
+				"integrationKey", ""
+			).put(
+				"rsaPrivateKey", ""
+			).build());
+	}
 
 	@Test
 	public void testAddDSEnvelope() throws Exception {
@@ -108,6 +162,7 @@ public class DSEnvelopeManagerTest {
 			new DSEnvelope() {
 				{
 					emailSubject = expectedEmailSubject;
+					name = RandomTestUtil.randomString();
 					status = "created";
 				}
 			});
@@ -313,6 +368,9 @@ public class DSEnvelopeManagerTest {
 
 		return null;
 	}
+
+	@Inject
+	private static ConfigurationProvider _configurationProvider;
 
 	@Inject
 	private DSEnvelopeManager _dsEnvelopeManager;

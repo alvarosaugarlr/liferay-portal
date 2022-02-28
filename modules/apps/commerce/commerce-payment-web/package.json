@@ -1,7 +1,5 @@
 {
 	"dependencies": {
-		"commerce-frontend-js": "*",
-		"frontend-js-web": "*"
 	},
 	"name": "@liferay/commerce-payment-web",
 	"scripts": {
@@ -9,5 +7,5 @@
 		"checkFormat": "liferay-npm-scripts check",
 		"format": "liferay-npm-scripts fix"
 	},
-	"version": "4.0.17"
+	"version": "4.0.19"
 }

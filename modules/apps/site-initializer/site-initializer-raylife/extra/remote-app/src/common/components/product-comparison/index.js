@@ -110,6 +110,7 @@ const ListItems = ({
 
 const ProductComparison = ({
 	highlightMostPopularText = 'Most Popular',
+	isMobileDevice = false,
 	onClickPolicyDetails,
 	onClickPurchase,
 	product,
@@ -120,10 +121,13 @@ const ProductComparison = ({
 
 	return (
 		<div
-			className={classNames('ml-auto rounded bg-neutral-0', {
-				'mt-4': !mostPopular,
+			className={classNames('flex-shrink-0 rounded bg-neutral-0', {
+				'col-12 mx-auto p-0': !purchasable,
+				'ml-auto': purchasable && !isMobileDevice,
+				'mt-4': !mostPopular && !isMobileDevice,
+				'mx-2': isMobileDevice,
 			})}
-			id="quote-comparison"
+			id="quote-comparison-item"
 		>
 			<div
 				className={classNames(
@@ -170,11 +174,19 @@ const ProductComparison = ({
 					</div>
 				</div>
 
-				<div className="quote-body">
+				<div
+					className={classNames('quote-body', {
+						'select-quote-mobile': !purchasable,
+					})}
+				>
 					<ListItems {...productDetails} />
 				</div>
 
-				<div className="border-0 p-0">
+				<div
+					className={classNames('border-0 p-0', {
+						'select-quote-mobile': !purchasable,
+					})}
+				>
 					{purchasable && (
 						<div className="bg-transparent d-flex justify-content-center">
 							<ClayButton

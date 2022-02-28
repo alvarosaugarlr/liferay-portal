@@ -45,6 +45,9 @@ public class PendingCommerceOrderClayTableDataSetDisplayView
 		clayTableSchemaBuilder.addClayTableSchemaField("orderId", "order-id");
 
 		clayTableSchemaBuilder.addClayTableSchemaField(
+			"purchaseOrderNumber", "purchase-order-number");
+
+		clayTableSchemaBuilder.addClayTableSchemaField(
 			"accountName", "account");
 
 		clayTableSchemaBuilder.addClayTableSchemaField("author", "created-by");

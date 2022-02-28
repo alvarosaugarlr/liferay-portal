@@ -640,13 +640,13 @@ public class PortletConfigurationPortlet extends MVCPortlet {
 		}
 		catch (PortalException portalException) {
 			if (_log.isInfoEnabled()) {
-				_log.info(portalException.getMessage());
+				_log.info(portalException);
 			}
 
 			_handleException(renderRequest, renderResponse, portalException);
 		}
 		catch (Exception exception) {
-			_log.error(exception.getMessage());
+			_log.error(exception);
 
 			_handleException(renderRequest, renderResponse, exception);
 		}
@@ -1119,7 +1119,7 @@ public class PortletConfigurationPortlet extends MVCPortlet {
 					portletConfig.getResourceBundle(locale));
 			}
 			catch (Exception exception) {
-				_log.error(exception, exception);
+				_log.error(exception);
 			}
 
 			return super.getResourceBundle(locale);

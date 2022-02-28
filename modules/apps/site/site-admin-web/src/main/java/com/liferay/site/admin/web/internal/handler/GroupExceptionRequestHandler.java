@@ -53,7 +53,7 @@ public class GroupExceptionRequestHandler {
 		throws Exception {
 
 		if (_log.isDebugEnabled()) {
-			_log.debug(exception, exception);
+			_log.debug(exception);
 		}
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
@@ -119,7 +119,7 @@ public class GroupExceptionRequestHandler {
 			errorMessage = LanguageUtil.get(
 				themeDisplay.getRequest(), "an-unexpected-error-occurred");
 
-			_log.error(exception.getMessage());
+			_log.error(exception);
 		}
 
 		JSONObject jsonObject = JSONUtil.put("error", errorMessage);

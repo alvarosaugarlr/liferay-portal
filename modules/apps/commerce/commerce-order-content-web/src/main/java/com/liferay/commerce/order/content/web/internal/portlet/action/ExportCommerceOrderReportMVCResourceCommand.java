@@ -20,7 +20,6 @@ import com.liferay.commerce.currency.util.CommercePriceFormatter;
 import com.liferay.commerce.model.CommerceAddress;
 import com.liferay.commerce.model.CommerceOrder;
 import com.liferay.commerce.model.CommerceOrderItem;
-import com.liferay.commerce.product.model.CommerceChannel;
 import com.liferay.commerce.product.service.CommerceChannelService;
 import com.liferay.commerce.report.exporter.CommerceReportExporter;
 import com.liferay.commerce.service.CommerceOrderService;
@@ -37,10 +36,13 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.CompanyService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ContentTypes;
+import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
+
+import java.text.Format;
 
 import java.util.List;
 
@@ -140,6 +142,10 @@ public class ExportCommerceOrderReportMVCResourceCommand
 		).put(
 			"companyId", commerceAccount.getCompanyId()
 		).put(
+			"externalReferenceCode",
+			(commerceOrder.getExternalReferenceCode() != null) ?
+				commerceOrder.getExternalReferenceCode() : StringPool.BLANK
+		).put(
 			"locale", themeDisplay.getLocale()
 		).put(
 			"logoURL", _getLogoURL(themeDisplay)
@@ -155,8 +161,16 @@ public class ExportCommerceOrderReportMVCResourceCommand
 			"purchaseOrderNumber", commerceOrder.getPurchaseOrderNumber()
 		).put(
 			"requestedDeliveryDate",
-			(commerceOrder.getRequestedDeliveryDate() == null) ? null :
-				commerceOrder.getRequestedDeliveryDate()
+			() -> {
+				if (commerceOrder.getRequestedDeliveryDate() == null) {
+					return null;
+				}
+
+				Format format = FastDateFormatFactoryUtil.getDate(
+					themeDisplay.getLocale(), themeDisplay.getTimeZone());
+
+				return format.format(commerceOrder.getRequestedDeliveryDate());
+			}
 		);
 
 		if (shippingAddress != null) {
@@ -219,13 +233,9 @@ public class ExportCommerceOrderReportMVCResourceCommand
 			commerceOrder.getTotalWithTaxAmountMoney()
 		);
 
-		CommerceChannel commerceChannel =
-			_commerceChannelService.getCommerceChannelByOrderGroupId(
-				commerceOrder.getGroupId());
-
 		FileEntry fileEntry =
 			_dlAppLocalService.fetchFileEntryByExternalReferenceCode(
-				commerceChannel.getGroupId(), "ORDER_PRINT_TEMPLATE");
+				commerceOrder.getGroupId(), "ORDER_PRINT_TEMPLATE");
 
 		PortletResponseUtil.write(
 			resourceResponse,

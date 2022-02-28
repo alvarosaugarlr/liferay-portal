@@ -24,6 +24,7 @@ import com.liferay.info.collection.provider.InfoCollectionProvider;
 import com.liferay.info.list.provider.item.selector.criterion.InfoListProviderItemSelectorReturnType;
 import com.liferay.info.pagination.InfoPage;
 import com.liferay.item.selector.criteria.InfoListItemSelectorReturnType;
+import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -31,6 +32,8 @@ import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
@@ -41,15 +44,22 @@ import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.segments.criteria.Criteria;
+import com.liferay.segments.criteria.CriteriaSerializer;
+import com.liferay.segments.criteria.contributor.SegmentsCriteriaContributor;
+import com.liferay.segments.model.SegmentsEntry;
+import com.liferay.segments.test.util.SegmentsTestUtil;
 
 import java.util.Locale;
 
@@ -90,10 +100,13 @@ public class GetCollectionFieldMVCResourceCommandTest {
 	public void setUp() throws Exception {
 		_group = GroupTestUtil.addGroup();
 
+		_layout = LayoutTestUtil.addLayout(_group.getGroupId());
+		_user = UserTestUtil.addUser(_group.getGroupId());
+
 		_serviceContext = new ServiceContext();
 
 		_serviceContext.setScopeGroupId(_group.getGroupId());
-		_serviceContext.setUserId(TestPropsValues.getUserId());
+		_serviceContext.setUserId(_user.getUserId());
 
 		ServiceContextThreadLocal.pushServiceContext(_serviceContext);
 
@@ -136,11 +149,56 @@ public class GetCollectionFieldMVCResourceCommandTest {
 			_mvcResourceCommand, "_getCollectionFieldsJSONObject",
 			new Class<?>[] {
 				HttpServletRequest.class, HttpServletResponse.class, int.class,
-				String.class, String.class, String.class, String.class,
-				String.class, int.class, int.class, String.class, boolean.class,
-				String.class
+				boolean.class, boolean.class, String.class, String.class,
+				String.class, String.class, String.class, int.class, int.class,
+				int.class, String.class, boolean.class, String.class
 			},
 			new MockHttpServletRequest(), new MockHttpServletResponse(), 0,
+			false, false, LocaleUtil.toLanguageId(LocaleUtil.US),
+			JSONUtil.put(
+				"itemType", BlogsEntry.class.getName()
+			).put(
+				"key", TestInfoCollectionProvider.class.getName()
+			).put(
+				"type", InfoListProviderItemSelectorReturnType.class.getName()
+			).toString(),
+			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK, 1, 20, 0,
+			"regular", false, StringPool.BLANK);
+
+		Assert.assertEquals(1, jsonObject.getInt("length"));
+
+		JSONArray jsonArray = jsonObject.getJSONArray("items");
+
+		Assert.assertEquals(1, jsonArray.length());
+
+		JSONObject itemJSONObject = jsonArray.getJSONObject(0);
+
+		Assert.assertEquals(
+			blogsEntry.getTitle(), itemJSONObject.getString("title"));
+	}
+
+	@Test
+	public void testGetCollectionFieldFromCollectionProviderWithSegments()
+		throws Exception {
+
+		_addSegmentsEntry(_user);
+
+		BlogsEntry blogsEntry = _addBlogsEntry();
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+
+		request.setAttribute(WebKeys.LAYOUT, _layout);
+		request.setAttribute(WebKeys.USER_ID, _user.getUserId());
+
+		JSONObject jsonObject = ReflectionTestUtil.invoke(
+			_mvcResourceCommand, "_getCollectionFieldsJSONObject",
+			new Class<?>[] {
+				HttpServletRequest.class, HttpServletResponse.class, int.class,
+				boolean.class, boolean.class, String.class, String.class,
+				String.class, String.class, String.class, int.class, int.class,
+				int.class, String.class, boolean.class, String.class
+			},
+			request, new MockHttpServletResponse(), 0, false, false,
 			LocaleUtil.toLanguageId(LocaleUtil.US),
 			JSONUtil.put(
 				"itemType", BlogsEntry.class.getName()
@@ -149,7 +207,7 @@ public class GetCollectionFieldMVCResourceCommandTest {
 			).put(
 				"type", InfoListProviderItemSelectorReturnType.class.getName()
 			).toString(),
-			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK, 1, 20,
+			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK, 1, 20, 0,
 			"regular", false, StringPool.BLANK);
 
 		Assert.assertEquals(1, jsonObject.getInt("length"));
@@ -179,12 +237,12 @@ public class GetCollectionFieldMVCResourceCommandTest {
 			_mvcResourceCommand, "_getCollectionFieldsJSONObject",
 			new Class<?>[] {
 				HttpServletRequest.class, HttpServletResponse.class, int.class,
-				String.class, String.class, String.class, String.class,
-				String.class, int.class, int.class, String.class, boolean.class,
-				String.class
+				boolean.class, boolean.class, String.class, String.class,
+				String.class, String.class, String.class, int.class, int.class,
+				int.class, String.class, boolean.class, String.class
 			},
 			new MockHttpServletRequest(), new MockHttpServletResponse(), 0,
-			LocaleUtil.toLanguageId(LocaleUtil.US),
+			false, false, LocaleUtil.toLanguageId(LocaleUtil.US),
 			JSONUtil.put(
 				"classNameId",
 				String.valueOf(
@@ -196,7 +254,7 @@ public class GetCollectionFieldMVCResourceCommandTest {
 			).put(
 				"type", InfoListItemSelectorReturnType.class.getName()
 			).toString(),
-			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK, 2, 20,
+			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK, 2, 20, 0,
 			"regular", false, StringPool.BLANK);
 
 		Assert.assertEquals(2, jsonObject.getInt("length"));
@@ -233,12 +291,12 @@ public class GetCollectionFieldMVCResourceCommandTest {
 			_mvcResourceCommand, "_getCollectionFieldsJSONObject",
 			new Class<?>[] {
 				HttpServletRequest.class, HttpServletResponse.class, int.class,
-				String.class, String.class, String.class, String.class,
-				String.class, int.class, int.class, String.class, boolean.class,
-				String.class
+				boolean.class, boolean.class, String.class, String.class,
+				String.class, String.class, String.class, int.class, int.class,
+				int.class, String.class, boolean.class, String.class
 			},
 			new MockHttpServletRequest(), new MockHttpServletResponse(), 0,
-			LocaleUtil.toLanguageId(LocaleUtil.US),
+			false, false, LocaleUtil.toLanguageId(LocaleUtil.US),
 			JSONUtil.put(
 				"classNameId",
 				String.valueOf(
@@ -250,7 +308,7 @@ public class GetCollectionFieldMVCResourceCommandTest {
 			).put(
 				"type", InfoListItemSelectorReturnType.class.getName()
 			).toString(),
-			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK, 1, 20,
+			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK, 1, 20, 0,
 			"regular", false, StringPool.BLANK);
 
 		Assert.assertEquals(2, jsonObject.getInt("length"));
@@ -272,6 +330,18 @@ public class GetCollectionFieldMVCResourceCommandTest {
 		return _blogsEntryLocalService.addEntry(
 			TestPropsValues.getUserId(), RandomTestUtil.randomString(),
 			RandomTestUtil.randomString(), _serviceContext);
+	}
+
+	private SegmentsEntry _addSegmentsEntry(User user) throws Exception {
+		Criteria criteria = new Criteria();
+
+		_userSegmentsCriteriaContributor.contribute(
+			criteria, String.format("(firstName eq '%s')", user.getFirstName()),
+			Criteria.Conjunction.AND);
+
+		return SegmentsTestUtil.addSegmentsEntry(
+			_group.getGroupId(), CriteriaSerializer.serialize(criteria),
+			User.class.getName());
 	}
 
 	private String _getTypeSettings() {
@@ -306,6 +376,7 @@ public class GetCollectionFieldMVCResourceCommandTest {
 
 	private ServiceRegistration<InfoCollectionProvider<?>>
 		_infoCollectionProviderServiceRegistration;
+	private Layout _layout;
 
 	@Inject(
 		filter = "mvc.command.name=/layout_content_page_editor/get_collection_field"
@@ -318,6 +389,13 @@ public class GetCollectionFieldMVCResourceCommandTest {
 	private Portal _portal;
 
 	private ServiceContext _serviceContext;
+	private User _user;
+
+	@Inject(
+		filter = "segments.criteria.contributor.key=user",
+		type = SegmentsCriteriaContributor.class
+	)
+	private SegmentsCriteriaContributor _userSegmentsCriteriaContributor;
 
 	private class TestInfoCollectionProvider
 		implements InfoCollectionProvider<BlogsEntry> {

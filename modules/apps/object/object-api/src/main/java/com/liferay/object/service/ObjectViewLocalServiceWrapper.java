@@ -41,12 +41,14 @@ public class ObjectViewLocalServiceWrapper
 			long userId, long objectDefinitionId, boolean defaultObjectView,
 			java.util.Map<java.util.Locale, String> nameMap,
 			java.util.List<com.liferay.object.model.ObjectViewColumn>
-				objectViewColumns)
+				objectViewColumns,
+			java.util.List<com.liferay.object.model.ObjectViewSortColumn>
+				objectViewSortColumns)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _objectViewLocalService.addObjectView(
 			userId, objectDefinitionId, defaultObjectView, nameMap,
-			objectViewColumns);
+			objectViewColumns, objectViewSortColumns);
 	}
 
 	/**
@@ -269,6 +271,13 @@ public class ObjectViewLocalServiceWrapper
 	}
 
 	@Override
+	public com.liferay.object.model.ObjectView getDefaultObjectView(
+		long objectDefinitionId) {
+
+		return _objectViewLocalService.getDefaultObjectView(objectDefinitionId);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery
 		getExportActionableDynamicQuery(
 			com.liferay.exportimport.kernel.lar.PortletDataContext
@@ -377,11 +386,14 @@ public class ObjectViewLocalServiceWrapper
 			long objectViewId, boolean defaultObjectView,
 			java.util.Map<java.util.Locale, String> nameMap,
 			java.util.List<com.liferay.object.model.ObjectViewColumn>
-				objectViewColumns)
+				objectViewColumns,
+			java.util.List<com.liferay.object.model.ObjectViewSortColumn>
+				objectViewSortColumns)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _objectViewLocalService.updateObjectView(
-			objectViewId, defaultObjectView, nameMap, objectViewColumns);
+			objectViewId, defaultObjectView, nameMap, objectViewColumns,
+			objectViewSortColumns);
 	}
 
 	/**

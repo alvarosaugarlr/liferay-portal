@@ -15,7 +15,7 @@
 			"type": "String"
 		},
 		{
-			"indexed": false,
+			"indexed": true,
 			"indexedAsKeyword": false,
 			"label": {
 				"en_US": "Name"
@@ -25,10 +25,8 @@
 			"type": "String"
 		}
 	],
-	"panelAppOrder": "100",
-	"panelCategoryKey": "site_administration.content",
 	"pluralLabel": {
 		"en_US": "Testray Teams"
 	},
-	"scope": "site"
+	"scope": "company"
 }

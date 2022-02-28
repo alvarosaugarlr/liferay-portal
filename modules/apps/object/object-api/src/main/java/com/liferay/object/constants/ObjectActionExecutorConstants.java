@@ -21,6 +21,8 @@ public class ObjectActionExecutorConstants {
 
 	public static final String KEY_ADD_OBJECT_ENTRY = "add-object-entry";
 
+	public static final String KEY_GROOVY = "groovy";
+
 	public static final String KEY_UPDATE_OBJECT_ENTRY = "update-object-entry";
 
 	public static final String KEY_WEBHOOK = "webhook";

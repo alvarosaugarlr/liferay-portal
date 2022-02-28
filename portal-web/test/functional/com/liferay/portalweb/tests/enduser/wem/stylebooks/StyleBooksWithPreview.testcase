@@ -70,12 +70,32 @@ definition {
 			StyleBooksAdmin.addStyleBooks(styleBookName = "Test Style Book Name");
 		}
 
+		task ("Assert the widget page is shown in preview iframe") {
+			SelectFrame.selectFrameNoLoading(locator1 = "StyleBookEditor#PAGE_PREVIEW_IFRAME");
+
+			AssertVisible(
+				key_pageName = "Test Widget Page Name",
+				locator1 = "Home#PAGE_ACTIVE");
+
+			Portlet.viewTitle(portletName = "Blogs");
+		}
+
+		task ("Assert not allow interact with preview page") {
+			AssertElementPresent(locator1 = "StyleBookEditor#CURSOR_NOT_ALLOWED");
+
+			SelectFrameTop();
+		}
+
+		task ("Navigate to content page via preview type selector") {
+			StyleBooks.selectPreviewItem(previewItem = "Test Content Page Name");
+		}
+
 		task ("Assert the content page is shown in preview iframe") {
 			SelectFrame.selectFrameNoLoading(locator1 = "StyleBookEditor#PAGE_PREVIEW_IFRAME");
 
 			AssertVisible(
 				key_pageName = "Test Content Page Name",
-				locator1 = "Home#PAGE");
+				locator1 = "Home#PAGE_ACTIVE");
 
 			AssertVisible(
 				key_content = "Banner Title Example",
@@ -90,44 +110,11 @@ definition {
 
 			SelectFrameTop();
 		}
-
-		task ("Navigate to widget page via page preview info bar") {
-			AssertTextEquals(
-				locator1 = "StyleBookEditor#PAGE_PREVIEW_INFO_BAR_TOGGLE",
-				value1 = "Test Content Page Name");
-
-			StyleBooks.goToPageViaPagePreviewInfoBar(pageName = "Test Widget Page Name");
-
-			Click(locator1 = "StyleBookEditor#PAGE_PREVIEW_INFO_BAR_TOGGLE");
-
-			AssertTextEquals(
-				locator1 = "StyleBookEditor#PAGE_PREVIEW_INFO_BAR_TOGGLE",
-				value1 = "Test Widget Page Name");
-		}
-
-		task ("Assert the widget page is shown in preview iframe") {
-			SelectFrame.selectFrameNoLoading(locator1 = "StyleBookEditor#PAGE_PREVIEW_IFRAME");
-
-			AssertVisible(
-				key_pageName = "Test Widget Page Name",
-				locator1 = "Home#PAGE");
-
-			Portlet.viewTitle(portletName = "Blogs");
-		}
-
-		task ("Assert not allow interact with preview page") {
-			AssertElementPresent(locator1 = "StyleBookEditor#CURSOR_NOT_ALLOWED");
-
-			SelectFrameTop();
-		}
 	}
 
 	@description = "This is a test for LPS-137065. The user cannot preview the effects of styles on draft changes."
 	@priority = "4"
 	test CannotPreviewStyleBookOnDraftChanges {
-		property osgi.module.configuration.file.names = "com.liferay.style.book.web.internal.configuration.FFStyleBookConfiguration.config";
-		property osgi.module.configurations = "templatesPreviewEnabled=&quot;true&quot;";
-
 		task ("Add a Heading fragment to a master page without publish") {
 			JSONLayoutpagetemplate.addMasterPageTemplateEntry(
 				groupName = "Test Site Name",
@@ -204,14 +191,22 @@ definition {
 				styleBookEntryName = "Test Style Book Name");
 		}
 
-		task ("View the empty state in style book editor") {
+		task ("View only the Fragments is available to the preview type selector") {
 			StyleBooksAdmin.openStyleBooksAdmin(siteURLKey = "test-site-name");
 
 			StyleBooksAdmin.gotoStyleBookEllipsisItem(
 				item = "Edit",
 				styleBookName = "Test Style Book Name");
 
-			AssertVisible(locator1 = "StyleBookEditor#NO_PAGE_MESSAGE");
+			StyleBooks.viewCurrentPreviewType(previewType = "Fragments");
+
+			Click(
+				index = "1",
+				locator1 = "StyleBookEditor#PREVIEW_SELECTOR");
+
+			for (var previewType : list "Masters,Pages,Page Templates,Display Page Templates") {
+				MenuItem.viewNotPresent(menuItem = "${previewType}");
+			}
 		}
 
 		task ("Publish the master page") {
@@ -363,11 +358,244 @@ definition {
 		}
 	}
 
+	@description = "This is a test for LPS-140774. The user can preview the effects on current site fragments in styles book editor."
+	@priority = "4"
+	test PreviewEffectOnCurrentSiteFragment {
+		task ("Add a fragment set in current site") {
+			JSONFragment.addFragmentCollection(
+				groupName = "Test Site Name",
+				name = "Collection Name");
+		}
+
+		task ("Copy the Heading fragment from Basic Components to new set") {
+			FragmentsAdminNavigator.openFragmentsAdmin(siteURLKey = "test-site-name");
+
+			FragmentsAdminNavigator.gotoCollection(collectionName = "Basic Components");
+
+			FragmentsAdminNavigator.gotoEntryEllipsisItem(
+				entry = "Heading",
+				item = "Copy To");
+
+			FragmentsAdmin.selectCollection(collectionName = "Collection Name");
+		}
+
+		task ("Add a style book") {
+			JSONStylebooks.addStyleBookEntry(
+				groupName = "Test Site Name",
+				styleBookEntryName = "Test Style Book Name");
+		}
+
+		task ("View the Fragments is selected in the preview type selector") {
+			StyleBooksAdmin.openStyleBooksAdmin(siteURLKey = "test-site-name");
+
+			StyleBooksAdmin.gotoStyleBookEllipsisItem(
+				item = "Edit",
+				styleBookName = "Test Style Book Name");
+
+			StyleBooks.viewCurrentPreviewType(previewType = "Fragments");
+		}
+
+		task ("View the new fragment set is selected in the preview item selector") {
+			StyleBooks.viewCurrentPreviewItem(previewItem = "Collection Name");
+		}
+
+		task ("View the help text is shown in dropdown list of preview item selector") {
+			Click(
+				index = "2",
+				locator1 = "StyleBookEditor#PREVIEW_SELECTOR");
+
+			AssertElementPresent(
+				key_caption = "Showing 4 of 7 Items",
+				locator1 = "Dropdown#CAPTION");
+		}
+
+		task ("Define the Heading 1 Font Size of Headings") {
+			StyleBooks.selectForm(formName = "Typography");
+
+			StyleBooks.expandSection(sectionName = "Headings");
+
+			Type(
+				key_fieldLabel = "Heading 1 Font Size",
+				locator1 = "TextInput#GENERIC_TEXT_INPUT",
+				value1 = "2rem");
+
+			StyleBooks.waitForAutoSave();
+		}
+
+		task ("View the defined Heading 1 Font Size applied on Heading fragment") {
+			SelectFrame.selectFrameNoLoading(locator1 = "StyleBookEditor#PAGE_PREVIEW_IFRAME");
+
+			AssertCssValue(
+				key_content = "Heading Example",
+				key_element = "h1",
+				key_id = "element-text",
+				key_type = "text",
+				locator1 = "StyleBookEditor#CONTRIBUTED_FRAGMENT_INLINE_CONTENT",
+				locator2 = "font-size",
+				value1 = "32px");
+		}
+	}
+
+	@description = "This is a test for LPS-140774. The user can preview the effects on default fragments in styles book editor."
+	@priority = "4"
+	test PreviewEffectOnDefaultFragment {
+		task ("Add a style book") {
+			JSONStylebooks.addStyleBookEntry(
+				groupName = "Test Site Name",
+				styleBookEntryName = "Test Style Book Name");
+		}
+
+		task ("View the Fragments is selected in the preview type selector") {
+			StyleBooksAdmin.openStyleBooksAdmin(siteURLKey = "test-site-name");
+
+			StyleBooksAdmin.gotoStyleBookEllipsisItem(
+				item = "Edit",
+				styleBookName = "Test Style Book Name");
+
+			StyleBooks.viewCurrentPreviewType(previewType = "Fragments");
+		}
+
+		task ("View the Basic Components set is selected in the preview item selector") {
+			StyleBooks.viewCurrentPreviewItem(previewItem = "Basic Components");
+		}
+
+		task ("Select the Navigation Bars from Default fragment set in the preview item selector") {
+			StyleBooks.selectPreviewItem(
+				caption = "Showing 4 of 6 Items",
+				previewItem = "Navigation Bars",
+				scope = "Default");
+
+			SelectFrame.selectFrameNoLoading(locator1 = "StyleBookEditor#PAGE_PREVIEW_IFRAME");
+
+			for (var text : list "Header Dark,Header Light") {
+				AssertVisible(
+					key_title = "${text}",
+					locator1 = "Header#H3_TITLE");
+			}
+
+			SelectFrameTop();
+		}
+
+		task ("Select the Basic Components in the preview item selector") {
+			StyleBooks.selectPreviewItem(previewItem = "Basic Components");
+		}
+
+		task ("Define the color of Button Primary") {
+			StyleBooks.selectForm(formName = "Buttons");
+
+			StyleBooks.expandSection(sectionName = "Button Primary");
+
+			Type(
+				key_fieldLabel = "Color",
+				key_groupLabel = "Button Primary",
+				locator1 = "TextInput#GROUPED_TEXT_INPUT",
+				value1 = "#00FF00");
+
+			StyleBooks.waitForAutoSave();
+		}
+
+		task ("View the defined color applied on Button fragments") {
+			SelectFrame.selectFrameNoLoading(locator1 = "StyleBookEditor#PAGE_PREVIEW_IFRAME");
+
+			for (var i : list "1,2,3") {
+				AssertCssValue(
+					fragmentName = "button",
+					id = "link",
+					index = "${i}",
+					locator1 = "Fragment#CONTRIBUTED_FRAGMENT_TEXT",
+					locator2 = "color",
+					value1 = "rgba(0, 255, 0, 1)");
+			}
+		}
+	}
+
+	@description = "This is a test for LPS-140774. The user can preview the effects on global fragments in styles book editor."
+	@priority = "4"
+	test PreviewEffectOnGlobalFragment {
+		task ("Add a fragment set in Global site") {
+			JSONFragment.addFragmentCollection(
+				groupName = "Global",
+				name = "Collection Name");
+		}
+
+		task ("Copy the Heading fragment from Basic Components to new set") {
+			FragmentsAdminNavigator.openFragmentsAdmin(siteURLKey = "global");
+
+			FragmentsAdminNavigator.gotoCollection(collectionName = "Basic Components");
+
+			FragmentsAdminNavigator.gotoEntryEllipsisItem(
+				entry = "Heading",
+				item = "Copy To");
+
+			FragmentsAdmin.selectCollection(collectionName = "Collection Name");
+		}
+
+		task ("Add a style book") {
+			JSONStylebooks.addStyleBookEntry(
+				groupName = "Test Site Name",
+				styleBookEntryName = "Test Style Book Name");
+		}
+
+		task ("View the Fragments is selected in the preview type selector") {
+			StyleBooksAdmin.openStyleBooksAdmin(siteURLKey = "test-site-name");
+
+			StyleBooksAdmin.gotoStyleBookEllipsisItem(
+				item = "Edit",
+				styleBookName = "Test Style Book Name");
+
+			StyleBooks.viewCurrentPreviewType(previewType = "Fragments");
+		}
+
+		task ("View the new fragment set is selected in the preview item selector") {
+			StyleBooks.viewCurrentPreviewItem(previewItem = "Collection Name");
+		}
+
+		task ("View the help text is shown in dropdown list of preview item selector") {
+			Click(
+				index = "2",
+				locator1 = "StyleBookEditor#PREVIEW_SELECTOR");
+
+			AssertElementPresent(
+				key_caption = "Showing 4 of 7 Items",
+				locator1 = "Dropdown#CAPTION");
+		}
+
+		task ("Define the Heading 1 Font Size of Headings") {
+			StyleBooks.selectForm(formName = "Typography");
+
+			StyleBooks.expandSection(sectionName = "Headings");
+
+			Type(
+				key_fieldLabel = "Heading 1 Font Size",
+				locator1 = "TextInput#GENERIC_TEXT_INPUT",
+				value1 = "2rem");
+
+			StyleBooks.waitForAutoSave();
+		}
+
+		task ("View the defined Heading 1 Font Size applied on Heading fragment") {
+			SelectFrame.selectFrameNoLoading(locator1 = "StyleBookEditor#PAGE_PREVIEW_IFRAME");
+
+			AssertCssValue(
+				key_content = "Heading Example",
+				key_element = "h1",
+				key_id = "element-text",
+				key_type = "text",
+				locator1 = "StyleBookEditor#CONTRIBUTED_FRAGMENT_INLINE_CONTENT",
+				locator2 = "font-size",
+				value1 = "32px");
+		}
+
+		task ("Delete the global fragment set") {
+			JSONFragment.deleteFragmentCollection(
+				groupName = "Global",
+				name = "Collection Name");
+		}
+	}
+
 	@description = "This is a test for LPS-137065. The designer could preview the effects of styles on all display page templates."
 	@priority = "5"
 	test PreviewStyleBookOnDisplayPageTemplates {
-		property osgi.module.configuration.file.names = "com.liferay.style.book.web.internal.configuration.FFStyleBookConfiguration.config";
-		property osgi.module.configurations = "templatesPreviewEnabled=&quot;true&quot;";
 		property portal.acceptance = "true";
 
 		task ("Add a Heading fragment to the first display page template for Web Content Article and Basic Web Content") {
@@ -659,8 +887,6 @@ definition {
 	@description = "This is a test for LPS-137065. The designer could preview the effects of styles on master page."
 	@priority = "5"
 	test PreviewStyleBookOnMasterPage {
-		property osgi.module.configuration.file.names = "com.liferay.style.book.web.internal.configuration.FFStyleBookConfiguration.config";
-		property osgi.module.configurations = "templatesPreviewEnabled=&quot;true&quot;";
 		property portal.acceptance = "true";
 
 		task ("Add a master with a Header Dark fragment then publish") {
@@ -733,8 +959,6 @@ definition {
 	@description = "This is a test for LPS-137065. The designer could preview the effects of styles on all pages."
 	@priority = "5"
 	test PreviewStyleBookOnPages {
-		property osgi.module.configuration.file.names = "com.liferay.style.book.web.internal.configuration.FFStyleBookConfiguration.config";
-		property osgi.module.configurations = "templatesPreviewEnabled=&quot;true&quot;";
 		property portal.acceptance = "true";
 
 		task ("Add the first widget page with a Blogs widget") {
@@ -982,8 +1206,6 @@ definition {
 	@description = "This is a test for LPS-137065. The designer could preview the effects of styles on all page templates."
 	@priority = "5"
 	test PreviewStyleBookOnPageTemplates {
-		property osgi.module.configuration.file.names = "com.liferay.style.book.web.internal.configuration.FFStyleBookConfiguration.config";
-		property osgi.module.configurations = "templatesPreviewEnabled=&quot;true&quot;";
 		property portal.acceptance = "true";
 
 		task ("Add a page template collection") {
@@ -1123,7 +1345,7 @@ definition {
 		task ("Change the background color of Container and publish the page") {
 			PageEditor.editLayoutContainer(
 				backgroundColor = "Danger",
-				panelList = "Styles");
+				panel = "Styles");
 
 			PageEditor.clickPublish();
 		}
@@ -1235,9 +1457,24 @@ definition {
 		}
 	}
 
-	@description = "This is a test for LPS-116078 and LPS-137065. The user could view the empty state when no pages or page templates in the site."
+	@description = "This is a test for LPS-116078 and LPS-137065. The user could view the empty state when the site is empty."
 	@priority = "4"
-	test ViewEmptyStateWhenNoPagesAndPageTemplatesInSite {
+	test ViewEmptyStateWhenSiteIsEmpty {
+		property test.name.skip.portal.instance = "StyleBooksWithPreview#ViewEmptyStateWhenSiteIsEmpty";
+
+		task ("Deactivate the Default fragment sets") {
+			ApplicationsMenu.gotoPortlet(
+				category = "System",
+				panel = "Control Panel",
+				portlet = "App Manager");
+
+			for (var collectionName : list "Basic Component,Cookie Banner,Dialect,Featured Content,Footers,Navigation Bars") {
+				Search.searchCP(searchTerm = "Fragment Collection Contributor");
+
+				AppManager.deactivateApp(appName = "Liferay Fragment Collection Contributor ${collectionName}");
+			}
+		}
+
 		task ("Add a style book") {
 			StyleBooksAdmin.openStyleBooksAdmin(siteURLKey = "test-site-name");
 
@@ -1247,7 +1484,7 @@ definition {
 		task ("View the empty state in style book editor") {
 			AssertElementNotPresent(locator1 = "StyleBookEditor#PAGE_PREVIEW_IFRAME");
 
-			AssertVisible(locator1 = "StyleBookEditor#NO_PAGE_MESSAGE");
+			AssertVisible(locator1 = "StyleBookEditor#EMPTY_MESSAGE");
 
 			AssertElementNotPresent(
 				index = "1",
@@ -1256,6 +1493,55 @@ definition {
 			AssertVisible(
 				key_text = "Publish",
 				locator1 = "Button#ANY");
+		}
+	}
+
+	@description = "This is a use case for LPS-140253. View no private page in style book."
+	@priority = "4"
+	test ViewNoPrivatePageInStyleBooks {
+		property osgi.module.configuration.file.names = "com.liferay.layout.internal.configuration.FFDisablePrivateLayoutsConfiguration.config";
+		property osgi.module.configurations = "enabled=&quot;true&quot;";
+
+		task ("Add 4 public pages") {
+			for (var i : list "1,2,3,4") {
+				JSONLayout.addPublicLayout(
+					groupName = "Test Site Name",
+					layoutName = "Test Public Page Name ${i}");
+			}
+		}
+
+		task ("Add a private page") {
+			JSONLayout.addPrivateLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Private Page Name");
+		}
+
+		task ("Add a style book") {
+			StyleBooksAdmin.openStyleBooksAdmin(siteURLKey = "test-site-name");
+
+			StyleBooksAdmin.addStyleBooks(styleBookName = "Test Style Book Name");
+		}
+
+		task ("View the private page is shown in preview item selector") {
+			StyleBooks.viewCurrentPreviewItem(previewItem = "Test Private Page Name");
+		}
+
+		task ("View the Public Pages and Private Pages nav items are not shown in select preview item modal") {
+			Click(
+				index = "2",
+				locator1 = "StyleBookEditor#PREVIEW_SELECTOR");
+
+			WaitForLiferayEvent.initializeLiferayEventLog();
+
+			Button.clickMore();
+
+			SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+			for (var navItem : list "Public Pages,Private Pages") {
+				AssertElementNotPresent(
+					locator1 = "NavBar#NAV_ITEM_LINK",
+					value1 = "${navItem}");
+			}
 		}
 	}
 

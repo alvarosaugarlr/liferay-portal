@@ -14,24 +14,50 @@
 
 import {gql} from '@apollo/client';
 
+export type TestraySuite = {
+	dateCreated: string;
+	dateModified: string;
+	description: string;
+	name: string;
+	testraySuiteId: number;
+	type: string;
+};
+
+const testraySuiteFragment = gql`
+	fragment TestraySuiteFragment on C_TestraySuite {
+		dateCreated
+		dateModified
+		description
+		name
+		testraySuiteId
+		type
+	}
+`;
+
+export const getTestraySuite = gql`
+	${testraySuiteFragment}
+
+	query getTestraySuite($testraySuiteId: Long!) {
+		c {
+			testraySuite(testraySuiteId: $testraySuiteId) {
+				...TestraySuiteFragment
+			}
+		}
+	}
+`;
+
 export const getTestraySuites = gql`
+	${testraySuiteFragment}
+
 	query getTestraySuites(
 		$filter: String
 		$page: Int = 1
 		$pageSize: Int = 20
-		$scopeKey: String
 	) {
 		c {
-			testraySuites(
-				filter: $filter
-				page: $page
-				pageSize: $pageSize
-				scopeKey: $scopeKey
-			) {
+			testraySuites(filter: $filter, page: $page, pageSize: $pageSize) {
 				items {
-					name
-					description
-					type
+					...TestraySuiteFragment
 				}
 				lastPage
 				page

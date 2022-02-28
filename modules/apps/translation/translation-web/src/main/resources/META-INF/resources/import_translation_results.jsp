@@ -142,13 +142,31 @@ renderResponse.setTitle(LanguageUtil.get(resourceBundle, "import-translation"));
 
 					</ul>
 
-					<clay:link
-						displayType="secondary"
-						href="<%= importTranslationResultsDisplayContext.getImportTranslationURL(request, liferayPortletResponse) %>"
-						label="upload-another-file"
-						small="<%= true %>"
-						type="button"
-					/>
+					<div class="btn-group" role="group">
+						<div class="btn-group-item">
+							<clay:link
+								displayType="secondary"
+								href="<%= importTranslationResultsDisplayContext.getImportTranslationURL(request, liferayPortletResponse) %>"
+								label="upload-another-file"
+								small="<%= true %>"
+								type="button"
+							/>
+						</div>
+
+						<c:if test="<%= importTranslationResultsDisplayContext.isDownloadCSVReportEnabled() %>">
+							<div class="btn-group-item">
+								<clay:link
+									displayType="secondary"
+									download="translation-error.csv"
+									href="<%= importTranslationResultsDisplayContext.getFailureMessagesCSVDataURL(locale) %>"
+									label="download-csv-report"
+									small="<%= true %>"
+									target="_blank"
+									type="button"
+								/>
+							</div>
+						</c:if>
+					</div>
 				</c:if>
 			</clay:sheet>
 		</clay:container-fluid>

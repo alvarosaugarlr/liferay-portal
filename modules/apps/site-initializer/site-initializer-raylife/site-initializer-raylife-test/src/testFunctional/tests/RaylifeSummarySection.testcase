@@ -16,12 +16,12 @@ definition {
 	tearDown {
 		var testPortalInstance = PropsUtil.get("test.portal.instance");
 
+		Raylife.tearDownCP();
+
 		if ("${testPortalInstance}" == "true") {
 			PortalInstances.tearDownCP();
 		}
 		else {
-			Raylife.tearDownCP();
-
 			User.logoutPG();
 		}
 	}
@@ -53,7 +53,7 @@ definition {
 			locator1 = "RaylifeCreateAccount#SELECT_QUOTE",
 			title = "standard");
 
-		AssertElementPresent(locator1 = "RaylifeSummarySection#POLICY_ID_SELECTED_QUOTE");
+		AssertElementPresent(locator1 = "RaylifeSummarySection#APPLICATION_ID_SELECTED_QUOTE");
 	}
 
 }

@@ -126,9 +126,13 @@ definition {
 				value1 = "${fieldName}");
 		}
 
-		Select(
-			locator1 = "ObjectAdmin#OBJECT_FIELDS_TYPE",
-			value1 = "${fieldType}");
+		if (isSet(fieldType)) {
+			Click(locator1 = "ObjectAdmin#OBJECT_FIELDS_TYPE");
+
+			Click(
+				key_fieldType = "${fieldType}",
+				locator1 = "ObjectAdmin#OBJECT_FIELDS_TYPE_OPTION");
+		}
 
 		if ("${isMandatory}" == "true") {
 			Check.checkToggleSwitch(locator1 = "ObjectAdmin#OBJECT_FIELDS_MANDATORY_TOGGLE_SWITCH");
@@ -242,6 +246,8 @@ definition {
 
 	macro addObjectStringFieldEntryViaUI {
 		LexiconEntry.gotoAdd();
+
+		WaitForSPARefresh();
 
 		Type(
 			locator1 = "ObjectAdmin#ENTRY_STRING_VALUE_FIELD",
@@ -765,11 +771,11 @@ definition {
 			Type(
 				locator1 = "ObjectAdmin#VIEW_ACTION_NAME_ON_SIDE_PANEL",
 				value1 = "${newActionName}");
+
+			Button.clickSave();
+
+			Refresh();
 		}
-
-		Button.clickSave();
-
-		Refresh();
 	}
 
 	macro goToActionDetails {
@@ -949,6 +955,14 @@ definition {
 			value1 = "${fieldOption}");
 	}
 
+	macro selectSpecificKebabMenuOption {
+		Click(
+			key_objectLabel = "${objectLabel}",
+			locator1 = "ObjectAdmin#OBJECT_KEBAB_MENU");
+
+		MenuItem.click(menuItem = "${kebabOption}");
+	}
+
 	macro viewCustomObject {
 		AssertElementPresent(
 			key_name = "${name}",
@@ -974,6 +988,12 @@ definition {
 		AssertElementPresent(locator1 = "ObjectAdmin#FIELD_SEARCHABLE_LANGUAGE_LABEL");
 
 		AssertElementPresent(locator1 = "ObjectAdmin#FIELD_SEARCHABLE_LANGUAGE_OPTION");
+	}
+
+	macro viewFieldValueDisabled {
+		AssertElementPresent(
+			key_fieldValue = "${fieldValue}",
+			locator1 = "ObjectAdmin#VIEW_FIELD_VALUE_DISABLED");
 	}
 
 	macro viewObjectPresentOnSite {

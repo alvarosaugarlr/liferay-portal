@@ -26,10 +26,12 @@ import com.liferay.object.scope.ObjectScopeProvider;
 import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.object.service.ObjectEntryService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.Portal;
@@ -75,36 +77,7 @@ public class ObjectEntryDTOConverter
 			com.liferay.object.model.ObjectEntry objectEntry)
 		throws Exception {
 
-		ObjectDefinition objectDefinition = _getObjectDefinition(
-			dtoConverterContext, objectEntry);
-
-		return new ObjectEntry() {
-			{
-				actions = dtoConverterContext.getActions();
-				creator = CreatorUtil.toCreator(
-					_portal, dtoConverterContext.getUriInfoOptional(),
-					_userLocalService.fetchUser(objectEntry.getUserId()));
-				dateCreated = objectEntry.getCreateDate();
-				dateModified = objectEntry.getModifiedDate();
-				externalReferenceCode = objectEntry.getExternalReferenceCode();
-				id = objectEntry.getObjectEntryId();
-				properties = _toProperties(
-					dtoConverterContext, objectDefinition, objectEntry);
-				scopeKey = _getScopeKey(objectDefinition, objectEntry);
-				status = new Status() {
-					{
-						code = objectEntry.getStatus();
-						label = WorkflowConstants.getStatusLabel(
-							objectEntry.getStatus());
-						label_i18n = LanguageUtil.get(
-							LanguageResources.getResourceBundle(
-								dtoConverterContext.getLocale()),
-							WorkflowConstants.getStatusLabel(
-								objectEntry.getStatus()));
-					}
-				};
-			}
-		};
+		return _toDTO(dtoConverterContext, objectEntry, null);
 	}
 
 	private DTOConverterContext _getDTOConverterContext(
@@ -163,10 +136,50 @@ public class ObjectEntryDTOConverter
 		return null;
 	}
 
+	private ObjectEntry _toDTO(
+			DTOConverterContext dtoConverterContext,
+			com.liferay.object.model.ObjectEntry objectEntry,
+			com.liferay.object.model.ObjectEntry parentObjectEntry)
+		throws Exception {
+
+		ObjectDefinition objectDefinition = _getObjectDefinition(
+			dtoConverterContext, objectEntry);
+
+		return new ObjectEntry() {
+			{
+				actions = dtoConverterContext.getActions();
+				creator = CreatorUtil.toCreator(
+					_portal, dtoConverterContext.getUriInfoOptional(),
+					_userLocalService.fetchUser(objectEntry.getUserId()));
+				dateCreated = objectEntry.getCreateDate();
+				dateModified = objectEntry.getModifiedDate();
+				externalReferenceCode = objectEntry.getExternalReferenceCode();
+				id = objectEntry.getObjectEntryId();
+				properties = _toProperties(
+					dtoConverterContext, objectDefinition, objectEntry,
+					parentObjectEntry);
+				scopeKey = _getScopeKey(objectDefinition, objectEntry);
+				status = new Status() {
+					{
+						code = objectEntry.getStatus();
+						label = WorkflowConstants.getStatusLabel(
+							objectEntry.getStatus());
+						label_i18n = LanguageUtil.get(
+							LanguageResources.getResourceBundle(
+								dtoConverterContext.getLocale()),
+							WorkflowConstants.getStatusLabel(
+								objectEntry.getStatus()));
+					}
+				};
+			}
+		};
+	}
+
 	private Map<String, Object> _toProperties(
 			DTOConverterContext dtoConverterContext,
 			ObjectDefinition objectDefinition,
-			com.liferay.object.model.ObjectEntry objectEntry)
+			com.liferay.object.model.ObjectEntry objectEntry,
+			com.liferay.object.model.ObjectEntry parentObjectEntry)
 		throws Exception {
 
 		Map<String, Object> map = new HashMap<>();
@@ -206,22 +219,29 @@ public class ObjectEntryDTOConverter
 						}
 					});
 			}
-			else if (Objects.equals(
-						objectField.getRelationshipType(), "oneToMany")) {
-
-				String relationshipIdName = objectFieldName.substring(
-					objectFieldName.lastIndexOf(StringPool.UNDERLINE) + 1);
+			else if ((parentObjectEntry == null) &&
+					 Objects.equals(
+						 objectField.getRelationshipType(), "oneToMany")) {
 
 				long objectEntryId = 0;
 
 				if (serializable != null) {
 					objectEntryId = (long)serializable;
 
-					String relationshipName = StringUtil.replaceLast(
-						relationshipIdName, "Id", "");
+					if ((objectEntryId != 0) &&
+						!_objectEntryService.hasModelResourcePermission(
+							_objectEntryLocalService.getObjectEntry(
+								objectEntryId),
+							ActionKeys.VIEW)) {
+
+						continue;
+					}
 
 					Optional<UriInfo> uriInfoOptional =
 						dtoConverterContext.getUriInfoOptional();
+
+					int underlineLastIndex = objectFieldName.lastIndexOf(
+						StringPool.UNDERLINE);
 
 					if ((objectEntryId != 0) &&
 						uriInfoOptional.map(
@@ -231,22 +251,26 @@ public class ObjectEntryDTOConverter
 								"nestedFields")
 						).map(
 							nestedFields -> nestedFields.contains(
-								relationshipName)
+								StringUtil.replaceLast(
+									objectFieldName.substring(
+										underlineLastIndex + 1),
+									"Id", ""))
 						).orElse(
 							false
 						)) {
 
 						map.put(
-							relationshipName,
-							toDTO(
+							StringUtil.replaceLast(objectFieldName, "Id", ""),
+							_toDTO(
 								_getDTOConverterContext(
 									dtoConverterContext, objectEntryId),
 								_objectEntryLocalService.getObjectEntry(
-									objectEntryId)));
+									objectEntryId),
+								objectEntry));
 					}
 				}
 
-				map.put(relationshipIdName, objectEntryId);
+				map.put(objectFieldName, objectEntryId);
 			}
 			else {
 				map.put(objectFieldName, serializable);
@@ -269,6 +293,9 @@ public class ObjectEntryDTOConverter
 
 	@Reference
 	private ObjectEntryLocalService _objectEntryLocalService;
+
+	@Reference
+	private ObjectEntryService _objectEntryService;
 
 	@Reference
 	private ObjectFieldLocalService _objectFieldLocalService;

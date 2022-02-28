@@ -1751,7 +1751,7 @@ war.path=${app.server.portal.dir}/</echo>
 						<contains string="${patch.requirements}" substring="base-" />
 					</not>
 					<not>
-						<matches pattern="sp\d+" string="${patch.requirements}" />
+						<matches pattern="(sp|u)\d+" string="${patch.requirements}" />
 					</not>
 				</and>
 				<then>
@@ -4774,8 +4774,10 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 					<if>
 						<equals arg1="@{delete.liferay.home}" arg2="true" />
 						<then>
+							<get-testcase-property property.name="database.hypersonic.embedded" />
+
 							<antcall target="delete-liferay-home">
-								<param name="keep.hypersonicdb" value="true" />
+								<param name="keep.hypersonicdb" value="${database.hypersonic.embedded}" />
 							</antcall>
 						</then>
 					</if>
@@ -6729,6 +6731,14 @@ org.apache.catalina.tribes.level = FINE]]>
 
 		<replace
 			failOnNoReplacements="true"
+			file="${app.server.tomcat.dir}/conf/logging.properties"
+		>
+			<replacetoken><![CDATA[3manager.org.apache.juli.AsyncFileHandler,]]></replacetoken>
+			<replacevalue><![CDATA[3manager.org.apache.juli.AsyncFileHandler, 5cluster.org.apache.juli.AsyncFileHandler,]]></replacevalue>
+		</replace>
+
+		<replace
+			failOnNoReplacements="true"
 			file="${app.server.tomcat.dir}/conf/server.xml"
 		>
 			<replacetoken><![CDATA[<Engine name="Catalina" defaultHost="localhost">]]></replacetoken>
@@ -8587,6 +8597,8 @@ ${update.properties}</echo>
 
 		<Logger level="DEBUG" name="com.liferay.portal.equinox.log.bridge.internal" />
 
+		<Logger level="ERROR" name="com.liferay.portal.kernel.servlet.filters.invoker.InvokerFilterHelper" />
+
 		<Logger level="${release.local.service.impl.log.level}" name="com.liferay.portal.service.impl.ReleaseLocalServiceImpl" />
 
 		<Logger level="${dialect.detector.log.level}" name="com.liferay.portal.spring.hibernate.DialectDetector" />
@@ -8743,6 +8755,8 @@ company.security.strangers.verify=false
 browser.launcher.url=
 
 setup.wizard.enabled=false
+
+passwords.default.policy.change.required=false
 
 mail.send.blacklist=
 
@@ -9102,7 +9116,7 @@ include-and-override=${liferay.home}/portal-setup-wizard.properties</echo>
 				<get-patch-requirements patch.file.zip.url="${test.build.fix.pack.zip.url}" />
 
 				<if>
-					<matches pattern="sp\d+" string="${patch.requirements}" />
+					<matches pattern="(sp|u)\d+" string="${patch.requirements}" />
 					<then>
 						<echo append="true" file="portal-impl/src/portal-ext.properties">
 							verify.patch.levels.disabled=true
@@ -9276,7 +9290,9 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 			liferay.home.dir.name=${liferay.home}
 			liferay.app.server.global.lib.dir=${app.server.lib.global.dir}
 			liferay.app.server.portal.lib.dir=${app.server.lib.portal.dir}
+			liferay.app.server.shielded.container.lib.portal.dir=${app.server.shielded-container-lib.portal.dir}
 			liferay.app.server.portal.web.dir=${app.server.portal.dir}
+			logger.resources.url=${test.poshi.logger.resources.url}
 			output.dir.name=${selenium.output.dir.name}
 			product.names=${product.names}
 			project.dir=${project.dir}
@@ -9666,6 +9682,8 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 
 		<antcall target="prepare-selenium-analytics-cloud-properties" />
 		<antcall target="prepare-selenium-app-server-properties" />
+		<antcall target="prepare-selenium-aws-translation-properties" />
+		<antcall target="prepare-selenium-azure-translation-properties" />
 		<antcall target="prepare-selenium-browser" />
 		<antcall target="prepare-selenium-click-to-chat-properties" />
 		<antcall target="prepare-selenium-database-properties" />
@@ -9932,6 +9950,46 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 			<then>
 				<echo append="true" file="${test.ext.properties.file}">
 					app.server.type=${app.server.type}
+				</echo>
+			</then>
+		</if>
+	</target>
+
+	<target name="prepare-selenium-aws-translation-properties">
+		<if>
+			<isset property="aws.translation.access.key.id" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					aws.translation.access.key.id=${aws.translation.access.key.id}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="aws.translation.secret.access.key" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					aws.translation.secret.access.key=${aws.translation.secret.access.key}
+				</echo>
+			</then>
+		</if>
+	</target>
+
+	<target name="prepare-selenium-azure-translation-properties">
+		<if>
+			<isset property="azure.translation.subscription.key" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					azure.translation.subscription.key=${azure.translation.subscription.key}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="azure.translation.resource.location" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					azure.translation.resource.location=${azure.translation.resource.location}
 				</echo>
 			</then>
 		</if>
@@ -10747,6 +10805,60 @@ tokenLocation="REQUEST"</echo>
 			<then>
 				<echo append="true" file="${test.ext.properties.file}">
 					openid.password=${openid.password}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="openid.provider.auth0.test.account.email.address" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					openid.provider.auth0.test.account.email.address=${openid.provider.auth0.test.account.email.address}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="openid.provider.auth0.test.account.password" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					openid.provider.auth0.test.account.password=${openid.provider.auth0.test.account.password}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="openid.provider.okta.test.account.email.address" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					openid.provider.okta.test.account.email.address=${openid.provider.okta.test.account.email.address}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="openid.provider.okta.test.account.password" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					openid.provider.okta.test.account.password=${openid.provider.okta.test.account.password}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="openid.provider.pingone.test.account.password" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					openid.provider.pingone.test.account.password=${openid.provider.pingone.test.account.password}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="openid.provider.pingone.test.account.username" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					openid.provider.pingone.test.account.username=${openid.provider.pingone.test.account.username}
 				</echo>
 			</then>
 		</if>
@@ -11714,8 +11826,10 @@ cluster.link.bind.addr["cluster-link-udp"]=127.0.0.1</echo>
 				<isset property="skip.rebuild-database" />
 			</not>
 			<then>
+				<get-testcase-property property.name="database.hypersonic.embedded" />
+
 				<antcall target="delete-liferay-home">
-					<param name="keep.hypersonicdb" value="true" />
+					<param name="keep.hypersonicdb" value="${database.hypersonic.embedded}" />
 				</antcall>
 
 				<get-database-property property.name="database.docker.image" />
@@ -14201,6 +14315,13 @@ url=${short.hostname}:8080</echo>
 		<var name="translation.file.type" value="xlf" />
 
 		<if>
+			<equals arg1="${translation.zip.file.name}" arg2="WCGeneralName" />
+			<then>
+				<var name="translation.zip.file.name" value="Web Content Article Translations-en_US" />
+			</then>
+		</if>
+
+		<if>
 			<equals arg1="${operation}" arg2="unzip" />
 			<then>
 				<unzip
@@ -14302,6 +14423,13 @@ url=${short.hostname}:8080</echo>
 
 	<target name="update-translation-file-id">
 		<var name="translation.file.type" value="xlf" />
+
+		<if>
+			<equals arg1="${translation.zip.file.name}" arg2="WCGeneralName" />
+			<then>
+				<var name="translation.zip.file.name" value="Web Content Article Translations-en_US" />
+			</then>
+		</if>
 
 		<replace
 			file="${selenium.output.dir.name}/${translation.zip.file.name}/${translation.file.name}.${translation.file.type}"

@@ -24,6 +24,7 @@ import com.liferay.change.tracking.spi.display.CTDisplayRenderer;
 import com.liferay.change.tracking.web.internal.display.BasePersistenceRegistry;
 import com.liferay.change.tracking.web.internal.display.CTDisplayRendererRegistry;
 import com.liferay.change.tracking.web.internal.display.DisplayContextImpl;
+import com.liferay.change.tracking.web.internal.util.PublicationsPortletURLUtil;
 import com.liferay.diff.DiffHtml;
 import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.lang.SafeCloseable;
@@ -58,6 +59,7 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.util.Locale;
 
+import javax.portlet.ActionRequest;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
@@ -104,7 +106,7 @@ public class GetEntryRenderDataMVCResourceCommand
 					resourceRequest, resourceResponse));
 		}
 		catch (PortalException portalException) {
-			_log.error(portalException, portalException);
+			_log.error(portalException);
 
 			JSONPortletResponseUtil.writeJSON(
 				resourceRequest, resourceResponse,
@@ -154,7 +156,8 @@ public class GetEntryRenderDataMVCResourceCommand
 
 		String[] availableLanguageIds = null;
 		String defaultLanguageId = null;
-		String editURL = null;
+		JSONObject editInProductionJSONObject = null;
+		JSONObject editInPublicationJSONObject = null;
 		JSONObject localizedTitlesJSONObject =
 			JSONFactoryUtil.createJSONObject();
 		String rightPreview = null;
@@ -183,12 +186,22 @@ public class GetEntryRenderDataMVCResourceCommand
 				ctEntry.getModelClassPK());
 
 			if (rightModel != null) {
-				boolean activeCTCollection = ParamUtil.getBoolean(
-					resourceRequest, "activeCTCollection");
+				String editURL = _ctDisplayRendererRegistry.getEditURL(
+					ctCollectionId, ctSQLMode, httpServletRequest, rightModel,
+					ctEntry.getModelClassNameId());
 
-				if (activeCTCollection) {
-					editURL = ctDisplayRenderer.getEditURL(
-						httpServletRequest, rightModel);
+				if (Validator.isNotNull(editURL)) {
+					editInPublicationJSONObject = _getEditJSONObject(
+						_language.format(
+							httpServletRequest,
+							"you-are-currently-working-on-production.-work-" +
+								"on-x",
+							new Object[] {ctCollection.getName()}, false),
+						ctCollection.getCtCollectionId(), editURL,
+						_language.format(
+							httpServletRequest, "edit-in-x",
+							new Object[] {ctCollection.getName()}, false),
+						resourceRequest, resourceResponse);
 				}
 
 				if (localize) {
@@ -276,6 +289,23 @@ public class GetEntryRenderDataMVCResourceCommand
 				}
 
 				if (leftModel != null) {
+					String editURL = _ctDisplayRendererRegistry.getEditURL(
+						leftCtCollectionId, leftCTSQLMode, httpServletRequest,
+						leftModel, ctEntry.getModelClassNameId());
+
+					if (Validator.isNotNull(editURL)) {
+						editInProductionJSONObject = _getEditJSONObject(
+							_language.format(
+								httpServletRequest,
+								"you-are-currently-working-on-x.-work-on-" +
+									"production",
+								new Object[] {ctCollection.getName()}, false),
+							CTConstants.CT_COLLECTION_ID_PRODUCTION, editURL,
+							_language.get(
+								httpServletRequest, "edit-in-production"),
+							resourceRequest, resourceResponse);
+					}
+
 					String leftVersionName = ctDisplayRenderer.getVersionName(
 						leftModel);
 
@@ -335,6 +365,27 @@ public class GetEntryRenderDataMVCResourceCommand
 				ctEntry.getModelClassNameId(), ctEntry.getModelClassPK());
 
 			if (leftModel != null) {
+				if (ctEntry.getChangeType() ==
+						CTConstants.CT_CHANGE_TYPE_MODIFICATION) {
+
+					String editURL = _ctDisplayRendererRegistry.getEditURL(
+						leftCtCollectionId, leftCTSQLMode, httpServletRequest,
+						leftModel, ctEntry.getModelClassNameId());
+
+					if (Validator.isNotNull(editURL)) {
+						editInProductionJSONObject = _getEditJSONObject(
+							_language.format(
+								httpServletRequest,
+								"you-are-currently-working-on-x.-work-on-" +
+									"production",
+								new Object[] {ctCollection.getName()}, false),
+							CTConstants.CT_COLLECTION_ID_PRODUCTION, editURL,
+							_language.get(
+								httpServletRequest, "edit-in-production"),
+							resourceRequest, resourceResponse);
+					}
+				}
+
 				if (localize &&
 					(ctEntry.getChangeType() ==
 						CTConstants.CT_CHANGE_TYPE_DELETION)) {
@@ -474,8 +525,12 @@ public class GetEntryRenderDataMVCResourceCommand
 				"defaultLocale", _getLocaleJSONObject(defaultLanguageId));
 		}
 
-		if (editURL != null) {
-			jsonObject.put("editURL", editURL);
+		if (editInProductionJSONObject != null) {
+			jsonObject.put("editInProduction", editInProductionJSONObject);
+		}
+
+		if (editInPublicationJSONObject != null) {
+			jsonObject.put("editInPublication", editInPublicationJSONObject);
 		}
 
 		if (leftLocalizedPreviewJSONObject != null) {
@@ -612,6 +667,36 @@ public class GetEntryRenderDataMVCResourceCommand
 		return jsonObject;
 	}
 
+	private JSONObject _getEditJSONObject(
+		String confirmationMessage, long ctCollectionId, String editURL,
+		String label, ResourceRequest resourceRequest,
+		ResourceResponse resourceResponse) {
+
+		JSONObject editInProductionJSONObject = JSONUtil.put(
+			"editURL", editURL
+		).put(
+			"label", label
+		);
+
+		long activeCTCollectionId = ParamUtil.getLong(
+			resourceRequest, "activeCTCollectionId");
+
+		if (activeCTCollectionId != ctCollectionId) {
+			editInProductionJSONObject.put(
+				"checkoutURL",
+				PublicationsPortletURLUtil.getHref(
+					resourceResponse.createActionURL(),
+					ActionRequest.ACTION_NAME,
+					"/change_tracking/checkout_ct_collection", "redirect",
+					editURL, "ctCollectionId", String.valueOf(ctCollectionId))
+			).put(
+				"confirmationMessage", confirmationMessage
+			);
+		}
+
+		return editInProductionJSONObject;
+	}
+
 	private JSONObject _getLocaleJSONObject(String languageId) {
 		return JSONUtil.put(
 			"label", languageId
@@ -658,7 +743,7 @@ public class GetEntryRenderDataMVCResourceCommand
 			return jsonObject;
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 
 			return null;
 		}
@@ -706,7 +791,7 @@ public class GetEntryRenderDataMVCResourceCommand
 					ctEntryId, locale, model, type));
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 
 			return null;
 		}
@@ -785,7 +870,7 @@ public class GetEntryRenderDataMVCResourceCommand
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(exception, exception);
+				_log.warn(exception);
 			}
 		}
 

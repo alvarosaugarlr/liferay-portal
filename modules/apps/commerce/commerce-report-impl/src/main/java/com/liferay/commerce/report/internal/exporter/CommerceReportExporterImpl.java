@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 
+import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -71,7 +72,7 @@ public class CommerceReportExporterImpl implements CommerceReportExporter {
 				byteArrayOutputStream);
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 		}
 		finally {
 			if (inputStream != null) {
@@ -80,6 +81,22 @@ public class CommerceReportExporterImpl implements CommerceReportExporter {
 		}
 
 		return byteArrayOutputStream.toByteArray();
+	}
+
+	@Override
+	public boolean isValidJRXMLTemplate(InputStream inputStream) {
+		try {
+			JasperCompileManager.compileReport(inputStream);
+		}
+		catch (JRException jrException) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(jrException);
+			}
+
+			return false;
+		}
+
+		return true;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

@@ -116,7 +116,7 @@ public class CASFilter extends BaseFilter {
 			}
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 		}
 
 		return false;
@@ -216,7 +216,7 @@ public class CASFilter extends BaseFilter {
 					ticketValidationException);
 			}
 			else if (_log.isInfoEnabled()) {
-				_log.info(ticketValidationException.getMessage());
+				_log.info(ticketValidationException);
 			}
 
 			_portal.sendError(

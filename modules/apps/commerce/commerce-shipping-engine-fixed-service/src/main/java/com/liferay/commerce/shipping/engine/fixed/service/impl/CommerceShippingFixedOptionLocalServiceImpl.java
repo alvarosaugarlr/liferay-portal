@@ -34,15 +34,22 @@ import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.SortFactoryUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
+import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.math.BigDecimal;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * @author Alessio Antonio Rendina
@@ -54,8 +61,8 @@ public class CommerceShippingFixedOptionLocalServiceImpl
 	@Override
 	public CommerceShippingFixedOption addCommerceShippingFixedOption(
 			long userId, long groupId, long commerceShippingMethodId,
-			Map<Locale, String> nameMap, Map<Locale, String> descriptionMap,
-			BigDecimal amount, double priority)
+			BigDecimal amount, Map<Locale, String> descriptionMap,
+			Map<Locale, String> nameMap, double priority)
 		throws PortalException {
 
 		User user = userLocalService.getUser(userId);
@@ -72,9 +79,11 @@ public class CommerceShippingFixedOptionLocalServiceImpl
 		commerceShippingFixedOption.setUserName(user.getFullName());
 		commerceShippingFixedOption.setCommerceShippingMethodId(
 			commerceShippingMethodId);
-		commerceShippingFixedOption.setNameMap(nameMap);
-		commerceShippingFixedOption.setDescriptionMap(descriptionMap);
 		commerceShippingFixedOption.setAmount(amount);
+		commerceShippingFixedOption.setDescriptionMap(descriptionMap);
+		commerceShippingFixedOption.setKey(
+			_getKey(user.getCompanyId(), nameMap));
+		commerceShippingFixedOption.setNameMap(nameMap);
 		commerceShippingFixedOption.setPriority(priority);
 
 		return commerceShippingFixedOptionPersistence.update(
@@ -95,7 +104,7 @@ public class CommerceShippingFixedOptionLocalServiceImpl
 		return commerceShippingFixedOptionLocalService.
 			addCommerceShippingFixedOption(
 				serviceContext.getUserId(), serviceContext.getScopeGroupId(),
-				commerceShippingMethodId, nameMap, descriptionMap, amount,
+				commerceShippingMethodId, amount, descriptionMap, nameMap,
 				priority);
 	}
 
@@ -125,6 +134,14 @@ public class CommerceShippingFixedOptionLocalServiceImpl
 
 		commerceShippingFixedOptionPersistence.removeByCommerceShippingMethodId(
 			commerceShippingMethodId);
+	}
+
+	@Override
+	public CommerceShippingFixedOption fetchCommerceShippingFixedOption(
+		long companyId, String key) {
+
+		return commerceShippingFixedOptionPersistence.fetchByC_K(
+			companyId, key);
 	}
 
 	@Override
@@ -214,8 +231,8 @@ public class CommerceShippingFixedOptionLocalServiceImpl
 
 	@Override
 	public CommerceShippingFixedOption updateCommerceShippingFixedOption(
-			long commerceShippingFixedOptionId, Map<Locale, String> nameMap,
-			Map<Locale, String> descriptionMap, BigDecimal amount,
+			long commerceShippingFixedOptionId, BigDecimal amount,
+			Map<Locale, String> descriptionMap, Map<Locale, String> nameMap,
 			double priority)
 		throws PortalException {
 
@@ -223,10 +240,15 @@ public class CommerceShippingFixedOptionLocalServiceImpl
 			commerceShippingFixedOptionPersistence.findByPrimaryKey(
 				commerceShippingFixedOptionId);
 
-		commerceShippingFixedOption.setNameMap(nameMap);
-		commerceShippingFixedOption.setDescriptionMap(descriptionMap);
 		commerceShippingFixedOption.setAmount(amount);
+		commerceShippingFixedOption.setDescriptionMap(descriptionMap);
+		commerceShippingFixedOption.setNameMap(nameMap);
 		commerceShippingFixedOption.setPriority(priority);
+
+		if (Validator.isNull(commerceShippingFixedOption.getKey())) {
+			commerceShippingFixedOption.setKey(
+				_getKey(commerceShippingFixedOption.getCompanyId(), nameMap));
+		}
 
 		return commerceShippingFixedOptionPersistence.update(
 			commerceShippingFixedOption);
@@ -296,6 +318,33 @@ public class CommerceShippingFixedOptionLocalServiceImpl
 		}
 
 		return commerceShippingFixedOptions;
+	}
+
+	private String _getKey(long companyId, Map<Locale, String> nameMap) {
+		String key = FriendlyURLNormalizerUtil.normalize(
+			nameMap.get(LocaleThreadLocal.getDefaultLocale()));
+
+		if (Validator.isNull(key)) {
+			Collection<String> values = nameMap.values();
+
+			Stream<String> stream = values.stream();
+
+			Optional<String> firstOptional = stream.filter(
+				value -> Validator.isNotNull(value)
+			).findFirst();
+
+			key = FriendlyURLNormalizerUtil.normalize(firstOptional.get());
+		}
+
+		CommerceShippingFixedOption commerceShippingFixedOption =
+			commerceShippingFixedOptionLocalService.
+				fetchCommerceShippingFixedOption(companyId, key);
+
+		if (commerceShippingFixedOption != null) {
+			key = key + StringUtil.randomString(5);
+		}
+
+		return key;
 	}
 
 }

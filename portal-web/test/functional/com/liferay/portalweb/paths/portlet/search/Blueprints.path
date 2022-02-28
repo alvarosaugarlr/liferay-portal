@@ -96,23 +96,43 @@
 	<td></td>
 </tr>
 <tr>
+	<td>BLUEPRINTS_ADMIN_ENTRY_CELL</td>
+	<td>//div[contains(@class,'dnd-tr')][.//*[normalize-space(text())='${entryTitle}']]//div[contains(@class,'dnd-td')][${cellPosition}]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>BLUEPRINTS_ADMIN_ENTRY_DESCRIPTION</td>
 	<td>//div[contains(@class,'dnd-tr')][.//*[normalize-space(text())='${entryTitle}']]//div[contains(@class,'dnd-td')][2]</td>
 	<td></td>
 </tr>
 <tr>
-	<td>BLUEPRINTS_ADMIN_ENTRY_OPEN_DROPDOWN_MENU</td>
+	<td>BLUEPRINTS_ADMIN_ENTRY_DROPDOWN_MENU_OPEN</td>
 	<td>//div[contains(@class,'dropdown-menu') and contains(@class,'show')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>BLUEPRINTS_ADMIN_ENTRY_TITLE</td>
-	<td>//div[contains(@class,'table-list-title')]//*[normalize-space(text())='${title}']</td>
+	<td>//div[contains(@class,'table-list-title')]//*[normalize-space(text())='${entryTitle}']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>BLUEPRINTS_ADMIN_ENTRY_VERTICAL_ELLIPSIS</td>
-	<td>//*[contains(@class,'dnd-tr') and contains(.,'${title}')]//*[*[name()='svg'][contains(@class,'icon-ellipsis')]]</td>
+	<td>//*[contains(@class,'dnd-tr') and contains(.,'${entryTitle}')]//*[*[name()='svg'][contains(@class,'icon-ellipsis')]]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BLUEPRINTS_ADMIN_FIELD</td>
+	<td>//div[contains(@class,'dnd-tr')]//div[contains(@class,'dnd-th') and contains(.,'${fieldName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BLUEPRINTS_ADMIN_FIELDS_MENU</td>
+	<td>//button[contains(@class,'dropdown-toggle') and contains(.,'Open Fields Menu')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BLUEPRINTS_ADMIN_FIELDS_MENU_ITEM</td>
+	<td>//button[contains(@class,'dropdown-item') and contains(.,'${fieldName}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -142,7 +162,12 @@
 </tr>
 <tr>
 	<td>BLUEPRINTS_CONFIGURATION_EDITOR</td>
-	<td>//label[text()='${configurationField}']/following-sibling::div//div[contains(@class,'CodeMirror cm-s-default')]</td>
+	<td>//div[contains(@class,'form-group')][./label[text()='${configurationField}']]//div[contains(@class,'CodeMirror cm-s-default')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BLUEPRINTS_CONFIGURATION_INVALID_JSON_ERROR</td>
+	<td>//div[contains(@class,'form-group')][./label[text()='${configurationField}']]//div[contains(.,'Unable to apply changes due to invalid JSON')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -153,31 +178,6 @@
 <tr>
 	<td>BLUEPRINTS_EDIT_PAGE_HEADER_TITLE</td>
 	<td>//ul[contains(@class,'tbar-nav')]//div[contains(@class,'entry-title')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>BLUEPRINTS_EDIT_PAGE_PREVIEW_SEARCH_RESULT_EMPTY</td>
-	<td>//div[contains(@class,'preview-sidebar')]//span[contains(.,'No results found')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>BLUEPRINTS_EDIT_PAGE_PREVIEW_SEARCH_RESULT_SCORE</td>
-	<td>//div[contains(.,'${assetTitle}')]/preceding-sibling::div//button[contains(@class,'score')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>BLUEPRINTS_EDIT_PAGE_PREVIEW_SEARCH_RESULT_SCORE_EXPLANATION</td>
-	<td>xpath=(//span[contains(@class,'cm-variable') and contains(.,'${key_searchExplanation}')])</td>
-	<td></td>
-</tr>
-<tr>
-	<td>BLUEPRINTS_EDIT_PAGE_PREVIEW_SEARCH_RESULT_SPECIFIC_RANKING</td>
-	<td>//li[contains(@class,'result-list-item')][${resultRanking}]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>BLUEPRINTS_EDIT_PAGE_PREVIEW_SEARCH_RESULT_TITLE</td>
-	<td>//li[contains(@class,'result-list-item')]//p[contains(.,'${resultTitle}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -201,6 +201,26 @@
 	<td></td>
 </tr>
 <tr>
+	<td>BLUEPRINTS_PREVIEW_COLLAPSE_RESULT_BUTTON</td>
+	<td>//button[contains(@aria-label,'Collapse')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BLUEPRINTS_PREVIEW_EXPAND_RESULT_BUTTON</td>
+	<td>//button[contains(@aria-label,'Expand')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BLUEPRINTS_PREVIEW_RAW_RESPONSE_JSON</td>
+	<td>//span[contains(@class,'cm-string') and contains(.,'${responseString}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BLUEPRINTS_PREVIEW_RESULT_FIELD_VALUE</td>
+	<td>//div[contains(@class,'preview-results-list')]//*[contains(@class,'row')]//*[contains(.,'${fieldName}')]/following-sibling::div</td>
+	<td></td>
+</tr>
+<tr>
 	<td>BLUEPRINTS_PREVIEW_SEARCH_BAR</td>
 	<td>//div[contains(@class,'preview-sidebar')]//input[contains(@placeholder,'Search')]</td>
 	<td></td>
@@ -208,6 +228,31 @@
 <tr>
 	<td>BLUEPRINTS_PREVIEW_SEARCH_BAR_PORTUGUESE</td>
 	<td>//div[contains(@class,'preview-sidebar')]//input[contains(@placeholder,'Buscar')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BLUEPRINTS_PREVIEW_SEARCH_RESULT_EMPTY</td>
+	<td>//div[contains(@class,'preview-sidebar')]//span[contains(.,'No results found')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BLUEPRINTS_PREVIEW_SEARCH_RESULT_SCORE</td>
+	<td>//div[contains(.,'${assetTitle}')]/preceding-sibling::div//button[contains(@class,'score')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BLUEPRINTS_PREVIEW_SEARCH_RESULT_SCORE_EXPLANATION</td>
+	<td>//span[contains(@class,'cm-variable') and contains(.,'${key_searchExplanation}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BLUEPRINTS_PREVIEW_SEARCH_RESULT_SPECIFIC_RANKING</td>
+	<td>//li[contains(@class,'result-list-item')][${resultRanking}]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BLUEPRINTS_PREVIEW_SEARCH_RESULT_TITLE</td>
+	<td>//li[contains(@class,'result-list-item')]//p[contains(.,'${resultTitle}')]</td>
 	<td></td>
 </tr>
 <tr>

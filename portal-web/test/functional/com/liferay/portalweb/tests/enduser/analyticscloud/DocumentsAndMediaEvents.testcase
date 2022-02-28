@@ -8,6 +8,10 @@ definition {
 	property testray.main.component.name = "Analytics Cloud";
 
 	setUp {
+		AntCommand(
+			locator1 = "build-test.xml",
+			value1 = "record-test-generated-properties");
+
 		task ("Copy the token from AC") {
 			ACUtils.launchAC();
 
@@ -55,7 +59,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8969 | Test Summary: Check documentDownloaded triggers when a file is downloaded in a DXP site and check its properties (see reference document in comments)"
 	@priority = "5"
 	test CheckDocumentDownloadedInSiteAndCheckProperties {
-		property portal.upstream = "quarantine";
 		property proxy.server.enabled = "true";
 
 		task ("Get the Property ID in AC") {
@@ -128,7 +131,7 @@ definition {
 				applicationId = "Document",
 				eventId = "documentDownloaded",
 				property = "version",
-				value = "1.0");
+				value = "");
 
 			ACUtils.assertEventPropertyValue(
 				applicationId = "Document",
@@ -147,7 +150,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8944 | Test Summary: Check documentPreviewed is triggered when viewing the document on a page and has the right parameters"
 	@priority = "3"
 	test CheckDocumentPreviewedWhenViewOnPageAndCheckParameters {
-		property portal.upstream = "quarantine";
 		property proxy.server.enabled = "true";
 
 		task ("Get the Property ID in AC") {
@@ -226,7 +228,7 @@ definition {
 				applicationId = "Document",
 				eventId = "documentPreviewed",
 				property = "version",
-				value = "");
+				value = "1.0");
 		}
 
 		task ("View the request common properties value") {

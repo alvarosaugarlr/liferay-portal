@@ -30,6 +30,7 @@ import com.liferay.info.list.renderer.DefaultInfoListRendererContext;
 import com.liferay.info.list.renderer.InfoListRenderer;
 import com.liferay.layout.display.page.LayoutDisplayPageProvider;
 import com.liferay.layout.display.page.constants.LayoutDisplayPageWebKeys;
+import com.liferay.layout.helper.CollectionPaginationHelper;
 import com.liferay.layout.responsive.ResponsiveLayoutStructureUtil;
 import com.liferay.layout.taglib.internal.display.context.RenderCollectionLayoutStructureItemDisplayContext;
 import com.liferay.layout.taglib.internal.display.context.RenderLayoutStructureDisplayContext;
@@ -318,8 +319,7 @@ public class RenderLayoutStructureTag extends IncludeTag {
 
 		if (Objects.equals(
 				collectionStyledLayoutStructureItem.getPaginationType(),
-				RenderCollectionLayoutStructureItemDisplayContext.
-					PAGINATION_TYPE_NUMERIC)) {
+				CollectionPaginationHelper.PAGINATION_TYPE_NUMERIC)) {
 
 			PaginationBarTag paginationBarTag = new PaginationBarTag();
 
@@ -346,8 +346,7 @@ public class RenderLayoutStructureTag extends IncludeTag {
 
 		if (Objects.equals(
 				collectionStyledLayoutStructureItem.getPaginationType(),
-				RenderCollectionLayoutStructureItemDisplayContext.
-					PAGINATION_TYPE_SIMPLE)) {
+				CollectionPaginationHelper.PAGINATION_TYPE_SIMPLE)) {
 
 			jspWriter.write("<div class=\"d-flex flex-grow-1 h-100 ");
 			jspWriter.write("justify-content-center py-3\" ");

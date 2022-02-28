@@ -116,15 +116,6 @@
 	<bean class="com.liferay.portal.kernel.license.util.LicenseManagerUtil" id="com.liferay.portal.kernel.license.util.LicenseManagerUtil">
 		<property name="licenseManager" ref="com.liferay.portal.kernel.license.util.LicenseManager" />
 	</bean>
-	<bean class="com.liferay.portal.metadata.TikaRawMetadataProcessor" id="com.liferay.portal.kernel.metadata.RawMetadataProcessor" />
-	<bean class="com.liferay.portal.kernel.metadata.RawMetadataProcessorUtil" id="com.liferay.portal.kernel.metadata.RawMetadataProcessorUtil">
-		<property name="rawMetadataProcessor" ref="com.liferay.portal.kernel.metadata.RawMetadataProcessor" />
-	</bean>
-	<bean class="com.liferay.portal.kernel.oauth.OAuthFactoryUtil" id="com.liferay.portal.kernel.oauth.OAuthFactoryUtil">
-		<property name="OAuthFactory">
-			<bean class="com.liferay.portal.oauth.OAuthFactoryImpl" />
-		</property>
-	</bean>
 	<bean class="com.liferay.portal.kernel.patcher.PatcherUtil" id="com.liferay.portal.kernel.patcher.PatcherUtil">
 		<property name="patcher">
 			<bean class="com.liferay.portal.patcher.PatcherImpl" />
@@ -147,8 +138,9 @@
 	<bean class="com.liferay.portal.kernel.service.permission.CommonPermissionUtil" id="com.liferay.portal.kernel.service.permission.CommonPermissionUtil">
 		<property name="commonPermission" ref="com.liferay.portal.kernel.service.permission.CommonPermission" />
 	</bean>
+	<bean class="com.liferay.portal.service.permission.GroupPermissionImpl" id="com.liferay.portal.kernel.service.permission.GroupPermission" />
 	<bean class="com.liferay.portal.kernel.service.permission.GroupPermissionUtil" id="com.liferay.portal.kernel.service.permission.GroupPermissionUtil">
-		<property name="groupPermission" ref="com.liferay.portal.service.permission.GroupPermissionImpl" />
+		<property name="groupPermission" ref="com.liferay.portal.kernel.service.permission.GroupPermission" />
 	</bean>
 	<bean class="com.liferay.portal.service.permission.OrganizationPermissionImpl" id="com.liferay.portal.kernel.service.permission.OrganizationPermission" />
 	<bean class="com.liferay.portal.kernel.service.permission.OrganizationPermissionUtil" id="com.liferay.portal.kernel.service.permission.OrganizationPermissionUtil">
@@ -259,10 +251,6 @@
 	<bean class="com.liferay.portal.kernel.util.FileUtil" id="com.liferay.portal.kernel.util.FileUtil">
 		<property name="file" ref="com.liferay.portal.kernel.util.File" />
 	</bean>
-	<bean class="com.liferay.portal.util.FriendlyURLNormalizerImpl" id="com.liferay.portal.kernel.util.FriendlyURLNormalizer" />
-	<bean class="com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil" id="com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil">
-		<property name="friendlyURLNormalizer" ref="com.liferay.portal.kernel.util.FriendlyURLNormalizer" />
-	</bean>
 	<bean class="com.liferay.portal.kernel.util.HtmlUtil" id="com.liferay.portal.kernel.util.HtmlUtil">
 		<property name="html" ref="com.liferay.portal.util.HtmlImpl" />
 	</bean>
@@ -278,10 +266,6 @@
 		<property name="methodParametersResolver">
 			<bean class="com.liferay.portal.util.MethodParametersResolverImpl" />
 		</property>
-	</bean>
-	<bean class="com.liferay.portal.util.MimeTypesImpl" id="com.liferay.portal.kernel.util.MimeTypes" />
-	<bean class="com.liferay.portal.kernel.util.MimeTypesUtil" id="com.liferay.portal.kernel.util.MimeTypesUtil">
-		<property name="mimeTypes" ref="com.liferay.portal.kernel.util.MimeTypes" />
 	</bean>
 	<bean class="com.liferay.portal.kernel.util.PortalUtil" id="com.liferay.portal.kernel.util.PortalUtil">
 		<property name="portal" ref="com.liferay.portal.util.Portal" />
@@ -324,10 +308,6 @@
 			<bean class="com.liferay.portal.webserver.WebServerServletTokenImpl" />
 		</property>
 	</bean>
-	<bean class="com.liferay.portal.words.WordsImpl" id="com.liferay.portal.kernel.words.Words" />
-	<bean class="com.liferay.portal.kernel.words.WordsUtil" id="com.liferay.portal.kernel.words.WordsUtil">
-		<property name="words" ref="com.liferay.portal.kernel.words.Words" />
-	</bean>
 	<bean class="com.liferay.portal.workflow.permission.WorkflowPermissionImpl" id="com.liferay.portal.kernel.workflow.permission.WorkflowPermission" />
 	<bean class="com.liferay.portal.kernel.workflow.permission.WorkflowPermissionUtil" id="com.liferay.portal.kernel.workflow.permission.WorkflowPermissionUtil">
 		<property name="workflowPermission" ref="com.liferay.portal.kernel.workflow.permission.WorkflowPermission" />
@@ -348,7 +328,6 @@
 	<bean class="com.liferay.portal.language.LanguageResources" id="com.liferay.portal.language.LanguageResources" />
 	<bean class="com.liferay.portal.language.UnicodeLanguageImpl" id="com.liferay.portal.language.UnicodeLanguageImpl" />
 	<bean class="com.liferay.portal.model.adapter.builder.ServiceTrackerMapModelAdapterBuilderLocator" id="com.liferay.portal.model.adapter.builder.ServiceTrackerMapModelAdapterBuilderLocator" />
-	<bean class="com.liferay.portal.service.permission.GroupPermissionImpl" id="com.liferay.portal.service.permission.GroupPermissionImpl" />
 	<bean class="com.liferay.portal.service.permission.UserPermissionImpl" id="com.liferay.portal.service.permission.UserPermissionImpl" />
 	<bean class="com.liferay.portal.servlet.BrowserSnifferImpl" id="com.liferay.portal.servlet.BrowserSnifferImpl" />
 	<bean class="com.liferay.portal.servlet.filters.util.BrowserIdCacheFileNameContributor" id="com.liferay.portal.servlet.filters.util.BrowserIdCacheFileNameContributor" />

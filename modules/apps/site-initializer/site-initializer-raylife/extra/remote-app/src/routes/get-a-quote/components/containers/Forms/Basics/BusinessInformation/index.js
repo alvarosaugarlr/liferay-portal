@@ -30,14 +30,6 @@ import {BusinessInformationAddress} from './Address';
 const setFormPath = (value) => `basics.businessInformation.${value}`;
 
 export function FormBasicBusinessInformation({form, isMobile}) {
-	const {
-		BUSINESS_EMAIL,
-		BUSINESS_WEBSITE,
-		PHONE,
-		PHYSICAL_ADDRESS,
-		YOUR_NAME,
-	} = SUBSECTION_KEYS;
-
 	const [dispatchEvent] = useCustomEvent(TIP_EVENT);
 	const {getMobileSubSection, mobileContainerProps} = useMobileContainer();
 
@@ -74,7 +66,9 @@ export function FormBasicBusinessInformation({form, isMobile}) {
 		<div className="p-0">
 			<MobileContainer
 				{...mobileContainerProps}
-				mobileSubSection={getMobileSubSection(YOUR_NAME)}
+				mobileSubSection={getMobileSubSection(
+					SUBSECTION_KEYS.YOUR_NAME
+				)}
 			>
 				<div
 					className={classNames(
@@ -94,7 +88,7 @@ export function FormBasicBusinessInformation({form, isMobile}) {
 							maxLength: 256,
 							onBlur: onFirstNameSettled,
 						}}
-						label="First Name"
+						label={SUBSECTION_KEYS.FIRST_NAME}
 						name={setFormPath('firstName')}
 						rules={{
 							required: 'First name is required.',
@@ -107,7 +101,7 @@ export function FormBasicBusinessInformation({form, isMobile}) {
 							className: 'flex-grow-1 p-0 ',
 							maxLength: 256,
 						}}
-						label="Last Name"
+						label={SUBSECTION_KEYS.LAST_NAME}
 						name={setFormPath('lastName')}
 						rules={{
 							required: 'Last name is required.',
@@ -118,11 +112,13 @@ export function FormBasicBusinessInformation({form, isMobile}) {
 
 			<MobileContainer
 				{...mobileContainerProps}
-				mobileSubSection={getMobileSubSection(BUSINESS_EMAIL)}
+				mobileSubSection={getMobileSubSection(
+					SUBSECTION_KEYS.BUSINESS_EMAIL
+				)}
 			>
 				<EmailControlledInput
 					control={control}
-					label="Business Email"
+					label={SUBSECTION_KEYS.BUSINESS_EMAIL}
 					name={setFormPath('business.email')}
 					rules={{
 						required: 'Email is required.',
@@ -132,11 +128,11 @@ export function FormBasicBusinessInformation({form, isMobile}) {
 
 			<MobileContainer
 				{...mobileContainerProps}
-				mobileSubSection={getMobileSubSection(PHONE)}
+				mobileSubSection={getMobileSubSection(SUBSECTION_KEYS.PHONE)}
 			>
 				<PhoneControlledInput
 					control={control}
-					label="Phone"
+					label={SUBSECTION_KEYS.PHONE}
 					name={setFormPath('business.phone')}
 					rules={{
 						required: 'Phone number is required.',
@@ -146,18 +142,22 @@ export function FormBasicBusinessInformation({form, isMobile}) {
 
 			<MobileContainer
 				{...mobileContainerProps}
-				mobileSubSection={getMobileSubSection(BUSINESS_WEBSITE)}
+				mobileSubSection={getMobileSubSection(
+					SUBSECTION_KEYS.BUSINESS_WEBSITE
+				)}
 			>
 				<WebsiteControlledInput
 					control={control}
-					label="Business Website (optional)"
+					label={SUBSECTION_KEYS.BUSINESS_WEBSITE}
 					name={setFormPath('business.website')}
 				/>
 			</MobileContainer>
 
 			<MobileContainer
 				{...mobileContainerProps}
-				mobileSubSection={getMobileSubSection(PHYSICAL_ADDRESS)}
+				mobileSubSection={getMobileSubSection(
+					SUBSECTION_KEYS.PHYSICAL_ADDRESS
+				)}
 			>
 				<BusinessInformationAddress />
 			</MobileContainer>

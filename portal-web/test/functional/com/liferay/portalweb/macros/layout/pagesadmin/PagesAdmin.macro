@@ -75,7 +75,9 @@ definition {
 				customTitle = "${customTitle}");
 		}
 
-		Button.click(button = "Save");
+		if (isSet(sitePageType) || isSet(inheritChanges) || isSet(openGraph)) {
+			Button.click(button = "Save");
+		}
 	}
 
 	@summary = "Add newly created pages to specified navigation menus or assert that the option to add the pages to navigation menus is missing."
@@ -336,6 +338,44 @@ definition {
 		PortletEntry.save();
 	}
 
+	macro addPage {
+		if (IsTextNotEqual(locator1 = "ControlMenu#HEADING", value1 = "Pages")) {
+			ProductMenu.gotoPortlet(
+				category = "Site Builder",
+				portlet = "Pages");
+		}
+
+		if (IsElementPresent(locator1 = "Message#EMPTY_INFO_TAGLIB")) {
+			PagesAdmin.gotoAddFirstPage(pageType = "Page");
+		}
+		else {
+			AssertClick(
+				key_breadcrumbName = "Pages",
+				locator1 = "Breadcrumb#BREADCRUMB_ENTRY_EXACT_MATCH",
+				value1 = "Pages");
+
+			LexiconEntry.gotoAddMenuItem(menuItem = "Page");
+		}
+
+		PagesAdmin._addPage(
+			assertCheckboxMissing = "${assertCheckboxMissing}",
+			categoryName = "${categoryName}",
+			collectionName = "${collectionName}",
+			componentName = "${componentName}",
+			customDescription = "${customDescription}",
+			customTitle = "${customTitle}",
+			inheritChanges = "${inheritChanges}",
+			linkPageName = "${linkPageName}",
+			navigationMenus = "${navigationMenus}",
+			openGraph = "${openGraph}",
+			pageName = "${pageName}",
+			pageTemplateName = "${pageTemplateName}",
+			pageTypeURL = "${pageTypeURL}",
+			portlet = "${portlet}",
+			sitePageType = "${sitePageType}",
+			vocabularyName = "${vocabularyName}");
+	}
+
 	macro addPrivateChildPage {
 		if (IsTextNotEqual(locator1 = "ControlMenu#HEADING", value1 = "Pages")) {
 			ProductMenu.gotoPortlet(
@@ -563,7 +603,9 @@ definition {
 				portlet = "Pages");
 		}
 
-		PagesAdmin.togglePrivacy(privacy = "${privacy}");
+		if (isSet(privacy)) {
+			PagesAdmin.togglePrivacy(privacy = "${privacy}");
+		}
 
 		PagesAdmin.gotoPageEllipsisMenuItem(
 			menuItem = "Configure",
@@ -632,8 +674,14 @@ definition {
 
 		MenuItem.clickNoError(menuItem = "Delete");
 
-		if (isSet(hasChildren)) {
+		if (isSet(hasChidren) && isSet(hasScopeGroup)) {
+			AssertConfirm(value1 = "Are you sure you want to delete the page &quot;${pageName}&quot;? This page serves as a scope for content and also contains child pages. Any content scoped to this page and child pages will also be removed.");
+		}
+		else if (isSet(hasChildren)) {
 			AssertConfirm(value1 = "Are you sure you want to delete the page &quot;${pageName}&quot;? This page contains child pages that will also be removed.");
+		}
+		else if (isSet(hasScopeGroup)) {
+			AssertConfirm(value1 = "Are you sure you want to delete the page &quot;${pageName}&quot;? This page serves as a scope for content. Any content that is scoped to this page will also be removed.");
 		}
 		else {
 			AssertConfirm(value1 = "Are you sure you want to delete the page &quot;${pageName}&quot;? It will be removed immediately.");

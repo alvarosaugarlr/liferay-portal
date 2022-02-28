@@ -1,4 +1,4 @@
-@component-name = "portal-collaboration"
+@component-name = "portal-lima"
 definition {
 
 	property portal.release = "true";
@@ -220,6 +220,31 @@ definition {
 		WikiPage.viewCP(
 			wikiPageContent = "Liferay, Inc., is an open-source company that provides free documentation and paid professional service to users of its software. Mainly focused on enterprise portal] technology, the company has its headquarters in Diamond Bar, California, United States.",
 			wikiPageTitle = "Liferay");
+	}
+
+	@description = "This ensures that the script can be escaped."
+	@priority = "3"
+	@refactordone
+	test CanViewEscapedScriptFromHTML {
+		property portal.acceptance = "false";
+
+		WikiNavigator.openToWikiPage(
+			layoutURLKey = "wiki-test-page",
+			siteURLKey = "guest",
+			wikiNodeName = "Main",
+			wikiPageTitle = "FrontPage");
+
+		WikiPage.editFrontPagePG(wikiPageContentEdit = '''<script>alert(123);</script>''');
+
+		AssertAlertNotPresent();
+
+		var actualScript = '''<script>alert(123);</script>''';
+
+		var escapedScript = '''&lt;script&gt;alert(123);&lt;/script&gt;''';
+
+		AssertHTMLSourceTextNotPresent(value1 = "${actualScript}");
+
+		AssertHTMLSourceTextPresent(value1 = "${escapedScript}");
 	}
 
 	@description = "This is a test for LPS-136984. It checks that Javascript will not be excuted from the page title."

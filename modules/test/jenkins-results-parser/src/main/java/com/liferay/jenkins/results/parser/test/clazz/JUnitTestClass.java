@@ -21,6 +21,7 @@ import com.liferay.jenkins.results.parser.test.clazz.group.BatchTestClassGroup;
 import java.io.File;
 import java.io.IOException;
 
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,6 +29,10 @@ import java.util.regex.Pattern;
  * @author Michael Hashimoto
  */
 public class JUnitTestClass extends BaseTestClass {
+
+	public Properties getTestProperties() {
+		return _testProperties;
+	}
 
 	@Override
 	public boolean isIgnored() {
@@ -46,6 +51,8 @@ public class JUnitTestClass extends BaseTestClass {
 
 			return;
 		}
+
+		_setTestProperties(_getTestPropertiesBaseDir(getTestClassFile()));
 
 		try {
 			_fileContent = JenkinsResultsParserUtil.read(getTestClassFile());
@@ -158,6 +165,32 @@ public class JUnitTestClass extends BaseTestClass {
 		return _getPackageName();
 	}
 
+	private File _getTestPropertiesBaseDir(File file) {
+		if (file == null) {
+			return null;
+		}
+
+		File canonicalFile = JenkinsResultsParserUtil.getCanonicalFile(file);
+
+		File parentFile = canonicalFile.getParentFile();
+
+		if ((parentFile == null) || !parentFile.exists()) {
+			return file;
+		}
+
+		if (!canonicalFile.isDirectory()) {
+			return _getTestPropertiesBaseDir(parentFile);
+		}
+
+		File testPropertiesFile = new File(canonicalFile, "test.properties");
+
+		if (!testPropertiesFile.exists()) {
+			return _getTestPropertiesBaseDir(parentFile);
+		}
+
+		return canonicalFile;
+	}
+
 	private void _initTestClassMethods() {
 		Matcher classHeaderMatcher = _classHeaderPattern.matcher(_fileContent);
 
@@ -224,6 +257,11 @@ public class JUnitTestClass extends BaseTestClass {
 		}
 	}
 
+	private void _setTestProperties(File testPropertiesBaseDir) {
+		_testProperties = JenkinsResultsParserUtil.getProperties(
+			new File(testPropertiesBaseDir, "test.properties"));
+	}
+
 	private static final Pattern _classHeaderPattern = Pattern.compile(
 		JenkinsResultsParserUtil.combine(
 			"\\*/(?<annotations>[^/]*)public\\s+class\\s+",
@@ -235,5 +273,6 @@ public class JUnitTestClass extends BaseTestClass {
 
 	private boolean _classIgnored;
 	private final String _fileContent;
+	private Properties _testProperties;
 
 }

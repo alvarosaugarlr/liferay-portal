@@ -268,21 +268,6 @@ public interface PropsKeys {
 	public static final String AUTO_DEPLOY_TOMCAT_CONF_DIR =
 		"auto.deploy.tomcat.conf.dir";
 
-	public static final String
-		AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_INSTALL_OPTIONS =
-			"auto.deploy.websphere.wsadmin.app.manager.install.options";
-
-	public static final String
-		AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_LIST_OPTIONS =
-			"auto.deploy.websphere.wsadmin.app.manager.list.options";
-
-	public static final String AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_QUERY =
-		"auto.deploy.websphere.wsadmin.app.manager.query";
-
-	public static final String
-		AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_UPDATE_OPTIONS =
-			"auto.deploy.websphere.wsadmin.app.manager.update.options";
-
 	public static final String AUTO_LOGIN_HOOKS = "auto.login.hooks";
 
 	public static final String AUTO_LOGIN_IGNORE_HOSTS =
@@ -290,10 +275,6 @@ public interface PropsKeys {
 
 	public static final String AUTO_LOGIN_IGNORE_PATHS =
 		"auto.login.ignore.paths";
-
-	public static final String AXIS_SERVLET_ENABLED = "axis.servlet.enabled";
-
-	public static final String AXIS_SERVLET_MAPPING = "axis.servlet.mapping";
 
 	public static final String BASIC_AUTH_PASSWORD_REQUIRED =
 		"basic.auth.password.required";
@@ -591,12 +572,6 @@ public interface PropsKeys {
 	public static final String CONTROL_PANEL_LAYOUT_REGULAR_THEME_ID =
 		"control.panel.layout.regular.theme.id";
 
-	public static final String CONTROL_PANEL_NAVIGATION_MAX_ORGANIZATIONS =
-		"control.panel.navigation.max.organizations";
-
-	public static final String CONTROL_PANEL_NAVIGATION_MAX_SITES =
-		"control.panel.navigation.max.sites";
-
 	public static final String CORS_DISABLE_AUTHORIZATION_CONTEXT_CHECK =
 		"cors.disable.authorization.context.check";
 
@@ -738,9 +713,6 @@ public interface PropsKeys {
 
 	public static final String DEFAULT_GUEST_PUBLIC_LAYOUT_NAME =
 		"default.guest.public.layout.name";
-
-	public static final String DEFAULT_GUEST_PUBLIC_LAYOUT_PREFIX =
-		"default.guest.public.layout.";
 
 	public static final String
 		DEFAULT_GUEST_PUBLIC_LAYOUT_REGULAR_COLOR_SCHEME_ID =
@@ -1329,9 +1301,6 @@ public interface PropsKeys {
 	public static final String INDEX_DATE_FORMAT_PATTERN =
 		"index.date.format.pattern";
 
-	public static final String INDEX_DUMP_COMPRESSION_ENABLED =
-		"index.dump.compression.enabled";
-
 	public static final String INDEX_ON_STARTUP = "index.on.startup";
 
 	public static final String INDEX_ON_STARTUP_DELAY =
@@ -1404,8 +1373,6 @@ public interface PropsKeys {
 
 	public static final String INDEX_SORTABLE_TEXT_FIELDS_TRUNCATED_LENGTH =
 		"index.sortable.text.fields.truncated.length";
-
-	public static final String INDEX_WITH_THREAD = "index.with.thread";
 
 	public static final String INDEXER_ENABLED = "indexer.enabled";
 
@@ -2112,8 +2079,6 @@ public interface PropsKeys {
 	public static final String MODULE_FRAMEWORK_WEB_START_LEVEL =
 		"module.framework.web.start.level";
 
-	public static final String MULTI_VALUE_MAP = "multi.value.map.";
-
 	public static final String MY_SITES_DIRECTORY_SITE_EXCLUDES =
 		"my.sites.directory.site.excludes";
 
@@ -2398,9 +2363,6 @@ public interface PropsKeys {
 
 	public static final String POP_SERVER_NOTIFICATIONS_ENABLED =
 		"pop.server.notifications.enabled";
-
-	public static final String POP_SERVER_NOTIFICATIONS_INTERVAL =
-		"pop.server.notifications.interval";
 
 	public static final String POP_SERVER_SUBDOMAIN = "pop.server.subdomain";
 
@@ -2831,6 +2793,9 @@ public interface PropsKeys {
 
 	public static final String SETUP_DATABASE_JAR_NAME =
 		"setup.database.jar.name";
+
+	public static final String SETUP_DATABASE_JAR_SHA1 =
+		"setup.database.jar.sha1";
 
 	public static final String SETUP_DATABASE_JAR_URL =
 		"setup.database.jar.url";

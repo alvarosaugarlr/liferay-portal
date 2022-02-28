@@ -17,12 +17,13 @@ import launcher from '../../src/main/resources/META-INF/resources/components/glo
 import '../../src/main/resources/META-INF/resources/styles/main.scss';
 
 launcher('global-search', 'global-search-root', {
+	accountId: 42811,
 	accountURLTemplate: '/account-page/{id}',
 	accountsSearchURLTemplate: '/accounts?search={query}',
-	channelId: 41117,
+	cartURLTemplate: '/cart-page/{id}',
+	cartsSearchURLTemplate: '/carts?search={query}',
+	channelId: 42627,
 	globalSearchURLTemplate: '/global?search={query}',
-	orderURLTemplate: '/order-page/{id}',
-	ordersSearchURLTemplate: '/orders?search={query}',
 	productURLTemplate: '/product-page/{id}',
 	productsSearchURLTemplate: '/products?search={query}',
 });

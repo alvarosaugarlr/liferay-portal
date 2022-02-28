@@ -72,6 +72,15 @@ public class UnprocessedExceptionCheck extends BaseCheck {
 		}
 	}
 
+	private void _checkJSONException(DetailAST detailAST) {
+		List<DetailAST> methodCallDetailASTList = getMethodCalls(
+			detailAST, "_log", _LOG_METHOD_NAMES);
+
+		if (methodCallDetailASTList.isEmpty()) {
+			log(detailAST, _MSG_MISSING_DEBUG_LOG_JSON_EXCEPTION);
+		}
+	}
+
 	private void _checkUnprocessedException(
 		DetailAST detailAST, String content) {
 
@@ -90,8 +99,11 @@ public class UnprocessedExceptionCheck extends BaseCheck {
 		String exceptionClassName = _getExceptionClassName(
 			parameterDefinitionDetailAST);
 
-		if ((exceptionClassName == null) ||
-			exceptionClassName.equals("JSONException")) {
+		if (exceptionClassName == null) {
+			return;
+		}
+		else if (exceptionClassName.equals("JSONException")) {
+			_checkJSONException(detailAST);
 
 			return;
 		}
@@ -218,18 +230,9 @@ public class UnprocessedExceptionCheck extends BaseCheck {
 	private boolean _containsVariable(
 		DetailAST detailAST, String variableName) {
 
-		List<DetailAST> nameDetailASTList = getAllChildTokens(
-			detailAST, true, TokenTypes.IDENT);
+		List<String> names = getNames(detailAST, true);
 
-		for (DetailAST nameDetailAST : nameDetailASTList) {
-			String name = nameDetailAST.getText();
-
-			if (name.equals(variableName)) {
-				return true;
-			}
-		}
-
-		return false;
+		return names.contains(variableName);
 	}
 
 	private String _getExceptionClassName(
@@ -272,7 +275,7 @@ public class UnprocessedExceptionCheck extends BaseCheck {
 		}
 		catch (ParseException parseException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(parseException, parseException);
+				_log.debug(parseException);
 			}
 
 			return null;
@@ -282,22 +285,27 @@ public class UnprocessedExceptionCheck extends BaseCheck {
 	}
 
 	private String _getName(DetailAST detailAST) {
-		DetailAST nameDetailAST = detailAST.findFirstToken(TokenTypes.IDENT);
+		String name = getName(detailAST);
 
-		if (nameDetailAST != null) {
-			return nameDetailAST.getText();
+		if (name != null) {
+			return name;
 		}
 
 		DetailAST dotDetailAST = detailAST.findFirstToken(TokenTypes.DOT);
 
 		if (dotDetailAST != null) {
-			nameDetailAST = dotDetailAST.findFirstToken(TokenTypes.IDENT);
-
-			return nameDetailAST.getText();
+			return getName(dotDetailAST);
 		}
 
 		return null;
 	}
+
+	private static final String[] _LOG_METHOD_NAMES = {
+		"debug", "error", "info", "trace", "warn"
+	};
+
+	private static final String _MSG_MISSING_DEBUG_LOG_JSON_EXCEPTION =
+		"missing.debug.log.json.exception";
 
 	private static final String _MSG_UNPROCESSED_EXCEPTION =
 		"exception.unprocessed";

@@ -217,7 +217,7 @@ public class HttpInvoker {
 
 			methodsField.set(null, methodsFieldValue.toArray(new String[0]));
 		}
-		catch (IllegalAccessException | NoSuchFieldException e) {
+		catch (IllegalAccessException | NoSuchFieldException exception) {
 			_logger.warning("Unable to update HttpURLConnection class");
 		}
 	}
@@ -424,12 +424,12 @@ public class HttpInvoker {
 	private String _body;
 	private String _contentType;
 	private String _encodedUserNameAndPassword;
-	private Map<String, File> _files = new LinkedHashMap<>();
-	private Map<String, String> _headers = new LinkedHashMap<>();
+	private final Map<String, File> _files = new LinkedHashMap<>();
+	private final Map<String, String> _headers = new LinkedHashMap<>();
 	private HttpMethod _httpMethod = HttpMethod.GET;
 	private String _multipartBoundary;
-	private Map<String, String[]> _parameters = new LinkedHashMap<>();
-	private Map<String, String> _parts = new LinkedHashMap<>();
+	private final Map<String, String[]> _parameters = new LinkedHashMap<>();
+	private final Map<String, String> _parts = new LinkedHashMap<>();
 	private String _path;
 
 }

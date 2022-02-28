@@ -261,7 +261,7 @@ public class SpeedwellSiteInitializer implements SiteInitializer {
 			throw initializationException;
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 
 			throw new InitializationException(exception);
 		}
@@ -890,8 +890,8 @@ public class SpeedwellSiteInitializer implements SiteInitializer {
 
 		_commerceShippingFixedOptionLocalService.addCommerceShippingFixedOption(
 			serviceContext.getUserId(), commerceShippingMethod.getGroupId(),
-			commerceShippingMethod.getCommerceShippingMethodId(), nameMap,
-			descriptionMap, price, 0);
+			commerceShippingMethod.getCommerceShippingMethodId(), price,
+			descriptionMap, nameMap, 0);
 	}
 
 	private void _setDefaultCatalogImage(

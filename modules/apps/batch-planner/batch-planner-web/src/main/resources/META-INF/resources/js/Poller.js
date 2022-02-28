@@ -58,6 +58,7 @@ const setProgress = (contentType, percentage) => ({
 
 export async function startTask(formDataQuerySelector, formSubmitURL) {
 	const mainFormData = document.querySelector(formDataQuerySelector);
+
 	const formData = new FormData(mainFormData);
 
 	const response = await fetch(formSubmitURL, {
@@ -169,8 +170,8 @@ const Poller = (
 	requestTaskStatus,
 	requestTaskFile
 ) => {
-	const isMounted = useIsMounted();
 	const [state, dispatch] = useReducer(reducer, initialState);
+	const isMounted = useIsMounted();
 
 	const dispatchIfMounted = useCallback(
 		(action) => {
@@ -182,25 +183,32 @@ const Poller = (
 	);
 
 	const download = (url, filename) => {
-		var a = document.createElement('a');
-		document.body.appendChild(a);
-		a.style.display = 'none';
-		a.href = url;
-		a.download = filename;
-		a.click();
+		const linkElement = document.createElement('a');
+
+		linkElement.style.display = 'none';
+		linkElement.href = url;
+		linkElement.download = filename;
+
+		document.body.appendChild(linkElement);
+
+		linkElement.click();
+
 		window.URL.revokeObjectURL(url);
 	};
 
 	const downloadFile = useCallback(async () => {
 		dispatchIfMounted({type: LOADING});
+
 		try {
 			const blobUrl = await requestTaskFile(state.taskId);
+
 			download(blobUrl, EXPORT_FILE_NAME);
 
 			dispatchIfMounted({type: STOP_LOADING});
 		}
 		catch (error) {
 			console.error(error);
+
 			dispatchIfMounted(setError());
 		}
 	}, [dispatchIfMounted, requestTaskFile, state.taskId]);
@@ -250,6 +258,7 @@ const Poller = (
 			}
 			catch (error) {
 				console.error(error);
+
 				dispatchIfMounted(setError());
 			}
 		}

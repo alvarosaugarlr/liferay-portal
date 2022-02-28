@@ -18,7 +18,10 @@ import React from 'react';
 
 import parseFile from '../../../src/main/resources/META-INF/resources/js/FileParsers';
 import FileUpload from '../../../src/main/resources/META-INF/resources/js/components/FileUpload';
-import {FILE_SCHEMA_EVENT} from '../../../src/main/resources/META-INF/resources/js/constants';
+import {
+	FILE_EXTENSION_INPUT_PARTIAL_NAME,
+	FILE_SCHEMA_EVENT,
+} from '../../../src/main/resources/META-INF/resources/js/constants';
 
 jest.mock('../../../src/main/resources/META-INF/resources/js/FileParsers');
 
@@ -31,6 +34,8 @@ const fileContents = `currencyCode,type,name
 `;
 const fileSchema = ['currencyCode', 'type', 'name'];
 const file = new Blob([fileContents], {type: 'text/csv'});
+
+file.name = 'test.csv';
 
 describe('FileUpload', () => {
 	beforeEach(() => {
@@ -45,17 +50,49 @@ describe('FileUpload', () => {
 		Liferay.on(FILE_SCHEMA_EVENT, mockFileSchemaListener);
 
 		parseFile.mockImplementationOnce(({onComplete}) =>
-			onComplete(fileSchema)
+			onComplete({schema: fileSchema})
 		);
 
 		const {getByLabelText} = render(<FileUpload portletNamespace="test" />);
 
 		act(() => {
-			fireEvent.change(getByLabelText('file'), {target: {files: [file]}});
+			fireEvent.change(getByLabelText(/file \((.*)\)/), {
+				target: {files: [file]},
+			});
 		});
 
-		expect(mockFileSchemaListener.mock.calls[0][0].schema).toStrictEqual(
-			fileSchema
+		expect(mockFileSchemaListener).toHaveBeenLastCalledWith(
+			expect.objectContaining({
+				schema: fileSchema,
+			})
 		);
+	});
+
+	it('must update the fileExtension Input value on input change', async () => {
+		const testInput = document.createElement('input');
+
+		testInput.id = `test_${FILE_EXTENSION_INPUT_PARTIAL_NAME}`;
+
+		document.body.appendChild(testInput);
+
+		const mockFileSchemaListener = jest.fn();
+
+		Liferay.on(FILE_SCHEMA_EVENT, mockFileSchemaListener);
+
+		parseFile.mockImplementationOnce(({onComplete}) =>
+			onComplete({extension: 'tst'})
+		);
+
+		const {getByLabelText} = render(
+			<FileUpload portletNamespace="test_" />
+		);
+
+		act(() => {
+			fireEvent.change(getByLabelText(/file \((.*)\)/), {
+				target: {files: [file]},
+			});
+		});
+
+		expect(testInput.value).toBe('TST');
 	});
 });

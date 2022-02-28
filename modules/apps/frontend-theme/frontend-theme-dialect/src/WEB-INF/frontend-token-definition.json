@@ -2231,7 +2231,7 @@
 							"type": "String"
 						},
 						{
-							"defaultValue": "initial",
+							"defaultValue": "#5E38BA",
 							"editorType": "ColorPicker",
 							"label": "link-visited-color",
 							"mappings": [
@@ -4306,6 +4306,19 @@
 				},
 				{
 					"frontendTokens": [
+						{
+							"defaultValue": "var(--color-neutral-0)",
+							"editorType": "ColorPicker",
+							"label": "custom-control-background-color",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "custom-control-background-color"
+								}
+							],
+							"name": "customControlBackgroundColor",
+							"type": "String"
+						},
 						{
 							"defaultValue": "var(--color-action-primary-default)",
 							"editorType": "ColorPicker",

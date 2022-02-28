@@ -7,6 +7,10 @@ definition {
 	property testray.main.component.name = "Analytics Cloud";
 
 	setUp {
+		AntCommand(
+			locator1 = "build-test.xml",
+			value1 = "record-test-generated-properties");
+
 		task ("Copy the token from AC") {
 			ACUtils.launchAC();
 
@@ -21,6 +25,25 @@ definition {
 
 		task ("Add a new site with a public widget page") {
 			ACUtils.addSiteAndPage();
+		}
+
+		task ("Add a Blogs widget to page") {
+			ACUtils.addWidgetToPage(
+				layoutName = "AC Page",
+				widgetName = "Blogs");
+		}
+
+		task ("Add 10 blogs entries with long content") {
+			var n = "0";
+
+			while ("${n}" != "10") {
+				var n = ${n} + 1;
+
+				ACUtils.createBlogsAndAddToPage(
+					entryContent = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce in lacus nunc. Etiam et volutpat est. Quisque quis mi erat. Donec maximus mauris augue, nec convallis metus aliquet vitae. Nullam venenatis a nisl in tincidunt. Aliquam venenatis, enim in venenatis aliquam, mauris erat blandit nulla, sit amet tincidunt elit enim sit amet dolor. Aliquam fringilla condimentum varius. Maecenas tincidunt elit eget lacinia aliquam. Proin congue diam lorem. Vestibulum tristique elit mi, non dapibus erat lobortis.",
+					entryTitle = "Blogs Entry Title ${n}",
+					groupName = "Site Name");
+			}
 		}
 
 		task ("Connect the DXP to AC") {
@@ -47,25 +70,6 @@ definition {
 	@priority = "5"
 	test CheckPageDepthReachedTo25 {
 		property proxy.server.enabled = "true";
-
-		task ("Add a Blogs widget to page") {
-			ACUtils.addWidgetToPage(
-				layoutName = "AC Page",
-				widgetName = "Blogs");
-		}
-
-		task ("Add 10 blogs entries with long content") {
-			var n = "0";
-
-			while ("${n}" != "10") {
-				var n = ${n} + 1;
-
-				JSONBlog.addEntry(
-					entryContent = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce in lacus nunc. Etiam et volutpat est. Quisque quis mi erat. Donec maximus mauris augue, nec convallis metus aliquet vitae. Nullam venenatis a nisl in tincidunt. Aliquam venenatis, enim in venenatis aliquam, mauris erat blandit nulla, sit amet tincidunt elit enim sit amet dolor. Aliquam fringilla condimentum varius. Maecenas tincidunt elit eget lacinia aliquam. Proin congue diam lorem. Vestibulum tristique elit mi, non dapibus erat lobortis.",
-					entryTitle = "Blogs Entry Title ${n}",
-					groupName = "Site Name");
-			}
-		}
 
 		task ("Get the Property ID in AC") {
 			ACUtils.launchAC();
@@ -126,25 +130,6 @@ definition {
 	test CheckPageDepthReachedTo50 {
 		property proxy.server.enabled = "true";
 
-		task ("Add a Blogs widget to page") {
-			ACUtils.addWidgetToPage(
-				layoutName = "AC Page",
-				widgetName = "Blogs");
-		}
-
-		task ("Add 10 blogs entries with long content") {
-			var n = "0";
-
-			while ("${n}" != "10") {
-				var n = ${n} + 1;
-
-				JSONBlog.addEntry(
-					entryContent = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce in lacus nunc. Etiam et volutpat est. Quisque quis mi erat. Donec maximus mauris augue, nec convallis metus aliquet vitae. Nullam venenatis a nisl in tincidunt. Aliquam venenatis, enim in venenatis aliquam, mauris erat blandit nulla, sit amet tincidunt elit enim sit amet dolor. Aliquam fringilla condimentum varius. Maecenas tincidunt elit eget lacinia aliquam. Proin congue diam lorem. Vestibulum tristique elit mi, non dapibus erat lobortis.",
-					entryTitle = "Blogs Entry Title ${n}",
-					groupName = "Site Name");
-			}
-		}
-
 		task ("Get the Property ID in AC") {
 			ACUtils.launchAC();
 
@@ -202,7 +187,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8807 | Test Summary: Check pageDepthReached trigggers ([depth] = 75) and check its properties (see reference document in comments)"
 	@priority = "5"
 	test CheckPageDepthReachedTo75 {
-		property portal.upstream = "quarantine";
 		property proxy.server.enabled = "true";
 
 		task ("Get the Property ID in AC") {
@@ -234,12 +218,14 @@ definition {
 			ProxyUtil.startHarRecording("pageDepthReached");
 		}
 
-		task ("Scroll down by 25") {
-			ScrollBy(value1 = "0,25");
+		task ("Scroll down to view the eighth blogs entry") {
+			ScrollWebElementIntoView(
+				key_entryTitle = "Blogs Entry Title 2",
+				locator1 = "BlogsEntry#TITLE");
 		}
 
 		task ("Wait for sending requests") {
-			Pause(locator1 = "10000");
+			Pause(locator1 = "5000");
 		}
 
 		task ("View the depth of pageDepthReached event is 75") {
@@ -260,7 +246,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8808 | Test Summary: Check pageDepthReached trigggers ([depth] = 100) and check its properties (see reference document in comments)"
 	@priority = "5"
 	test CheckPageDepthReachedTo100 {
-		property portal.upstream = "quarantine";
 		property proxy.server.enabled = "true";
 
 		task ("Get the Property ID in AC") {
@@ -292,8 +277,8 @@ definition {
 			ProxyUtil.startHarRecording("pageDepthReached");
 		}
 
-		task ("Scroll down by 200") {
-			ScrollBy(value1 = "0,200");
+		task ("Scroll down by 4000") {
+			ScrollBy(value1 = "0, 4000");
 		}
 
 		task ("Wait for sending requests") {
@@ -318,7 +303,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8871 | Test Summary: Check pageDepthReached events trigger when scrolling the page by hitting the Page Dn or the Down arrow keys"
 	@priority = "3"
 	test CheckPageDepthReachedWhenPressPageDownKey {
-		property portal.upstream = "quarantine";
 		property proxy.server.enabled = "true";
 
 		task ("Get the Property ID in AC") {
@@ -378,7 +362,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8935 | Test Summary: Check all page events can be sent again if the page is refreshed/hard refreshed"
 	@priority = "4"
 	test CheckPageEventsTriggeredAgainAfterHardRefresh {
-		property portal.upstream = "quarantine";
 		property proxy.server.enabled = "true";
 
 		task ("Get the Property ID in AC") {
@@ -422,10 +405,10 @@ definition {
 			Pause(locator1 = "10000");
 		}
 
-		task ("View the tabBlurred event triggered") {
+		task ("View the pageUnloaded event triggered") {
 			ACUtils.assertEventPresent(
 				applicationId = "Page",
-				eventId = "tabBlurred");
+				eventId = "pageUnloaded");
 		}
 
 		task ("View the viewDuration of pageUnloaded event is greater than 0 ms") {
@@ -466,7 +449,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8802 | Test Summary: Check all page events are triggered over again after a page refresh"
 	@priority = "4"
 	test CheckPageEventsTriggeredAgainAfterRefresh {
-		property portal.upstream = "quarantine";
 		property proxy.server.enabled = "true";
 
 		task ("Get the Property ID in AC") {
@@ -510,10 +492,10 @@ definition {
 			Pause(locator1 = "10000");
 		}
 
-		task ("View the tabBlurred event triggered") {
+		task ("View the pageUnloaded event triggered") {
 			ACUtils.assertEventPresent(
 				applicationId = "Page",
-				eventId = "tabBlurred");
+				eventId = "pageUnloaded");
 		}
 
 		task ("View the viewDuration of pageUnloaded event is greater than 0 ms") {
@@ -781,9 +763,6 @@ definition {
 	@priority = "5"
 	test CheckTabBlurredWhenComesFromADifferentTab {
 		property proxy.server.enabled = "true";
-		property portal.upstream = "quarantine";
-
-		// AC Refactor ticket: LRAC-9599
 
 		task ("Get site assigned property name and get data source name") {
 			var dataSource = StringUtil.extractFirst("${assignedPropertyName}", " ");
@@ -847,9 +826,6 @@ definition {
 	@priority = "5"
 	test CheckTabFocusedOnceTabIsActive {
 		property proxy.server.enabled = "true";
-		property portal.upstream = "quarantine";
-
-		// AC Refactor ticket: LRAC-9599
 
 		task ("Get site assigned property name and get data source name") {
 			var dataSource = StringUtil.extractFirst("${assignedPropertyName}", " ");

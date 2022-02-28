@@ -598,10 +598,14 @@ public interface CommerceOrderLocalService
 
 	@Indexable(type = IndexableType.REINDEX)
 	public CommerceOrder updateCommerceOrder(
-			long commerceOrderId, long billingAddressId, long shippingAddressId,
+			String externalReferenceCode, long commerceOrderId,
+			long billingAddressId, long shippingAddressId,
 			String commercePaymentMethodKey, long commerceShippingMethodId,
 			String shippingOptionName, String purchaseOrderNumber,
-			BigDecimal subtotal, BigDecimal shippingAmount, BigDecimal total,
+			BigDecimal subtotal, BigDecimal shippingAmount,
+			BigDecimal taxAmount, BigDecimal total,
+			BigDecimal subtotalWithTaxAmount, BigDecimal shippingWithTaxAmount,
+			BigDecimal totalWithTaxAmount, BigDecimal totalDiscountAmount,
 			String advanceStatus, CommerceContext commerceContext)
 		throws PortalException;
 
@@ -773,6 +777,11 @@ public interface CommerceOrderLocalService
 			long userId, long commerceOrderId, int status,
 			ServiceContext serviceContext,
 			Map<String, Serializable> workflowContext)
+		throws PortalException;
+
+	public CommerceOrder updateTermsAndConditions(
+			long commerceOrderId, long deliveryCommerceTermEntryId,
+			long paymentCommerceTermEntryId, String languageId)
 		throws PortalException;
 
 	@Indexable(type = IndexableType.REINDEX)

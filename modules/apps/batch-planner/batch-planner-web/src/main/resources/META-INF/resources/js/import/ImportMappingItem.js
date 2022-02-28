@@ -12,198 +12,102 @@
  * details.
  */
 
-import ClayButton from '@clayui/button';
-import ClayDropDown from '@clayui/drop-down';
-import ClayForm from '@clayui/form';
+import ClayForm, {ClaySelect} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, {useCallback, useMemo, useState} from 'react';
-
-import ImportMappingDropdownItem, {
-	ImportFieldPropType,
-} from './ImportMappingDropdownItem';
+import React from 'react';
 
 const ImportMappingItem = ({
-	field,
-	onChange,
+	dbField,
+	fileFields,
+	formEvaluated,
 	portletNamespace,
-	selectableFields,
-	selectedField,
+	selectedFileField,
+	updateFieldMapping,
 }) => {
-	const [searchLabel, setSearchLabel] = useState();
-	const [dropDownActive, setDropDownActive] = useState(false);
+	const inputId = `input-field-${dbField.name}`;
+	const hasError = formEvaluated && dbField.required && !selectedFileField;
 
-	const [requiredFields, optionalFields] = useMemo(
-		() =>
-			buildDropdownItemsFromFields(
-				selectableFields,
-				searchLabel,
-				selectedField
-			),
-		[selectableFields, searchLabel, selectedField]
-	);
-
-	const inputId = `input-field-${field}`;
-
-	const onSearchChange = useCallback((event) => {
-		setSearchLabel(event.target.value);
-	}, []);
-
-	const onDropdownItemClick = useCallback(
-		(newValue) => {
-			if (onChange) {
-				onChange(newValue, field);
-			}
-			setDropDownActive(false);
-		},
-		[field, onChange]
-	);
-
-	const selectFirstElement = useCallback(
-		(event) => {
-			event.preventDefault();
-			const firstElement = requiredFields?.at(0) || optionalFields?.at(0);
-
-			if (firstElement) {
-				if (onChange) {
-					onChange(firstElement, field);
-				}
-				setDropDownActive(false);
-				setSearchLabel();
-			}
-		},
-		[field, onChange, optionalFields, requiredFields]
-	);
+	const hasSuccess = formEvaluated && !hasError;
 
 	return (
-		<ClayForm.Group>
-			<label htmlFor={inputId}>{field}</label>
+		<ClayForm.Group
+			className={classNames({
+				'has-error': hasError,
+				'has-success': hasSuccess,
+			})}
+		>
+			<label htmlFor={inputId}>
+				{dbField.label}
 
-			{selectedField && (
-				<>
-					<input
-						hidden
-						name={`${portletNamespace}externalFieldName_${selectedField}`}
-						readOnly
-						value={field}
-					/>
-					<input
-						hidden
-						name={`${portletNamespace}internalFieldName_${selectedField}`}
-						readOnly
-						value={selectedField}
-					/>
-				</>
+				{dbField.required && (
+					<>
+						<span className="inline-item-after reference-mark text-warning">
+							<ClayIcon symbol="asterisk" />
+						</span>
+
+						<span className="hide-accessible">
+							{Liferay.Language.get('required')}
+						</span>
+					</>
+				)}
+			</label>
+
+			{selectedFileField && (
+				<input
+					hidden
+					name={`${portletNamespace}internalFieldName_${dbField.name}`}
+					readOnly
+					value={dbField.name}
+				/>
 			)}
 
-			<ClayDropDown
-				active={dropDownActive}
-				onActiveChange={setDropDownActive}
-				tabIndex={-1}
-				trigger={
-					<ClayButton
-						aria-expanded={dropDownActive ? 'true' : 'false'}
-						aria-haspopup="listbox"
-						className="w-100"
-						displayType="secondary"
-						id={inputId}
-					>
-						<span className="align-items-center d-flex justify-content-between">
-							<span>{selectedField ?? '\u00A0'}</span>
-
-							<ClayIcon symbol="caret-double" />
-						</span>
-					</ClayButton>
+			<ClaySelect
+				aria-required={dbField.required}
+				id={inputId}
+				name={
+					selectedFileField &&
+					`${portletNamespace}externalFieldName_${dbField.name}`
 				}
+				onChange={(event) => updateFieldMapping(event.target.value)}
+				value={selectedFileField}
 			>
-				<ClayDropDown.Search
-					formProps={{onSubmit: selectFirstElement}}
-					onChange={onSearchChange}
-					placeholder={Liferay.Language.get('search')}
-					value={searchLabel}
-				/>
+				<ClaySelect.Option label="" value="" />
 
-				<ClayDropDown.ItemList>
-					{requiredFields.length > 0 && (
-						<ClayDropDown.Group
-							header={Liferay.Language.get('required')}
-						>
-							<ClayDropDown.Divider />
+				{fileFields.map((fileField) => {
+					const columnHasNoName = typeof fileField === 'number';
 
-							{requiredFields.map((item) => (
-								<ImportMappingDropdownItem
-									item={item}
-									key={item.value}
-									onClick={onDropdownItemClick}
-									selectedItem={selectedField}
-								/>
-							))}
-						</ClayDropDown.Group>
-					)}
+					const label = columnHasNoName
+						? `${Liferay.Language.get('column')} ${fileField + 1}`
+						: fileField;
 
-					{optionalFields.length > 0 && (
-						<ClayDropDown.Group
-							header={Liferay.Language.get('optional')}
-						>
-							<ClayDropDown.Divider />
-
-							{optionalFields.map((item) => (
-								<ImportMappingDropdownItem
-									item={item}
-									key={item.value}
-									onClick={onDropdownItemClick}
-									selectedItem={selectedField}
-								/>
-							))}
-						</ClayDropDown.Group>
-					)}
-				</ClayDropDown.ItemList>
-			</ClayDropDown>
+					return (
+						<ClaySelect.Option
+							key={fileField}
+							label={label}
+							value={String(fileField)}
+						/>
+					);
+				})}
+			</ClaySelect>
 		</ClayForm.Group>
 	);
 };
 
-const buildDropdownItemsFromFields = (
-	selectableFields = [],
-	searchLabel,
-	selectedField
-) => {
-	const allFields = [...selectableFields];
-
-	if (selectedField) {
-		allFields.push({label: selectedField, value: selectedField});
-		allFields.sort((a, b) => (a.label > b.label ? 1 : -1));
-	}
-
-	const searchedFields = allFields.filter((fields) =>
-		searchLabel
-			? fields.label.toLowerCase().includes(searchLabel.toLowerCase())
-			: true
-	);
-
-	const {optionalFields, requiredFields} = searchedFields.reduce(
-		(accumulator, currentField) => {
-			if (currentField.required) {
-				accumulator.requiredFields.push(currentField);
-			}
-			else {
-				accumulator.optionalFields.push(currentField);
-			}
-
-			return accumulator;
-		},
-		{optionalFields: [], requiredFields: []}
-	);
-
-	return [requiredFields, optionalFields];
-};
-
 ImportMappingItem.propTypes = {
-	field: PropTypes.string.isRequired,
-	onChange: PropTypes.func,
+	dbField: PropTypes.shape({
+		label: PropTypes.string.isRequired,
+		name: PropTypes.string.isRequired,
+		required: PropTypes.bool,
+	}).isRequired,
+	fileFields: PropTypes.arrayOf(
+		PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+	).isRequired,
+	formEvaluated: PropTypes.bool.isRequired,
 	portletNamespace: PropTypes.string.isRequired,
-	selectableFields: PropTypes.arrayOf(PropTypes.shape(ImportFieldPropType)),
-	selectedField: PropTypes.string,
+	selectedFileField: PropTypes.string.isRequired,
+	updateFieldMapping: PropTypes.func.isRequired,
 };
 
 export default ImportMappingItem;

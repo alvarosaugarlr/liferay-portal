@@ -255,10 +255,10 @@ public class JournalPortlet extends MVCPortlet {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 			else {
-				_log.error(exception.getMessage());
+				_log.error(exception);
 			}
 
 			SessionErrors.add(renderRequest, exception.getClass());

@@ -53,10 +53,12 @@ import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TempFileEntryUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.util.PropsValues;
 import com.liferay.users.admin.configuration.UserFileUploadsConfiguration;
 
 import java.awt.image.RenderedImage;
@@ -65,6 +67,7 @@ import java.io.File;
 import java.io.InputStream;
 
 import java.util.Map;
+import java.util.Set;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -154,7 +157,7 @@ public class UploadImageMVCActionCommand extends BaseMVCActionCommand {
 					fileEntry = _saveTempImageFileEntry(actionRequest);
 
 					if (fileEntry.getSize() > maxFileSize) {
-						throw new FileSizeException();
+						throw new FileSizeException(maxFileSize);
 					}
 				}
 
@@ -189,7 +192,7 @@ public class UploadImageMVCActionCommand extends BaseMVCActionCommand {
 			contentType = mimeType;
 		}
 
-		if (!MimeTypesUtil.isWebImage(contentType)) {
+		if (!_webImageMimeTypes.contains(contentType)) {
 			throw new ImageTypeException();
 		}
 
@@ -203,7 +206,7 @@ public class UploadImageMVCActionCommand extends BaseMVCActionCommand {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -390,7 +393,7 @@ public class UploadImageMVCActionCommand extends BaseMVCActionCommand {
 				}
 				catch (Exception exception) {
 					if (_log.isDebugEnabled()) {
-						_log.debug(exception, exception);
+						_log.debug(exception);
 					}
 				}
 
@@ -411,6 +414,9 @@ public class UploadImageMVCActionCommand extends BaseMVCActionCommand {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		UploadImageMVCActionCommand.class);
+
+	private static final Set<String> _webImageMimeTypes = SetUtil.fromArray(
+		PropsValues.MIME_TYPES_WEB_IMAGES);
 
 	private volatile DLConfiguration _dlConfiguration;
 

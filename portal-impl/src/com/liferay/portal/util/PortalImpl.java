@@ -148,7 +148,6 @@ import com.liferay.portal.kernel.servlet.HttpMethods;
 import com.liferay.portal.kernel.servlet.HttpSessionWrapper;
 import com.liferay.portal.kernel.servlet.NonSerializableObjectRequestWrapper;
 import com.liferay.portal.kernel.servlet.PersistentHttpServletRequestWrapper;
-import com.liferay.portal.kernel.servlet.PortalMessages;
 import com.liferay.portal.kernel.servlet.PortalSessionContext;
 import com.liferay.portal.kernel.servlet.PortalSessionThreadLocal;
 import com.liferay.portal.kernel.servlet.PortalWebResourcesUtil;
@@ -194,7 +193,6 @@ import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.ServerDetector;
-import com.liferay.portal.kernel.util.SessionClicks;
 import com.liferay.portal.kernel.util.StringComparator;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Time;
@@ -336,7 +334,7 @@ public class PortalImpl implements Portal {
 			}
 			catch (UnknownHostException unknownHostException) {
 				if (_log.isDebugEnabled()) {
-					_log.debug(unknownHostException, unknownHostException);
+					_log.debug(unknownHostException);
 				}
 			}
 		}
@@ -361,7 +359,7 @@ public class PortalImpl implements Portal {
 		catch (Exception exception) {
 			_log.error("Unable to determine server's IP addresses");
 
-			_log.error(exception, exception);
+			_log.error(exception);
 		}
 
 		// Paths
@@ -568,7 +566,7 @@ public class PortalImpl implements Portal {
 		}
 		catch (NullPointerException nullPointerException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(nullPointerException, nullPointerException);
+				_log.debug(nullPointerException);
 			}
 		}
 	}
@@ -834,38 +832,6 @@ public class PortalImpl implements Portal {
 		return url;
 	}
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
-	 */
-	@Deprecated
-	@Override
-	public void addUserLocaleOptionsMessage(
-		HttpServletRequest httpServletRequest) {
-
-		boolean ignoreUserLocaleOptions = GetterUtil.getBoolean(
-			SessionClicks.get(
-				httpServletRequest.getSession(), "ignoreUserLocaleOptions",
-				Boolean.FALSE.toString()));
-
-		if (ignoreUserLocaleOptions) {
-			return;
-		}
-
-		boolean showUserLocaleOptionsMessage = ParamUtil.getBoolean(
-			httpServletRequest, "showUserLocaleOptionsMessage", true);
-
-		if (!showUserLocaleOptionsMessage) {
-			return;
-		}
-
-		PortalMessages.add(
-			httpServletRequest, PortalMessages.KEY_ANIMATION, false);
-		PortalMessages.add(
-			httpServletRequest, PortalMessages.KEY_JSP_PATH,
-			"/html/common/themes/user_locale_options.jsp");
-		PortalMessages.add(httpServletRequest, PortalMessages.KEY_TIMEOUT, -1);
-	}
-
 	@Override
 	public void clearRequestParameters(RenderRequest renderRequest) {
 		LiferayRenderRequest liferayRenderRequest =
@@ -948,23 +914,18 @@ public class PortalImpl implements Portal {
 			return null;
 		}
 
-		String decodedURL = HttpUtil.decodeURL(url);
+		if (!uri.isAbsolute()) {
 
-		if (Validator.isNotNull(uri.getPath()) &&
-			decodedURL.startsWith(HttpUtil.decodeURL(uri.getPath()))) {
+			// https://datatracker.ietf.org/doc/html/rfc3986#section-4.2
 
-			// Relative URL
+			if (url.startsWith(StringPool.DOUBLE_SLASH)) {
+
+				// "//" authority path-abempty
+
+				return null;
+			}
 
 			return url;
-		}
-
-		String protocol = uri.getScheme();
-
-		if (protocol == null) {
-
-			// Protocol is required
-
-			return null;
 		}
 
 		String domain = uri.getHost();
@@ -1579,7 +1540,7 @@ public class PortalImpl implements Portal {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -1612,7 +1573,7 @@ public class PortalImpl implements Portal {
 			// LPS-52675
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(systemException, systemException);
+				_log.debug(systemException);
 			}
 		}
 
@@ -1892,7 +1853,7 @@ public class PortalImpl implements Portal {
 			// LPS-52675
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(noSuchLayoutException, noSuchLayoutException);
+				_log.debug(noSuchLayoutException);
 			}
 		}
 
@@ -3075,6 +3036,9 @@ public class PortalImpl implements Portal {
 
 		Company company = CompanyLocalServiceUtil.getCompany(
 			layoutSet.getCompanyId());
+
+		String defaultVirtualHostName = _getDefaultVirtualHostName(company);
+
 		int portalPort = getPortalServerPort(secureConnection);
 
 		String portalURL = getPortalURL(
@@ -3084,14 +3048,14 @@ public class PortalImpl implements Portal {
 			layoutSet);
 
 		if (!virtualHostnames.isEmpty() &&
-			!virtualHostnames.containsKey(_LOCALHOST)) {
+			!virtualHostnames.containsKey(defaultVirtualHostName)) {
 
 			int index = portalURL.indexOf("://");
 
 			String portalDomain = portalURL.substring(index + 3);
 
 			String virtualHostname = getCanonicalDomain(
-				virtualHostnames, portalDomain);
+				virtualHostnames, portalDomain, defaultVirtualHostName);
 
 			virtualHostname = getPortalURL(
 				virtualHostname, portalPort, secureConnection);
@@ -3134,10 +3098,21 @@ public class PortalImpl implements Portal {
 			LayoutSet layoutSet, ThemeDisplay themeDisplay)
 		throws PortalException {
 
-		String virtualHostname = getVirtualHostname(layoutSet);
+		String defaultVirtualHostName = _getDefaultVirtualHostName(
+			themeDisplay.getCompany());
+
+		String virtualHostname = null;
+
+		TreeMap<String, String> virtualHostnames = getVirtualHostnames(
+			layoutSet);
+
+		if (!virtualHostnames.isEmpty()) {
+			virtualHostname = virtualHostnames.firstKey();
+		}
 
 		if (Validator.isNotNull(virtualHostname) &&
-			!StringUtil.equalsIgnoreCase(virtualHostname, _LOCALHOST)) {
+			!StringUtil.equalsIgnoreCase(
+				virtualHostname, defaultVirtualHostName)) {
 
 			String portalURL = getPortalURL(
 				virtualHostname, themeDisplay.getServerPort(),
@@ -3339,14 +3314,14 @@ public class PortalImpl implements Portal {
 				// LPS-52675
 
 				if (_log.isDebugEnabled()) {
-					_log.debug(noSuchUserException, noSuchUserException);
+					_log.debug(noSuchUserException);
 				}
 
 				return null;
 			}
 			catch (Exception exception) {
 				if (_log.isDebugEnabled()) {
-					_log.debug(exception, exception);
+					_log.debug(exception);
 				}
 			}
 		}
@@ -3377,7 +3352,7 @@ public class PortalImpl implements Portal {
 			}
 			catch (Exception exception) {
 				if (_log.isDebugEnabled()) {
-					_log.debug(exception, exception);
+					_log.debug(exception);
 				}
 			}
 		}
@@ -3447,7 +3422,7 @@ public class PortalImpl implements Portal {
 			}
 			catch (Exception exception) {
 				if (_log.isDebugEnabled()) {
-					_log.debug(exception, exception);
+					_log.debug(exception);
 				}
 			}
 		}
@@ -3533,7 +3508,7 @@ public class PortalImpl implements Portal {
 			}
 			catch (Exception exception) {
 				if (_log.isDebugEnabled()) {
-					_log.debug(exception, exception);
+					_log.debug(exception);
 				}
 			}
 		}
@@ -3547,7 +3522,7 @@ public class PortalImpl implements Portal {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -3562,7 +3537,7 @@ public class PortalImpl implements Portal {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -3589,7 +3564,7 @@ public class PortalImpl implements Portal {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -3598,7 +3573,7 @@ public class PortalImpl implements Portal {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 
 			return LocaleUtil.getDefault();
@@ -3921,7 +3896,7 @@ public class PortalImpl implements Portal {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -3955,7 +3930,7 @@ public class PortalImpl implements Portal {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -4000,7 +3975,7 @@ public class PortalImpl implements Portal {
 			}
 			catch (Exception exception) {
 				if (_log.isDebugEnabled()) {
-					_log.debug(exception, exception);
+					_log.debug(exception);
 				}
 			}
 
@@ -4502,7 +4477,7 @@ public class PortalImpl implements Portal {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 
 			return getPortletTitle(portlet, servletContext, locale);
@@ -4588,8 +4563,7 @@ public class PortalImpl implements Portal {
 
 		Locale locale = portletRequest.getLocale();
 
-		String portletTitle = _getPortletTitle(
-			PortletIdCodec.decodePortletName(portletId), portletConfig, locale);
+		String portletTitle = null;
 
 		if (portletConfig == null) {
 			Portlet portlet = PortletLocalServiceUtil.getPortletById(
@@ -4602,6 +4576,11 @@ public class PortalImpl implements Portal {
 				(ServletContext)httpServletRequest.getAttribute(WebKeys.CTX);
 
 			portletTitle = getPortletTitle(portlet, servletContext, locale);
+		}
+		else {
+			portletTitle = _getPortletTitle(
+				PortletIdCodec.decodePortletName(portletId), portletConfig,
+				locale);
 		}
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
@@ -4650,6 +4629,10 @@ public class PortalImpl implements Portal {
 	@Override
 	public String getPortletTitle(String portletId, Locale locale) {
 		PortletConfig portletConfig = PortletConfigFactoryUtil.get(portletId);
+
+		if (portletConfig == null) {
+			return PortletIdCodec.decodePortletName(portletId);
+		}
 
 		return getPortletTitle(
 			portletId, portletConfig.getResourceBundle(locale));
@@ -4825,7 +4808,7 @@ public class PortalImpl implements Portal {
 					}
 					catch (Exception exception) {
 						if (_log.isDebugEnabled()) {
-							_log.debug(exception, exception);
+							_log.debug(exception);
 						}
 					}
 				}
@@ -4909,7 +4892,7 @@ public class PortalImpl implements Portal {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -4952,7 +4935,7 @@ public class PortalImpl implements Portal {
 			// LPS-52675
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(noSuchUserException, noSuchUserException);
+				_log.debug(noSuchUserException);
 			}
 		}
 
@@ -5677,7 +5660,7 @@ public class PortalImpl implements Portal {
 				}
 				catch (Exception exception) {
 					if (_log.isWarnEnabled()) {
-						_log.warn(exception, exception);
+						_log.warn(exception);
 					}
 				}
 			}
@@ -5727,7 +5710,7 @@ public class PortalImpl implements Portal {
 			// LPS-52675
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(portalException, portalException);
+				_log.debug(portalException);
 			}
 
 			return StringPool.BLANK;
@@ -5768,7 +5751,7 @@ public class PortalImpl implements Portal {
 						httpServletRequest);
 				}
 				catch (Exception exception) {
-					_log.error(exception, exception);
+					_log.error(exception);
 				}
 			}
 
@@ -5913,7 +5896,7 @@ public class PortalImpl implements Portal {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -5989,23 +5972,6 @@ public class PortalImpl implements Portal {
 		}
 
 		return userId;
-	}
-
-	/**
-	 * @deprecated As of Mueller (7.2.x), replaced by {@link
-	 *             #getVirtualHostnames(LayoutSet)}
-	 */
-	@Deprecated
-	@Override
-	public String getVirtualHostname(LayoutSet layoutSet) {
-		TreeMap<String, String> virtualHostnames = getVirtualHostnames(
-			layoutSet);
-
-		if (virtualHostnames.isEmpty()) {
-			return layoutSet.getCompanyFallbackVirtualHostname();
-		}
-
-		return virtualHostnames.firstKey();
 	}
 
 	@Override
@@ -6106,7 +6072,7 @@ public class PortalImpl implements Portal {
 		}
 		catch (NoSuchUserException noSuchUserException) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(noSuchUserException.getMessage());
+				_log.warn(noSuchUserException);
 			}
 
 			long userId = getUserId(httpServletRequest);
@@ -6151,7 +6117,7 @@ public class PortalImpl implements Portal {
 			// LPS-52675
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(systemException, systemException);
+				_log.debug(systemException);
 			}
 		}
 
@@ -6684,12 +6650,12 @@ public class PortalImpl implements Portal {
 					}
 				}
 				else {
-					_log.debug(exception, exception);
+					_log.debug(exception);
 				}
 			}
 		}
 		else if (_log.isWarnEnabled()) {
-			_log.warn(exception, exception);
+			_log.warn(exception);
 		}
 
 		if (httpServletResponse.isCommitted()) {
@@ -7382,7 +7348,7 @@ public class PortalImpl implements Portal {
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(exception, exception);
+				_log.warn(exception);
 			}
 		}
 
@@ -7409,7 +7375,7 @@ public class PortalImpl implements Portal {
 				}
 			}
 			catch (Exception exception) {
-				_log.error(exception, exception);
+				_log.error(exception);
 
 				iterator.remove();
 			}
@@ -7527,36 +7493,13 @@ public class PortalImpl implements Portal {
 		return LayoutLocalServiceUtil.fetchLayout(defaultPlid);
 	}
 
-	/**
-	 * @deprecated As of Mueller (7.2.x), replaced by {@link
-	 *             #getCanonicalDomain(TreeMap, String)}
-	 */
-	@Deprecated
 	protected String getCanonicalDomain(
-		String virtualHostname, String portalDomain) {
+		TreeMap<String, String> virtualHostnames, String portalDomain,
+		String defaultVirtualHostName) {
 
 		if (Validator.isBlank(portalDomain) ||
-			StringUtil.equalsIgnoreCase(portalDomain, _LOCALHOST) ||
-			!StringUtil.equalsIgnoreCase(virtualHostname, _LOCALHOST)) {
-
-			return virtualHostname;
-		}
-
-		int pos = portalDomain.indexOf(CharPool.COLON);
-
-		if (pos == -1) {
-			return portalDomain;
-		}
-
-		return portalDomain.substring(0, pos);
-	}
-
-	protected String getCanonicalDomain(
-		TreeMap<String, String> virtualHostnames, String portalDomain) {
-
-		if (Validator.isBlank(portalDomain) ||
-			StringUtil.equalsIgnoreCase(portalDomain, _LOCALHOST) ||
-			!virtualHostnames.containsKey(_LOCALHOST)) {
+			StringUtil.equalsIgnoreCase(portalDomain, defaultVirtualHostName) ||
+			!virtualHostnames.containsKey(defaultVirtualHostName)) {
 
 			return virtualHostnames.firstKey();
 		}
@@ -7942,7 +7885,7 @@ public class PortalImpl implements Portal {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 
 			return false;
@@ -8062,7 +8005,7 @@ public class PortalImpl implements Portal {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -8249,17 +8192,21 @@ public class PortalImpl implements Portal {
 			Set<Locale> availableLocales)
 		throws PortalException {
 
+		String defaultVirtualHostName = _getDefaultVirtualHostName(
+			themeDisplay.getCompany());
+		String portalDomain = themeDisplay.getPortalDomain();
+
 		TreeMap<String, String> virtualHostnames = getVirtualHostnames(
 			themeDisplay.getLayoutSet());
 
 		String virtualHostname = _getVirtualHostname(
 			virtualHostnames, themeDisplay);
 
-		String portalDomain = themeDisplay.getPortalDomain();
-
 		if ((!Validator.isBlank(portalDomain) &&
-			 !StringUtil.equalsIgnoreCase(portalDomain, _LOCALHOST) &&
-			 StringUtil.equalsIgnoreCase(virtualHostname, _LOCALHOST)) ||
+			 !StringUtil.equalsIgnoreCase(
+				 portalDomain, defaultVirtualHostName) &&
+			 StringUtil.equalsIgnoreCase(
+				 virtualHostname, defaultVirtualHostName)) ||
 			virtualHostnames.containsKey(portalDomain)) {
 
 			virtualHostname = portalDomain;
@@ -8421,6 +8368,16 @@ public class PortalImpl implements Portal {
 		return alternateURLs;
 	}
 
+	private String _getDefaultVirtualHostName(Company company) {
+		if ((company != null) &&
+			Validator.isNotNull(company.getVirtualHostname())) {
+
+			return company.getVirtualHostname();
+		}
+
+		return _LOCALHOST;
+	}
+
 	private String _getGroupFriendlyURL(
 			Group group, LayoutSet layoutSet, ThemeDisplay themeDisplay,
 			boolean canonicalURL, boolean controlPanel)
@@ -8463,12 +8420,12 @@ public class PortalImpl implements Portal {
 			}
 		}
 
+		String portalDomain = themeDisplay.getPortalDomain();
+
+		TreeMap<String, String> virtualHostnames = getVirtualHostnames(
+			layoutSet);
+
 		if (useGroupVirtualHostname) {
-			TreeMap<String, String> virtualHostnames = getVirtualHostnames(
-				layoutSet);
-
-			String portalDomain = themeDisplay.getPortalDomain();
-
 			if (!virtualHostnames.isEmpty() &&
 				(canonicalURL ||
 				 !virtualHostnames.containsKey(defaultVirtualHostName))) {
@@ -8551,7 +8508,8 @@ public class PortalImpl implements Portal {
 						!virtualHostnames.containsKey(defaultVirtualHostName)) {
 
 						String virtualHostname = getCanonicalDomain(
-							virtualHostnames, portalDomain);
+							virtualHostnames, portalDomain,
+							defaultVirtualHostName);
 
 						portalURL = getPortalURL(
 							virtualHostname, themeDisplay.getServerPort(),
@@ -8559,20 +8517,6 @@ public class PortalImpl implements Portal {
 					}
 				}
 			}
-		}
-
-		String friendlyURL = null;
-
-		if (privateLayoutSet) {
-			if (group.isUser()) {
-				friendlyURL = _PRIVATE_USER_SERVLET_MAPPING;
-			}
-			else {
-				friendlyURL = _PRIVATE_GROUP_SERVLET_MAPPING;
-			}
-		}
-		else {
-			friendlyURL = _PUBLIC_GROUP_SERVLET_MAPPING;
 		}
 
 		StringBundler sb = new StringBundler(6);
@@ -8591,8 +8535,26 @@ public class PortalImpl implements Portal {
 			sb.append(PropsValues.WIDGET_SERVLET_MAPPING);
 		}
 
-		sb.append(friendlyURL);
-		sb.append(group.getFriendlyURL());
+		if (privateLayoutSet) {
+			if (group.isUser()) {
+				sb.append(_PRIVATE_USER_SERVLET_MAPPING);
+			}
+			else {
+				sb.append(_PRIVATE_GROUP_SERVLET_MAPPING);
+			}
+
+			sb.append(group.getFriendlyURL());
+		}
+		else if (!StringUtil.equals(
+					group.getGroupKey(),
+					PropsValues.VIRTUAL_HOSTS_DEFAULT_SITE_NAME) ||
+				 (!StringUtil.equalsIgnoreCase(
+					 portalDomain, defaultVirtualHostName) &&
+				  !_containsHostname(virtualHostnames, portalDomain))) {
+
+			sb.append(_PUBLIC_GROUP_SERVLET_MAPPING);
+			sb.append(group.getFriendlyURL());
+		}
 
 		return sb.toString();
 	}
@@ -8741,7 +8703,7 @@ public class PortalImpl implements Portal {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 
 			return layout.getGroupId();

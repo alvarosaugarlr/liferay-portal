@@ -40,13 +40,24 @@ definition {
 
 		ObjectAdmin.addObjectFieldViaUI(
 			fieldLabel = "Custom Field",
-			fieldType = "Clob");
+			fieldType = "Long Text");
 
 		Refresh();
 
 		ObjectAdmin.assertObjectField(
 			fieldLabel = "Custom Field",
-			fieldType = "Clob");
+			fieldType = "LongText");
+	}
+
+	@description = "LPS-144902 - Verify there is a description of each Field Type"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test DescriptionForEachFieldType {
+		property osgi.module.configuration.file.names = "com.liferay.object.web.internal.configuration.FFObjectFieldBusinessTypeConfiguration.config";
+		property osgi.module.configurations = "enabled=&quot;true&quot;";
+
+		// TODO LPS-147723 DescriptionForEachFieldType pending implementation
+
 	}
 
 }

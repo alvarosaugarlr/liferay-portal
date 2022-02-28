@@ -330,7 +330,7 @@ public class FragmentEntryConfigurationParserImpl
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 
 			return null;
@@ -488,6 +488,10 @@ public class FragmentEntryConfigurationParserImpl
 				return "var(--" + frontendTokenMapping.getValue() + ")";
 			}
 			catch (JSONException jsonException) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(jsonException);
+				}
+
 				return fieldValue;
 			}
 		}

@@ -14,20 +14,26 @@
 
 import {gql} from '@apollo/client';
 
+export type TestrayProject = {
+	description: string;
+	name: string;
+	testrayProjectId: number;
+};
+
+export type TestrayProjectQuery = {
+	c: {
+		testrayProject: TestrayProject;
+	};
+};
+
 export const getTestrayProjects = gql`
 	query getTestrayProjects(
 		$filter: String
 		$page: Int = 1
 		$pageSize: Int = 20
-		$scopeKey: String
 	) {
 		c {
-			testrayProjects(
-				filter: $filter
-				page: $page
-				pageSize: $pageSize
-				scopeKey: $scopeKey
-			) {
+			testrayProjects(filter: $filter, page: $page, pageSize: $pageSize) {
 				items {
 					description
 					name
@@ -48,6 +54,7 @@ export const getTestrayProject = gql`
 			testrayProject(testrayProjectId: $testrayProjectId) {
 				description
 				name
+				testrayProjectId
 			}
 		}
 	}

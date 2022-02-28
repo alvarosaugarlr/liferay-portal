@@ -1,9 +1,5 @@
 {
 	"dependencies": {
-		"@clayui/button": "3.40.0",
-		"@clayui/icon": "3.40.0",
-		"asset-taglib": "*",
-		"frontend-js-web": "*"
 	},
 	"jest": {
 		"modulePathIgnorePatterns": [
@@ -17,5 +13,5 @@
 		"format": "liferay-npm-scripts fix",
 		"test": "liferay-npm-scripts test"
 	},
-	"version": "3.0.32"
+	"version": "3.0.33"
 }

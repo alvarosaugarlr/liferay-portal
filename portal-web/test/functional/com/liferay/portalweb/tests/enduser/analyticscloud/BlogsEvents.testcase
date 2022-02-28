@@ -7,6 +7,10 @@ definition {
 	property testray.main.component.name = "Analytics Cloud";
 
 	setUp {
+		AntCommand(
+			locator1 = "build-test.xml",
+			value1 = "record-test-generated-properties");
+
 		ACUtils.launchAC();
 
 		ACSettings.takeTokenFromAnalyticsCloud();
@@ -29,6 +33,9 @@ definition {
 
 		if ("${testPortalInstance}" == "true") {
 			PortalInstances.tearDownCP();
+		}
+		else {
+			JSONGroup.deleteGroupByName(groupName = "Site Name");
 		}
 
 		ACUtils.tearDownAC();
@@ -114,9 +121,6 @@ definition {
 	@priority = "5"
 	test CheckBlogClickedWhenBlogEntryTitleIsClickedAndCheckProperties {
 		property proxy.server.enabled = "true";
-		property portal.upstream = "quarantine";
-
-		// AC Refactor ticket: LRAC-9599
 
 		task ("Get the Property ID in AC") {
 			ACUtils.launchAC();
@@ -341,7 +345,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8665 | Test Summary: Check blogDepthReached triggers (Level 3)"
 	@priority = "5"
 	test CheckBlogDepthReachedTo75AndCheckProperties {
-		property portal.upstream = "quarantine";
 		property proxy.server.enabled = "true";
 
 		task ("Get the Property ID in AC") {
@@ -375,11 +378,11 @@ definition {
 				pageName = "AC Page",
 				siteName = "Site Name");
 
-			ScrollBy(value1 = "0, 2500");
+			ScrollBy(value1 = "0, 2200");
 
 			ProxyUtil.startHarRecording("blogDepthReached");
 
-			Pause(locator1 = "40000");
+			Pause(locator1 = "5000");
 		}
 
 		task ("Get entryId of blog entry") {
@@ -494,10 +497,7 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8669 | Test Summary: Check blogViewed does not trigger when the blog is visible as a widget in the front page"
 	@priority = "2"
 	test CheckBlogViewedDoesNotTriggerWhenBlogIsVisible {
-		property portal.upstream = "quarantine";
 		property proxy.server.enabled = "true";
-
-		// AC Refactor ticket: LRAC-9599
 
 		task ("Get the Property ID in AC") {
 			ACUtils.launchAC();
@@ -549,9 +549,6 @@ definition {
 	@priority = "5"
 	test CheckBlogViewedWhenVisitingDXPBlogAndCheckProperties {
 		property proxy.server.enabled = "true";
-		property portal.upstream = "quarantine";
-
-		// AC Refactor ticket: LRAC-9599
 
 		task ("Get the Property ID in AC") {
 			ACUtils.launchAC();

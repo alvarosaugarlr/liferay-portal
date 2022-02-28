@@ -30,12 +30,24 @@ function resolveChannelsPath(basePath = '', channelId) {
 function resolveCartsByAccountIdAndChannelIdPath(
 	basePath = '',
 	accountId,
-	channelId
+	channelId,
+	searchParams
 ) {
-	return `${resolveChannelsPath(
-		basePath,
-		channelId
-	)}/account/${accountId}${CARTS_PATH}`;
+	const url = new URL(
+		`${resolveChannelsPath(
+			basePath,
+			channelId
+		)}/account/${accountId}${CARTS_PATH}`,
+		Liferay.ThemeDisplay.getPortalURL()
+	);
+
+	if (searchParams) {
+		Object.keys(searchParams).forEach((searchParamKey) => {
+			url.searchParams.set(searchParamKey, searchParams[searchParamKey]);
+		});
+	}
+
+	return url;
 }
 
 export default function Cart(basePath) {
@@ -72,12 +84,13 @@ export default function Cart(basePath) {
 				resolveCartsPath(basePath, cartId) + '?nestedFields=cartItems'
 			),
 
-		getCartsByAccountIdAndChannelId: (accountId, channelId) =>
+		getCartsByAccountIdAndChannelId: (accountId, channelId, searchParams) =>
 			AJAX.GET(
 				resolveCartsByAccountIdAndChannelIdPath(
 					basePath,
 					accountId,
-					channelId
+					channelId,
+					searchParams
 				)
 			),
 

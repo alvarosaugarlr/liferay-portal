@@ -101,7 +101,7 @@ definition {
 		task ("Change Number of Modules to 2") {
 			PageEditor.editLayoutGrid(
 				columnCount = "2",
-				panelList = "General");
+				panel = "General");
 		}
 
 		task ("Add one Collection Display to each module of Grid") {
@@ -401,7 +401,7 @@ definition {
 		task ("Change Number of Modules to 2") {
 			PageEditor.editLayoutGrid(
 				columnCount = "2",
-				panelList = "General");
+				panel = "General");
 		}
 
 		task ("Add a Collection Filter to each module of Grid") {
@@ -986,7 +986,7 @@ definition {
 		task ("Change Number of Modules to 2") {
 			PageEditor.editLayoutGrid(
 				columnCount = "2",
-				panelList = "General");
+				panel = "General");
 		}
 
 		task ("Add a Collection Filter to each module of Grid") {
@@ -1205,7 +1205,7 @@ definition {
 		task ("Change Number of Modules to 2") {
 			PageEditor.editLayoutGrid(
 				columnCount = "2",
-				panelList = "General");
+				panel = "General");
 		}
 
 		task ("Add a Collection Filter to each module of Grid") {
@@ -1230,7 +1230,7 @@ definition {
 
 			AssertTextEquals.assertPartialText(
 				key_columnNumber = "1",
-				key_elementHeader = "//div[contains(@class,'page-editor__topper__bar') and contains(.,'Collection Filter')]//following-sibling::div[contains(@class,'page-editor__topper__content')]",
+				key_elementHeader = "//div[@aria-label='Collection Filter']//div[contains(@class,'page-editor__topper__content')]",
 				key_position = "1",
 				locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT",
 				value1 = "Vocabulary A");
@@ -1247,7 +1247,7 @@ definition {
 
 			AssertTextEquals.assertPartialText(
 				key_columnNumber = "2",
-				key_elementHeader = "//div[contains(@class,'page-editor__topper__bar') and contains(.,'Collection Filter')]//following-sibling::div[contains(@class,'page-editor__topper__content')]",
+				key_elementHeader = "//div[@aria-label='Collection Filter']//div[contains(@class,'page-editor__topper__content')]",
 				key_position = "1",
 				locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT",
 				value1 = "Vocabulary B");
@@ -2096,7 +2096,7 @@ definition {
 		task ("Change Number of Modules to 2") {
 			PageEditor.editLayoutGrid(
 				columnCount = "2",
-				panelList = "General");
+				panel = "General");
 		}
 
 		task ("Add a Collection Filter to each module of Grid") {
@@ -2121,7 +2121,7 @@ definition {
 
 			AssertTextEquals.assertPartialText(
 				key_columnNumber = "1",
-				key_elementHeader = "//div[contains(@class,'page-editor__topper__bar') and contains(.,'Collection Filter')]//following-sibling::div[contains(@class,'page-editor__topper__content')]",
+				key_elementHeader = "//div[@aria-label='Collection Filter']//div[contains(@class,'page-editor__topper__content')]",
 				key_position = "1",
 				locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT",
 				value1 = "Vocabulary A");
@@ -2138,7 +2138,7 @@ definition {
 
 			AssertTextEquals.assertPartialText(
 				key_columnNumber = "2",
-				key_elementHeader = "//div[contains(@class,'page-editor__topper__bar') and contains(.,'Collection Filter')]//following-sibling::div[contains(@class,'page-editor__topper__content')]",
+				key_elementHeader = "//div[@aria-label='Collection Filter']//div[contains(@class,'page-editor__topper__content')]",
 				key_position = "1",
 				locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT",
 				value1 = "Vocabulary B");
@@ -3172,7 +3172,7 @@ definition {
 		task ("Change Number of Modules to 2") {
 			PageEditor.editLayoutGrid(
 				columnCount = "2",
-				panelList = "General");
+				panel = "General");
 		}
 
 		task ("Add one Collection Filter to each module of Grid") {
@@ -3205,7 +3205,7 @@ definition {
 		task ("Change Number of Modules to 2") {
 			PageEditor.editLayoutGrid(
 				columnCount = "2",
-				panelList = "General",
+				panel = "General",
 				position = "2");
 		}
 
@@ -3488,7 +3488,7 @@ definition {
 		task ("Change Number of Modules to 2") {
 			PageEditor.editLayoutGrid(
 				columnCount = "2",
-				panelList = "General");
+				panel = "General");
 		}
 
 		task ("Add the first Collection Filter to first module of Grid") {
@@ -3527,7 +3527,7 @@ definition {
 
 			AssertTextEquals.assertPartialText(
 				key_columnNumber = "1",
-				key_elementHeader = "//div[contains(@class,'page-editor__topper__bar') and contains(.,'Collection Filter')]//following-sibling::div[contains(@class,'page-editor__topper__content')]",
+				key_elementHeader = "//div[@aria-label='Collection Filter']//div[contains(@class,'page-editor__topper__content')]",
 				key_position = "1",
 				locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT",
 				value1 = "Size");
@@ -3561,7 +3561,7 @@ definition {
 
 			AssertTextEquals.assertPartialText(
 				key_columnNumber = "2",
-				key_elementHeader = "//div[contains(@class,'page-editor__topper__bar') and contains(.,'Collection Filter')]//following-sibling::div[contains(@class,'page-editor__topper__content')]",
+				key_elementHeader = "//div[@aria-label='Collection Filter']//div[contains(@class,'page-editor__topper__content')]",
 				key_position = "1",
 				locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT",
 				value1 = "Pure Color");

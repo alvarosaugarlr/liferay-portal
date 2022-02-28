@@ -2536,4 +2536,47 @@ definition {
 			locator1 = "StagingPublishToLive#SIMPLE_PUBLICATION_DELETION");
 	}
 
+	@description = "This is a use case for LPS-143852."
+	@priority = "4"
+	test ViewVirtualHostStagingPublicPageAsGuest {
+		task ("Delete Staging Test Page") {
+			JSONLayout.deletePublicLayout(
+				groupName = "Site Name",
+				layoutName = "Staging Test Page");
+		}
+
+		task ("Activate local live staging") {
+			JSONStaging.enableLocalStaging(
+				branchingPrivate = "true",
+				branchingPublic = "true",
+				groupName = "Site Name");
+		}
+
+		task ("Add a widget page") {
+			JSONLayout.addPublicLayout(
+				groupName = "Site Name (Staging)",
+				layoutName = "Test Page",
+				site = "false");
+		}
+
+		task ("Configure the Staging Public Pages in site configuration") {
+			Site.openSiteSettingsAdmin(siteURLKey = "site-name-staging");
+
+			Site.addVirtualHostsURLCP(stagingPublicPages = "www.able.com");
+		}
+
+		task ("Sign out") {
+			User.logoutPG();
+		}
+
+		task ("View virtual host staging public page in incognito tab") {
+			Navigator.openSpecificURL(url = "http://www.able.com:8080");
+
+			User.firstLoginUI(
+				password = "test",
+				specificURL = "http://www.able.com:8080",
+				userEmailAddress = "test@liferay.com");
+		}
+	}
+
 }

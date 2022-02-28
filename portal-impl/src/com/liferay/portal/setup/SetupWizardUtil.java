@@ -84,7 +84,7 @@ public class SetupWizardUtil {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 
 			return PropsValues.COMPANY_DEFAULT_TIME_ZONE;
@@ -354,12 +354,21 @@ public class SetupWizardUtil {
 
 		boolean passwordReset = false;
 
-		PasswordPolicy passwordPolicy =
-			PasswordPolicyLocalServiceUtil.getDefaultPasswordPolicy(
-				company.getCompanyId());
+		try {
+			PasswordPolicy passwordPolicy =
+				PasswordPolicyLocalServiceUtil.getDefaultPasswordPolicy(
+					company.getCompanyId());
 
-		if ((passwordPolicy != null) && passwordPolicy.isChangeable()) {
-			passwordReset = true;
+			if ((passwordPolicy != null) && passwordPolicy.isChangeable() &&
+				passwordPolicy.isChangeRequired()) {
+
+				passwordReset = true;
+			}
+		}
+		catch (PortalException portalException) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(portalException);
+			}
 		}
 
 		User user = SetupWizardSampleDataUtil.updateAdminUser(
@@ -476,7 +485,7 @@ public class SetupWizardUtil {
 			}
 		}
 		catch (IOException ioException) {
-			_log.error(ioException, ioException);
+			_log.error(ioException);
 		}
 
 		return false;

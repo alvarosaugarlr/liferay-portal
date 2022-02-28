@@ -50,13 +50,8 @@ public class CommercePriceEntryUpgradeProcess
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		addColumn(
-			CommercePriceEntryModelImpl.class,
-			CommercePriceEntryModelImpl.TABLE_NAME, "CPInstanceUuid",
-			"VARCHAR(75)");
-		addColumn(
-			CommercePriceEntryModelImpl.class,
-			CommercePriceEntryModelImpl.TABLE_NAME, "CProductId", "LONG");
+		addColumn("CommercePriceEntry", "CPInstanceUuid", "VARCHAR(75)");
+		addColumn("CommercePriceEntry", "CProductId", "LONG");
 
 		_addIndexes(CommercePriceEntryModelImpl.TABLE_NAME);
 
@@ -138,7 +133,7 @@ public class CommercePriceEntryUpgradeProcess
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 

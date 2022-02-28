@@ -76,53 +76,6 @@ definition {
 		}
 	}
 
-	macro addCategoryItem {
-		WaitForLiferayEvent.initializeLiferayEventLog();
-
-		LexiconEntry.gotoAdd();
-
-		MenuItem.click(menuItem = "Category");
-
-		SelectFrame(value1 = "relative=top");
-
-		AssertTextEquals(
-			locator1 = "Modal#HEADER",
-			value1 = "Select Categories");
-
-		SelectFrame(locator1 = "IFrame#MODAL_BODY");
-
-		Portlet.expandTree();
-
-		var i = "1";
-
-		for (var assetTitle : list "${assetTitleList}") {
-			AssertVisible(
-				key_nodeName = "${assetTitle}",
-				locator1 = "Treeview#NODE_ITEM");
-
-			Click(
-				key_nodeName = "${assetTitle}",
-				locator1 = "Treeview#NODE_UNSELECTED");
-
-			if ("${i}" == "1") {
-				AssertTextEquals(
-					locator1 = "Search#SEARCH_INFO",
-					value1 = "${i} Item Selected");
-			}
-			else {
-				AssertTextEquals(
-					locator1 = "Search#SEARCH_INFO",
-					value1 = "${i} Items Selected");
-			}
-
-			var i = ${i} + 1;
-		}
-
-		SelectFrame.selectFrameTop();
-
-		Button.clickSelect();
-	}
-
 	macro addItem {
 		WaitForLiferayEvent.initializeLiferayEventLog();
 
@@ -159,13 +112,34 @@ definition {
 		if ("${item}" == "Category") {
 			Portlet.expandTree();
 
-			AssertVisible(
-				key_nodeName = "${assetTitle}",
-				locator1 = "Treeview#NODE_ITEM");
+			var i = "1";
 
-			Click(
-				key_nodeName = "${assetTitle}",
-				locator1 = "Treeview#NODE_UNSELECTED");
+			for (var assetTitle : list "${assetTitleList}") {
+				AssertVisible(
+					key_nodeName = "${assetTitle}",
+					locator1 = "Treeview#NODE_ITEM");
+
+				Click(
+					key_nodeName = "${assetTitle}",
+					locator1 = "Treeview#NODE_UNSELECTED");
+
+				if ("${i}" == "1") {
+					AssertTextEquals(
+						locator1 = "Search#SEARCH_INFO",
+						value1 = "${i} Item Selected");
+				}
+				else {
+					AssertTextEquals(
+						locator1 = "Search#SEARCH_INFO",
+						value1 = "${i} Items Selected");
+				}
+
+				var i = ${i} + 1;
+			}
+
+			SelectFrame.selectFrameTop();
+
+			Button.clickSelect();
 		}
 
 		if ("${item}" == "Submenu") {
@@ -194,6 +168,30 @@ definition {
 		PortletEntry.inputName(name = "${menuName}");
 
 		Modal.save();
+	}
+
+	macro addPage {
+		WaitForLiferayEvent.initializeLiferayEventLog();
+
+		Click(locator1 = "Button#PLUS");
+
+		MenuItem.click(menuItem = "Page");
+
+		Pause(locator1 = "1000");
+
+		IFrame.selectConfigurationFrame();
+
+		Portlet.expandTree();
+
+		for (var pageName : list "${pageNames}") {
+			Portlet.selectTreeNode(nodeName = "${pageName}");
+		}
+
+		Button.click(button = "Select");
+
+		Alert.viewSuccessMessage();
+
+		IFrame.selectTopFrame();
 	}
 
 	macro addTranslation {
@@ -317,6 +315,14 @@ definition {
 				locator1 = "Treeview#NODE_UNSELECTED");
 
 			SelectFrame.selectFrameTop();
+
+			InputField.viewText(
+				fieldLabel = "Item",
+				text = "${assetTitle}");
+
+			AssertTextEquals(
+				locator1 = "Sidebar#TITLE",
+				value1 = "${itemName}");
 		}
 
 		if (isSet(customField)) {
@@ -326,7 +332,16 @@ definition {
 				value1 = "${fieldValue}");
 		}
 
-		PortletEntry.save();
+		if ("${showWarningMessage}" == "true") {
+			NavigationMenusAdmin.viewItemWarningMessage();
+		}
+		else if ("${showWarningMessage}" == "false") {
+			NavigationMenusAdmin.viewItemWarningMessageNotPresent();
+		}
+
+		if (!(isSet(configureWithoutSave))) {
+			PortletEntry.save();
+		}
 	}
 
 	macro editMenu {
@@ -344,8 +359,6 @@ definition {
 	}
 
 	macro openItemSidebar {
-		Refresh();
-
 		Click(
 			key_itemName = "${itemName}",
 			locator1 = "SiteNavigationMenu#ITEM_ENTRY");
@@ -436,6 +449,55 @@ definition {
 			key_index = "${index}",
 			locator1 = "SiteNavigationMenu#ITEM_ENTRY_N",
 			value1 = "${itemName}");
+	}
+
+	macro viewItemStatus {
+		AssertTextEquals(
+			key_itemName = "${itemName}",
+			locator1 = "SiteNavigationMenu#ITEM_ENTRY_STATUS",
+			value1 = "${itemStatus}");
+	}
+
+	macro viewItemWarningIcon {
+		AssertVisible(
+			key_card = "${itemName}",
+			key_icon = "warning",
+			locator1 = "Card#CARD_STICKER");
+	}
+
+	macro viewItemWarningIconNotPresent {
+		AssertElementNotPresent(
+			key_card = "${itemName}",
+			key_icon = "warning",
+			locator1 = "Card#CARD_STICKER");
+	}
+
+	macro viewItemWarningMessage {
+		if (isSet(itemName)) {
+			NavigationMenusAdmin.openItemSidebar(itemName = "${itemName}");
+		}
+
+		AssertElementPresent(
+			key_warningMessage = "No Display Page",
+			locator1 = "Message#WARNING_SPECIFIC");
+
+		AssertTextEquals(
+			locator1 = "Message#SUBTITLE",
+			value1 = "This item does not have a display page. Items without display page do not have links and are hidden from menus.");
+	}
+
+	macro viewItemWarningMessageNotPresent {
+		if (isSet(itemName)) {
+			NavigationMenusAdmin.openItemSidebar(itemName = "${itemName}");
+		}
+
+		AssertElementNotPresent(
+			key_warningMessage = "No Display Page",
+			locator1 = "Message#WARNING_SPECIFIC");
+
+		AssertElementNotPresent(
+			locator1 = "Message#SUBTITLE",
+			value1 = "This item does not have a display page. Items without display page do not have links and are hidden from menus.");
 	}
 
 	macro viewMenuTitle {

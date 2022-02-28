@@ -235,6 +235,10 @@ public class SearchResponseResourceImpl extends BaseSearchResponseResourceImpl {
 			return JSONFactoryUtil.createJSONObject(string);
 		}
 		catch (JSONException jsonException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(jsonException);
+			}
+
 			return null;
 		}
 	}
@@ -260,7 +264,7 @@ public class SearchResponseResourceImpl extends BaseSearchResponseResourceImpl {
 				GetterUtil.getLong(entryClassPKField.getValue()));
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 		}
 
 		return null;

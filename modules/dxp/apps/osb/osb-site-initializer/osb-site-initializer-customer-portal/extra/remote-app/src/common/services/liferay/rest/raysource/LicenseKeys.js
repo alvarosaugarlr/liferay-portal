@@ -91,7 +91,26 @@ export async function getActivationDownloadKey(
 	return response;
 }
 
-export async function exportLicenseKeys(
+export async function getAggregatedActivationDownloadKey(
+	selectedKeysIDs,
+	licenseKeyDownloadURL,
+	sessionId
+) {
+	// eslint-disable-next-line @liferay/portal/no-global-fetch
+	const response = await fetch(
+		`${licenseKeyDownloadURL}/license-keys/download?${selectedKeysIDs}`,
+
+		{
+			headers: {
+				'Okta-Session-ID': sessionId,
+			},
+		}
+	);
+
+	return response;
+}
+
+export async function getExportedLicenseKeys(
 	accountKey,
 	licenseKeyDownloadURL,
 	sessionId
@@ -104,6 +123,47 @@ export async function exportLicenseKeys(
 			headers: {
 				'Okta-Session-ID': sessionId,
 			},
+		}
+	);
+
+	return response;
+}
+
+export async function associateContactRoleNameByEmailByProject(
+	accountKey,
+	licenseKeyDownloadURL,
+	sessionId,
+	emailURI,
+	roleName
+) {
+	// eslint-disable-next-line @liferay/portal/no-global-fetch
+	const response = await fetch(
+		`${licenseKeyDownloadURL}/accounts/${accountKey}/contacts/by-email-address/${emailURI}/roles?contactRoleNames=${roleName}`,
+		{
+			headers: {
+				'Okta-Session-ID': sessionId,
+			},
+			method: 'PUT',
+		}
+	);
+
+	return response;
+}
+
+export async function putDeactivateKeys(
+	licenseKeyDownloadURL,
+	licenseKeyIds,
+	sessionId
+) {
+	// eslint-disable-next-line @liferay/portal/no-global-fetch
+	const response = await fetch(
+		`${licenseKeyDownloadURL}/license-keys/deactivate?${licenseKeyIds}`,
+
+		{
+			headers: {
+				'Okta-Session-ID': sessionId,
+			},
+			method: 'PUT',
 		}
 	);
 

@@ -12,9 +12,15 @@
  * details.
  */
 
+import {Align} from '@clayui/drop-down';
+import ClayIcon from '@clayui/icon';
+import {useLocation} from 'react-router-dom';
+
 import TestrayLogo from '../../images/testray-logo';
 import {Liferay} from '../../services/liferay/liferay';
+import {MANAGE_DROPDOWN, USER_DROPDOWN} from '../../util/constants';
 import {Avatar} from '../Avatar';
+import DropDown from '../DropDown';
 import SidebarItem from './SidebarItem';
 
 const sidebarItems = [
@@ -37,6 +43,8 @@ const sidebarItems = [
 ];
 
 const Sidebar = () => {
+	const {pathname} = useLocation();
+
 	return (
 		<div className="testray-sidebar">
 			<div className="testray-sidebar-content">
@@ -47,29 +55,60 @@ const Sidebar = () => {
 					<TestrayLogo />
 				</a>
 
-				{sidebarItems.map((item, index) => (
-					<SidebarItem
-						className={item.className}
-						icon={item.icon}
-						key={index}
-						label={item.label}
-						path={item.path}
-					/>
-				))}
+				{sidebarItems.map(({className, icon, label, path}, index) => {
+					const [, ...items] = sidebarItems;
+
+					const someItemIsActive = items.some((item) =>
+						pathname.includes(item.path)
+					);
+
+					return (
+						<SidebarItem
+							active={
+								index === 0
+									? !someItemIsActive
+									: pathname.includes(path)
+							}
+							className={className}
+							icon={icon}
+							key={index}
+							label={label}
+							path={path}
+						/>
+					);
+				})}
 			</div>
 
 			<div className="testray-sidebar-footer">
-				<SidebarItem icon="cog" label="Manage" path="/manage" />
-
 				<div className="divider divider-full" />
 
-				<div className="testray-sidebar-item">
-					<Avatar
-						displayName
-						name={Liferay.ThemeDisplay.getUserName()}
-						url="https://clayui.com/images/long_user_image.png"
-					/>
-				</div>
+				<DropDown
+					items={MANAGE_DROPDOWN}
+					position={Align.RightBottom}
+					trigger={
+						<div className="align-items-center d-flex testray-sidebar-item">
+							<ClayIcon fontSize={16} symbol="cog" />
+
+							<span className="ml-1 testray-sidebar-text">
+								Manage
+							</span>
+						</div>
+					}
+				/>
+
+				<DropDown
+					items={USER_DROPDOWN}
+					position={Align.RightBottom}
+					trigger={
+						<div className="testray-sidebar-item">
+							<Avatar
+								displayName
+								name={Liferay.ThemeDisplay.getUserName()}
+								url="https://clayui.com/images/long_user_image.png"
+							/>
+						</div>
+					}
+				/>
 			</div>
 		</div>
 	);

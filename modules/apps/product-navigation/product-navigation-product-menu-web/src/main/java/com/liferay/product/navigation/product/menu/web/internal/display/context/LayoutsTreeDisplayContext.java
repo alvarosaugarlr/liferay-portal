@@ -80,25 +80,27 @@ import javax.portlet.WindowStateException;
 public class LayoutsTreeDisplayContext {
 
 	public LayoutsTreeDisplayContext(
-		GroupProvider groupProvider,
-		LiferayPortletRequest liferayPortletRequest,
+		GroupProvider groupProvider, RenderRequest renderRequest,
 		SiteNavigationMenuItemLocalService siteNavigationMenuItemLocalService,
 		SiteNavigationMenuItemTypeRegistry siteNavigationMenuItemTypeRegistry,
 		SiteNavigationMenuLocalService siteNavigationMenuLocalService) {
 
-		_liferayPortletRequest = liferayPortletRequest;
+		_liferayPortletRequest = PortalUtil.getLiferayPortletRequest(
+			renderRequest);
+
+		_renderRequest = renderRequest;
 		_siteNavigationMenuItemLocalService =
 			siteNavigationMenuItemLocalService;
 		_siteNavigationMenuItemTypeRegistry =
 			siteNavigationMenuItemTypeRegistry;
 		_siteNavigationMenuLocalService = siteNavigationMenuLocalService;
 
-		_groupProvider = (GroupProvider)liferayPortletRequest.getAttribute(
+		_groupProvider = (GroupProvider)_liferayPortletRequest.getAttribute(
 			ApplicationListWebKeys.GROUP_PROVIDER);
 		_namespace = PortalUtil.getPortletNamespace(
 			ProductNavigationProductMenuPortletKeys.
 				PRODUCT_NAVIGATION_PRODUCT_MENU);
-		_themeDisplay = (ThemeDisplay)liferayPortletRequest.getAttribute(
+		_themeDisplay = (ThemeDisplay)_liferayPortletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
 
@@ -133,8 +135,6 @@ public class LayoutsTreeDisplayContext {
 			return null;
 		}
 
-		Layout layout = _themeDisplay.getLayout();
-
 		return PortletURLBuilder.create(
 			PortalUtil.getControlPanelPortletURL(
 				_liferayPortletRequest, LayoutAdminPortletKeys.GROUP_PAGES,
@@ -142,9 +142,9 @@ public class LayoutsTreeDisplayContext {
 		).setMVCPath(
 			"/select_layout_collections.jsp"
 		).setRedirect(
-			PortalUtil.getLayoutFullURL(layout, _themeDisplay)
+			_getRedirect()
 		).setBackURL(
-			PortalUtil.getLayoutFullURL(layout, _themeDisplay)
+			_getBackURL()
 		).setParameter(
 			"groupId", _themeDisplay.getSiteGroupId()
 		).setParameter(
@@ -159,8 +159,6 @@ public class LayoutsTreeDisplayContext {
 			return null;
 		}
 
-		Layout layout = _themeDisplay.getLayout();
-
 		return PortletURLBuilder.create(
 			PortalUtil.getControlPanelPortletURL(
 				_liferayPortletRequest, LayoutAdminPortletKeys.GROUP_PAGES,
@@ -168,9 +166,9 @@ public class LayoutsTreeDisplayContext {
 		).setMVCPath(
 			"/select_layout_page_template_entry.jsp"
 		).setRedirect(
-			PortalUtil.getLayoutFullURL(layout, _themeDisplay)
+			_getRedirect()
 		).setBackURL(
-			PortalUtil.getLayoutFullURL(layout, _themeDisplay)
+			_getBackURL()
 		).setParameter(
 			"groupId", _themeDisplay.getSiteGroupId()
 		).setParameter(
@@ -189,8 +187,6 @@ public class LayoutsTreeDisplayContext {
 	}
 
 	public PortletURL getConfigureLayoutSetURL() throws PortalException {
-		Layout layout = _themeDisplay.getLayout();
-
 		return PortletURLBuilder.create(
 			PortalUtil.getControlPanelPortletURL(
 				_liferayPortletRequest, LayoutAdminPortletKeys.GROUP_PAGES,
@@ -198,9 +194,9 @@ public class LayoutsTreeDisplayContext {
 		).setMVCRenderCommandName(
 			"/layout_admin/edit_layout_set"
 		).setRedirect(
-			PortalUtil.getLayoutFullURL(layout, _themeDisplay)
+			_getRedirect()
 		).setBackURL(
-			PortalUtil.getLayoutFullURL(layout, _themeDisplay)
+			_getBackURL()
 		).setParameter(
 			"groupId", _themeDisplay.getScopeGroupId()
 		).setParameter(
@@ -343,6 +339,10 @@ public class LayoutsTreeDisplayContext {
 				RenderRequest.RENDER_PHASE)
 		).setMVCPath(
 			"/portlet/product_menu.jsp"
+		).setRedirect(
+			_getRedirect()
+		).setBackURL(
+			_getBackURL()
 		).setWindowState(
 			LiferayWindowState.EXCLUSIVE
 		).buildString();
@@ -505,6 +505,25 @@ public class LayoutsTreeDisplayContext {
 		return false;
 	}
 
+	private String _getBackURL() {
+		if (_backURL != null) {
+			return _backURL;
+		}
+
+		String backURL = ParamUtil.getString(_renderRequest, "p_l_back_url");
+
+		if (Validator.isNull(backURL)) {
+			backURL = ParamUtil.getString(
+				PortalUtil.getOriginalServletRequest(
+					PortalUtil.getHttpServletRequest(_liferayPortletRequest)),
+				"p_l_back_url", _themeDisplay.getURLCurrent());
+		}
+
+		_backURL = backURL;
+
+		return backURL;
+	}
+
 	private JSONArray _getChildSiteNavigationMenuItemsJSONArray(
 		long siteNavigationMenuId, long parentSiteNavigationMenuItemId) {
 
@@ -625,6 +644,22 @@ public class LayoutsTreeDisplayContext {
 		}
 
 		return _getPageTypeSelectedOption();
+	}
+
+	private String _getRedirect() {
+		if (_redirect != null) {
+			return _redirect;
+		}
+
+		String redirect = ParamUtil.getString(_renderRequest, "redirect");
+
+		if (Validator.isNull(redirect)) {
+			redirect = PortalUtil.escapeRedirect(_getBackURL());
+		}
+
+		_redirect = redirect;
+
+		return _redirect;
 	}
 
 	private long _getSiteNavigationMenuId() {
@@ -857,6 +892,7 @@ public class LayoutsTreeDisplayContext {
 	private static final Log _log = LogFactoryUtil.getLog(
 		LayoutsTreeDisplayContext.class.getName());
 
+	private String _backURL;
 	private Long _groupId;
 	private final GroupProvider _groupProvider;
 	private final LiferayPortletRequest _liferayPortletRequest;
@@ -864,6 +900,8 @@ public class LayoutsTreeDisplayContext {
 	private Boolean _pageHierarchySelectedOption;
 	private String _pageTypeSelectedOption;
 	private Boolean _privateLayoutsEnabled;
+	private String _redirect;
+	private final RenderRequest _renderRequest;
 	private Long _selectedSiteNavigationMenuItemId;
 	private Long _siteNavigationMenuId;
 	private final SiteNavigationMenuItemLocalService

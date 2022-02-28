@@ -514,6 +514,18 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 			},
 			new Integer[] {33, 41});
 	}
+	
+	
+	@Test
+	public void testExceptionMapper() throws Exception {
+		test(
+			"ExceptionMapperService.testjava",
+			new String[] {
+				"The value of 'osgi.jaxrs.name' should end with " +
+					"'ExceptionMapper'"
+			},
+			new Integer[] {30});
+	}
 
 	@Test
 	public void testUnusedParameter() throws Exception {

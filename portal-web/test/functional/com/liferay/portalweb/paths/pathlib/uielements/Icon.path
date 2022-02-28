@@ -311,6 +311,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>SITES_VERTICAL_ELLIPSIS</td>
+	<td>//div[@class='dropdown']//button[contains(@class, 'nav-link')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>STAR_UNSUBSCRIBED</td>
 	<td>//a[span/*[name()='svg'][contains(@class,'icon-star-o')]]</td>
 	<td></td>

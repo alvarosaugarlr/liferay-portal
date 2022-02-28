@@ -16,6 +16,7 @@ package com.liferay.commerce.term.service.impl;
 
 import com.liferay.commerce.model.CommerceOrderType;
 import com.liferay.commerce.model.CommerceOrderTypeTable;
+import com.liferay.commerce.term.exception.DuplicateCommerceTermEntryRelException;
 import com.liferay.commerce.term.model.CommerceTermEntry;
 import com.liferay.commerce.term.model.CommerceTermEntryRel;
 import com.liferay.commerce.term.model.CommerceTermEntryRelTable;
@@ -63,6 +64,10 @@ public class CommerceTermEntryRelLocalServiceImpl
 			long commerceTermEntryId)
 		throws PortalException {
 
+		long classNameId = classNameLocalService.getClassNameId(className);
+
+		_validate(classNameId, classPK, commerceTermEntryId);
+
 		CommerceTermEntryRel commerceTermEntryRel =
 			commerceTermEntryRelPersistence.create(
 				counterLocalService.increment());
@@ -73,8 +78,7 @@ public class CommerceTermEntryRelLocalServiceImpl
 		commerceTermEntryRel.setUserId(user.getUserId());
 		commerceTermEntryRel.setUserName(user.getFullName());
 
-		commerceTermEntryRel.setClassNameId(
-			classNameLocalService.getClassNameId(className));
+		commerceTermEntryRel.setClassNameId(classNameId);
 		commerceTermEntryRel.setClassPK(classPK);
 		commerceTermEntryRel.setCommerceTermEntryId(commerceTermEntryId);
 
@@ -157,7 +161,7 @@ public class CommerceTermEntryRelLocalServiceImpl
 
 	@Override
 	public List<CommerceTermEntryRel> getCommerceOrderTypeCommerceTermEntryRels(
-		long corEntryId, String keywords, int start, int end) {
+		long commerceTermEntryId, String keywords, int start, int end) {
 
 		return dslQuery(
 			_getGroupByStep(
@@ -166,8 +170,8 @@ public class CommerceTermEntryRelLocalServiceImpl
 				CommerceOrderTypeTable.INSTANCE,
 				CommerceOrderTypeTable.INSTANCE.commerceOrderTypeId.eq(
 					CommerceTermEntryRelTable.INSTANCE.classPK),
-				corEntryId, CommerceOrderType.class.getName(), keywords,
-				CommerceOrderTypeTable.INSTANCE.name
+				commerceTermEntryId, CommerceOrderType.class.getName(),
+				keywords, CommerceOrderTypeTable.INSTANCE.name
 			).limit(
 				start, end
 			));
@@ -175,7 +179,7 @@ public class CommerceTermEntryRelLocalServiceImpl
 
 	@Override
 	public int getCommerceOrderTypeCommerceTermEntryRelsCount(
-		long corEntryId, String keywords) {
+		long commerceTermEntryId, String keywords) {
 
 		return dslQueryCount(
 			_getGroupByStep(
@@ -184,8 +188,8 @@ public class CommerceTermEntryRelLocalServiceImpl
 				CommerceOrderTypeTable.INSTANCE,
 				CommerceOrderTypeTable.INSTANCE.commerceOrderTypeId.eq(
 					CommerceTermEntryRelTable.INSTANCE.classPK),
-				corEntryId, CommerceOrderType.class.getName(), keywords,
-				CommerceOrderTypeTable.INSTANCE.name));
+				commerceTermEntryId, CommerceOrderType.class.getName(),
+				keywords, CommerceOrderTypeTable.INSTANCE.name));
 	}
 
 	@Override
@@ -222,7 +226,7 @@ public class CommerceTermEntryRelLocalServiceImpl
 
 	private GroupByStep _getGroupByStep(
 		FromStep fromStep, Table innerJoinTable, Predicate innerJoinPredicate,
-		Long corEntryId, String className, String keywords,
+		Long commerceTermEntryId, String className, String keywords,
 		Expression<String> keywordsPredicateExpression) {
 
 		JoinStep joinStep = fromStep.from(
@@ -237,7 +241,7 @@ public class CommerceTermEntryRelLocalServiceImpl
 
 		return joinStep.where(
 			() -> CommerceTermEntryRelTable.INSTANCE.commerceTermEntryId.eq(
-				corEntryId
+				commerceTermEntryId
 			).and(
 				CommerceTermEntryRelTable.INSTANCE.classNameId.eq(
 					classNameLocalService.getClassNameId(className))
@@ -254,6 +258,19 @@ public class CommerceTermEntryRelLocalServiceImpl
 					return null;
 				}
 			));
+	}
+
+	private void _validate(
+			long classNameId, long classPK, long commerceTermEntryId)
+		throws PortalException {
+
+		CommerceTermEntryRel commerceTermEntryRel =
+			commerceTermEntryRelPersistence.fetchByC_C_C(
+				classNameId, classPK, commerceTermEntryId);
+
+		if (commerceTermEntryRel != null) {
+			throw new DuplicateCommerceTermEntryRelException();
+		}
 	}
 
 	@Reference

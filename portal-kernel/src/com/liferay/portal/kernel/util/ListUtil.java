@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
@@ -355,6 +356,14 @@ public class ListUtil {
 
 	public static boolean isNotEmpty(List<?> list) {
 		return !isEmpty(list);
+	}
+
+	public static <E> void isNotEmptyForEach(
+		List<? extends E> list, Consumer<? super E> consumer) {
+
+		if (!isEmpty(list)) {
+			list.forEach(consumer);
+		}
 	}
 
 	public static boolean isNotNull(List<?> list) {

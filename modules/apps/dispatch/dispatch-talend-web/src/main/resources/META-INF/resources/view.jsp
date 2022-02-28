@@ -39,13 +39,13 @@ DispatchTrigger dispatchTrigger = (DispatchTrigger)request.getAttribute(Dispatch
 			</liferay-ui:error>
 
 			<%
-			ExpandoValue expandoValue = ExpandoValueLocalServiceUtil.getValue(dispatchTrigger.getCompanyId(), DispatchTrigger.class.getName(), "DispatchArchiveFile", "fileName", dispatchTrigger.getUserId());
+			TalendDispatchDisplayContext talendDispatchDisplayContext = (TalendDispatchDisplayContext)request.getAttribute(WebKeys.PORTLET_DISPLAY_CONTEXT);
 
-			String fileEntryName = expandoValue.getData();
+			String talendArchiveFileName = talendDispatchDisplayContext.getTalendArchiveFileName();
 			%>
 
-			<p class="<%= Objects.equals(fileEntryName, StringPool.BLANK) ? "hide" : StringPool.BLANK %> text-default" id="<portlet:namespace />fileEntryName">
-				<span id="<portlet:namespace />fileEntryRemove">
+			<p class="<%= Objects.equals(talendArchiveFileName, StringPool.BLANK) ? "hide" : StringPool.BLANK %> text-default" id="<portlet:namespace />talendArchiveFileName">
+				<span id="<portlet:namespace />talendArchiveFileRemove">
 					<liferay-ui:icon
 						icon="times"
 						markupView="lexicon"
@@ -53,12 +53,12 @@ DispatchTrigger dispatchTrigger = (DispatchTrigger)request.getAttribute(Dispatch
 					/>
 				</span>
 				<span>
-					<%= fileEntryName %>
+					<%= talendArchiveFileName %>
 				</span>
 			</p>
 
 			<c:if test="<%= (dispatchTrigger == null) || !dispatchTrigger.isSystem() %>">
-				<div class="<%= Objects.equals(fileEntryName, StringPool.BLANK) ? StringPool.BLANK : "hide" %>" id="<portlet:namespace />fileEntry">
+				<div class="<%= Objects.equals(talendArchiveFileName, StringPool.BLANK) ? StringPool.BLANK : "hide" %>" id="<portlet:namespace />talendArchiveFile">
 					<aui:input label="upload-your-talend-job-file" name="jobArchive" required="<%= true %>" type="file" />
 				</div>
 			</c:if>
@@ -74,12 +74,19 @@ DispatchTrigger dispatchTrigger = (DispatchTrigger)request.getAttribute(Dispatch
 
 <aui:script>
 	AUI().ready((A) => {
-		A.one('#<portlet:namespace />fileEntryRemove').on('click', (event) => {
-			event.preventDefault();
+		A.one('#<portlet:namespace />talendArchiveFileRemove').on(
+			'click',
+			(event) => {
+				event.preventDefault();
 
-			A.one('#<portlet:namespace />fileEntry').removeClass('hide');
+				A.one('#<portlet:namespace />talendArchiveFile').removeClass(
+					'hide'
+				);
 
-			A.one('#<portlet:namespace />fileEntryName').addClass('hide');
-		});
+				A.one('#<portlet:namespace />talendArchiveFileName').addClass(
+					'hide'
+				);
+			}
+		);
 	});
 </aui:script>

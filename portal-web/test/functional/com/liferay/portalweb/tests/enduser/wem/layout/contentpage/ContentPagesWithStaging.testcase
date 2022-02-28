@@ -596,7 +596,7 @@ definition {
 				entryTitle = "Web Content Title",
 				fieldName = "Image",
 				navItem = "Web Content",
-				panelList = "Styles");
+				panel = "Styles");
 		}
 
 		task ("Assert the mapped image is shown in background image field") {
@@ -666,7 +666,7 @@ definition {
 		task ("Change the background color of Container") {
 			PageEditor.editLayoutContainer(
 				backgroundColor = "Success",
-				panelList = "Styles");
+				panel = "Styles");
 		}
 
 		task ("Remove the Container") {
@@ -691,7 +691,7 @@ definition {
 			MenuItem.click(menuItem = "Add Heading");
 
 			AssertElementPresent(
-				key_elementHeader = "//div[contains(@class,'page-editor__topper')][1]/div[contains(.,'Heading')]//li[contains(@class,'title')]",
+				key_elementHeader = "//div[@aria-label='Heading']",
 				key_position = "1",
 				locator1 = "PageEditor#CONTAINER_CONTAINER_NESTED_ELEMENT");
 
@@ -1325,7 +1325,7 @@ definition {
 				entryTitle = "analytics-cloud-hero-image.png",
 				fieldName = "Preview Image",
 				navItem = "Documents and Media",
-				panelList = "Styles",
+				panel = "Styles",
 				uploadFileName = "analytics-cloud-hero-image.png");
 		}
 
@@ -1591,7 +1591,7 @@ definition {
 		}
 	}
 
-	@description = "This is a test for LPS-141773. Able to land in the experience selected at view mode in page editor in staging site."
+	@description = "This is a test for LPS-141773 and LPS-142348. Able to land in the experience selected at view mode in page editor in staging site."
 	@priority = "4"
 	test ViewExperienceInViewMode {
 		task ("Add a content page") {
@@ -1645,6 +1645,20 @@ definition {
 			PageEditor.openPreviewMode();
 
 			ContentPages.viewCurrentExperience(experienceName = "New Experience");
+		}
+
+		task ("View the Heading and Button fragments are shown in preview modal") {
+			SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
+
+			ContentPages.viewFragmentText(
+				fragmentName = "button",
+				id = "link",
+				text = "Go Somewhere");
+
+			ContentPages.viewFragmentText(
+				fragmentName = "heading",
+				id = "element-text",
+				text = "Heading Example");
 		}
 
 		task ("Back to view page mode and view the new experience still selected in experience selector") {

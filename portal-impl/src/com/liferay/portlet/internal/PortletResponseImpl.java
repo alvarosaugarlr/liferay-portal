@@ -629,10 +629,15 @@ public abstract class PortletResponseImpl implements LiferayPortletResponse {
 			}
 			catch (Exception exception) {
 				if (_log.isWarnEnabled()) {
-					_log.warn(exception, exception);
+					_log.warn(exception);
 				}
 			}
 		}
+	}
+
+	protected void clearHeaders() {
+		_headers.clear();
+		_markupHeadElements.clear();
 	}
 
 	protected Layout getLayout(

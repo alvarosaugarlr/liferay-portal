@@ -147,8 +147,7 @@ public class TemplateInfoItemFieldSetProviderImpl
 							_templateNodeFactory);
 
 				try {
-					return templateDisplayTemplateTransformer.transform(
-						LocaleUtil.getDefault());
+					return templateDisplayTemplateTransformer.transform();
 				}
 				catch (Exception exception) {
 					_log.error("Unable to transform template", exception);
@@ -188,7 +187,7 @@ public class TemplateInfoItemFieldSetProviderImpl
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 
 			return Collections.emptyList();

@@ -255,7 +255,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		String password1 = PropsValues.DEFAULT_ADMIN_PASSWORD;
 
-		Boolean resetpassword = false;
+		Boolean resetpassword = _isPasswordReset(companyId);
 
 		if (Validator.isNull(password1)) {
 			password1 = "test";
@@ -1241,18 +1241,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		}
 
 		user.setPasswordEncrypted(true);
-
-		PasswordPolicy passwordPolicy = defaultUser.getPasswordPolicy();
-
-		if ((passwordPolicy != null) && passwordPolicy.isChangeable() &&
-			passwordPolicy.isChangeRequired()) {
-
-			user.setPasswordReset(true);
-		}
-		else {
-			user.setPasswordReset(false);
-		}
-
+		user.setPasswordReset(_isPasswordReset(companyId));
 		user.setScreenName(screenName);
 		user.setEmailAddress(emailAddress);
 
@@ -3803,7 +3792,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			}
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 		}
 
 		return counts;
@@ -4368,7 +4357,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		}
 		catch (PortalException portalException) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(portalException, portalException);
+				_log.warn(portalException);
 			}
 		}
 
@@ -4466,6 +4455,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 *         use
 	 * @return the user
 	 */
+	@CTAware(onProduction = true)
 	@Override
 	public User updateAgreedToTermsOfUse(
 			long userId, boolean agreedToTermsOfUse)
@@ -4623,6 +4613,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 * @param  emailAddressVerified whether the user has verified email address
 	 * @return the user
 	 */
+	@CTAware(onProduction = true)
 	@Override
 	public User updateEmailAddressVerified(
 			long userId, boolean emailAddressVerified)
@@ -4802,18 +4793,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			}
 
 			user.setPasswordEncrypted(true);
-
-			PasswordPolicy passwordPolicy = defaultUser.getPasswordPolicy();
-
-			if ((passwordPolicy != null) && passwordPolicy.isChangeable() &&
-				passwordPolicy.isChangeRequired()) {
-
-				user.setPasswordReset(true);
-			}
-			else {
-				user.setPasswordReset(false);
-			}
-
+			user.setPasswordReset(_isPasswordReset(companyId));
 			user.setScreenName(screenName);
 			user.setLanguageId(locale.toString());
 			user.setTimeZoneId(defaultUser.getTimeZoneId());
@@ -5181,6 +5161,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 *         password the next time they log in
 	 * @return the user
 	 */
+	@CTAware(onProduction = true)
 	@Override
 	public User updatePassword(
 			long userId, String password1, String password2,
@@ -5204,6 +5185,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 *         tracked, or validated. Primarily used for password imports.
 	 * @return the user
 	 */
+	@CTAware(onProduction = true)
 	@Override
 	public User updatePassword(
 			long userId, String password1, String password2,
@@ -5358,6 +5340,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 *         password the next time they login
 	 * @return the user
 	 */
+	@CTAware(onProduction = true)
 	@Override
 	public User updatePasswordReset(long userId, boolean passwordReset)
 		throws PortalException {
@@ -5399,6 +5382,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 * @param  answer the user's new password reset answer
 	 * @return the user
 	 */
+	@CTAware(onProduction = true)
 	@Override
 	public User updateReminderQuery(long userId, String question, String answer)
 		throws PortalException {
@@ -6285,7 +6269,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 				}
 				catch (Exception exception) {
 					if (_log.isWarnEnabled()) {
-						_log.warn(exception, exception);
+						_log.warn(exception);
 					}
 				}
 			}
@@ -6516,7 +6500,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			}
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 		}
 
 		return Authenticator.FAILURE;
@@ -7489,7 +7473,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			}
 			catch (PortalException portalException) {
 				if (_log.isWarnEnabled()) {
-					_log.warn(portalException, portalException);
+					_log.warn(portalException);
 				}
 			}
 		}
@@ -7525,6 +7509,26 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 					ticket.getExtraInfo(), new Date());
 			}
 		}
+	}
+
+	private boolean _isPasswordReset(long companyId) {
+		try {
+			PasswordPolicy passwordPolicy =
+				_passwordPolicyLocalService.getDefaultPasswordPolicy(companyId);
+
+			if ((passwordPolicy != null) && passwordPolicy.isChangeable() &&
+				passwordPolicy.isChangeRequired()) {
+
+				return true;
+			}
+		}
+		catch (PortalException portalException) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(portalException);
+			}
+		}
+
+		return false;
 	}
 
 	private boolean _isPasswordUnchanged(

@@ -1,0 +1,73 @@
+definition {
+
+	macro addColumnsViaUI {
+		ObjectCustomViews.goToViewsDetails(label = "${viewLabel}");
+
+		Click.clickAtNotVisible(locator1 = "ObjectCustomViews#CUSTOM_VIEW_BOOLEAN_CHECKBOX");
+
+		Click(locator1 = "ObjectCustomViews#VIEW_BUILDER_TAB");
+
+		LexiconEntry.gotoAdd();
+
+		Click.clickAtNotVisible(
+			key_columnOption = "${columnOption}",
+			locator1 = "ObjectCustomViews#CHECKBOX_COLUMN_OPTION");
+
+		Click(
+			key_tab = "Save",
+			locator1 = "Button#TAB_SUBMIT_BTN");
+
+		Button.clickSave();
+	}
+
+	macro addObjectViewViaUI {
+		LexiconEntry.gotoAdd();
+
+		Type(
+			locator1 = "ObjectCustomViews#ADD_VIEW_NAME",
+			value1 = "${viewName}");
+
+		Button.clickSave();
+
+		WaitForPageLoad();
+	}
+
+	macro assertObjectView {
+		var key_viewLabel = "${viewLabel}";
+
+		AssertElementPresent(locator1 = "ObjectCustomViews#OBJECT_VIEW_LABEL");
+	}
+
+	macro assertObjectViewNotPresent {
+		var key_viewLabel = "${viewLabel}";
+
+		AssertElementNotPresent(locator1 = "ObjectCustomViews#OBJECT_VIEW_LABEL");
+	}
+
+	macro deleteObjectCustomViewViaUI {
+		Click(
+			key_objectCustomViewLabel = "${viewLabel}",
+			locator1 = "ObjectCustomViews#OBJECT_VIEW_KEBAB_MENU");
+
+		MenuItem.clickNoError(menuItem = "Delete");
+	}
+
+	macro editName {
+		Type(
+			locator1 = "ObjectCustomViews#OBJECT_VIEWS_NAME",
+			value1 = "${name}");
+	}
+
+	macro goToViewsDetails {
+		Click(
+			key_label = "${label}",
+			locator1 = "ObjectCustomViews#SELECT_OBJECT_VIEWS");
+
+		SelectFrame(locator1 = "IFrame#IFRAME");
+	}
+
+	macro goToViewsTab {
+		Click(locator1 = "ObjectCustomViews#OBJECT_VIEWS_TAB");
+	}
+
+}

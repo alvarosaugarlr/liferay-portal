@@ -59,12 +59,24 @@ function getNamespacedInfoItems(
 	selectedItems,
 	siteNavigationMenuId
 ) {
-	if (!selectedItems.length) {
+	if (!selectedItems) {
+		return;
+	}
+
+	let selectedItemsValue = selectedItems;
+
+	if (selectedItems.value && Array.isArray(selectedItems.value)) {
+		selectedItemsValue = selectedItems.value.map((item) =>
+			JSON.parse(item)
+		);
+	}
+
+	if (!selectedItemsValue.length) {
 		return;
 	}
 
 	const infoItems = {
-		items: JSON.stringify(selectedItems),
+		items: JSON.stringify(selectedItemsValue),
 		siteNavigationMenuId,
 	};
 
@@ -73,11 +85,7 @@ function getNamespacedInfoItems(
 
 export function AddItemDropDown({trigger}) {
 	const [active, setActive] = useState(false);
-	const {
-		addSiteNavigationMenuItemOptions,
-		categoriesMultipleSelectionEnabled,
-		portletNamespace,
-	} = useConstants();
+	const {addSiteNavigationMenuItemOptions, portletNamespace} = useConstants();
 
 	return (
 		<>
@@ -94,19 +102,14 @@ export function AddItemDropDown({trigger}) {
 							onClick={() => {
 								if (data.itemSelector) {
 									Liferay.Util.openSelectionModal({
-										buttonAddLabel:
-											categoriesMultipleSelectionEnabled &&
-											data.multiSelection
-												? Liferay.Language.get('select')
-												: null,
-										multiple:
-											categoriesMultipleSelectionEnabled &&
-											data.multiSelection,
+										buttonAddLabel: data.multiSelection
+											? Liferay.Language.get('select')
+											: null,
+										multiple: data.multiSelection,
 										onSelect: (selection) => {
 											fetch(data.addItemURL, {
 												body: objectToFormData(
-													categoriesMultipleSelectionEnabled &&
-														data.multiSelection
+													data.multiSelection
 														? getNamespacedInfoItems(
 																portletNamespace,
 																selection,

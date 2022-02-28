@@ -233,6 +233,7 @@ public class DDMFormAdminDisplayContext {
 			ddmFormAdminActionDropdownItemsProvider =
 				new DDMFormAdminActionDropdownItemsProvider(
 					getAutocompleteUserURL(), ddmFormInstance,
+					getExportFormURL(ddmFormInstance.getFormInstanceId()),
 					_formInstancePermissionCheckerHelper,
 					isFormPublished(ddmFormInstance),
 					ddmFormAdminRequestHelper.getRequest(),
@@ -444,7 +445,7 @@ public class DDMFormAdminDisplayContext {
 				}
 			}
 			catch (PortalException portalException) {
-				_log.error(portalException, portalException);
+				_log.error(portalException);
 			}
 		}
 
@@ -648,6 +649,19 @@ public class DDMFormAdminDisplayContext {
 		return LanguageUtil.get(
 			ddmFormAdminRequestHelper.getRequest(),
 			search.getEmptyResultsMessage());
+	}
+
+	public String getExportFormURL(long formInstanceId) {
+		LiferayPortletURL liferayPortletURL =
+			(LiferayPortletURL)renderResponse.createResourceURL();
+
+		liferayPortletURL.setCopyCurrentRenderParameters(false);
+		liferayPortletURL.setParameter(
+			"formInstanceId", String.valueOf(formInstanceId));
+		liferayPortletURL.setResourceID(
+			"/dynamic_data_mapping_form/export_form_instance");
+
+		return liferayPortletURL.toString();
 	}
 
 	public String getFieldSetDefinitionURL() throws PortalException {
@@ -867,7 +881,7 @@ public class DDMFormAdminDisplayContext {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -1243,7 +1257,7 @@ public class DDMFormAdminDisplayContext {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -1637,7 +1651,7 @@ public class DDMFormAdminDisplayContext {
 			return availableLocales.toArray(new Locale[0]);
 		}
 		catch (PortalException portalException) {
-			_log.error(portalException, portalException);
+			_log.error(portalException);
 
 			return null;
 		}
@@ -1707,7 +1721,7 @@ public class DDMFormAdminDisplayContext {
 			return LocaleUtil.toLanguageId(form.getDefaultLocale());
 		}
 		catch (PortalException portalException) {
-			_log.error(portalException, portalException);
+			_log.error(portalException);
 
 			return null;
 		}

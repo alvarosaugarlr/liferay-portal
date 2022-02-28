@@ -16,13 +16,13 @@ package com.liferay.portal.asm;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.SwappableSecurityManager;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.rule.NewEnv;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.ReflectionUtilTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.test.aspects.ReflectionUtilAdvice;
-import com.liferay.portal.test.rule.AdviseWith;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import java.lang.reflect.Constructor;
@@ -69,15 +69,15 @@ public class ASMWrapperUtilTest {
 		Assert.assertEquals(randomInt, method.invoke(asmWrapper, randomInt));
 	}
 
-	@AdviseWith(adviceClasses = ReflectionUtilAdvice.class)
 	@NewEnv(type = NewEnv.Type.CLASSLOADER)
 	@Test
 	public void testClassInitializationFailure() throws Exception {
-		Throwable throwable = new Throwable();
+		SecurityException securityException = new SecurityException();
 
-		ReflectionUtilAdvice.setDeclaredMethodThrowable(throwable);
+		try (SwappableSecurityManager swappableSecurityManager =
+				ReflectionUtilTestUtil.throwForSuppressAccessChecks(
+					securityException)) {
 
-		try {
 			ASMWrapperUtil.createASMWrapper(
 				TestInterface.class.getClassLoader(), TestInterface.class,
 				new TestDelegate(), new TestDefault());
@@ -85,10 +85,8 @@ public class ASMWrapperUtilTest {
 			Assert.fail();
 		}
 		catch (ExceptionInInitializerError eiie) {
-			Assert.assertSame(throwable, eiie.getCause());
+			Assert.assertSame(securityException, eiie.getCause());
 		}
-
-		ReflectionUtilAdvice.setDeclaredFieldThrowable(null);
 	}
 
 	@Test

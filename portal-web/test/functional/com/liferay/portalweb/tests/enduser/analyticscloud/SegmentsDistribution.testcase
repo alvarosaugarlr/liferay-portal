@@ -59,15 +59,8 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8626 | Test Summary: Segment distribution chart can be filtered by date property"
-	@ignore = "true"
 	@priority = "5"
 	test CanDistributionChartFilteredDateProperty {
-		property portal.upstream = "quarantine";
-
-		// It is not possible to check the percentage at the end of the test because of the bug
-		// AC Bug ticket: LRAC-9383
-		// AC Refactor ticket: LRAC-9397
-
 		task ("View AC Page as new user") {
 			User.logoutAndLoginPG(
 				userLoginEmailAddress = "userea@liferay.com",
@@ -93,7 +86,7 @@ definition {
 		}
 
 		task ("Type the segment name") {
-			ACSegments.nameSegment(segmentName = "Static Segment Test");
+			ACUtils.setItemName(itemName = "Static Segment Test");
 		}
 
 		task ("Add new user as member") {
@@ -115,9 +108,6 @@ definition {
 		}
 
 		task ("View Chart Entry") {
-
-			// It is not possible to check the percentage at the end of the test because of the bug
-
 			ACSegments.viewBreakdownChartsEntry(key_entry = "1986-05-31T00:00:00.000Z - 100.0%");
 		}
 	}
@@ -169,7 +159,7 @@ definition {
 		}
 
 		task ("Type the segment name") {
-			ACSegments.nameSegment(segmentName = "Static Segment Test");
+			ACUtils.setItemName(itemName = "Static Segment Test");
 		}
 
 		task ("Add new user as member") {
@@ -199,14 +189,9 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8628 | Test Summary: Segment distribution chart can be filtered by text property"
-	@ignore = "true"
 	@priority = "3"
 	test CanDistributionChartFilteredText {
 		property portal.upstream = "quarantine";
-
-		// AC Refactor: Chart fails to appear the right percentage when filtering with a givenName property.
-		// AC Refactor ticket: LRAC-9387
-		// AC Bug ticekt: LRAC-9383
 
 		task ("View AC Page as new user") {
 			User.logoutAndLoginPG(
@@ -233,7 +218,7 @@ definition {
 		}
 
 		task ("Type the segment name") {
-			ACSegments.nameSegment(segmentName = "Static Segment Test");
+			ACUtils.setItemName(itemName = "Static Segment Test");
 		}
 
 		task ("Add new user as member") {
@@ -255,9 +240,6 @@ definition {
 		}
 
 		task ("View Chart Entry") {
-
-			// Test will fail here because the percentage is wrong
-
 			ACSegments.viewBreakdownChartsEntry(key_entry = "userfn - 100.0%");
 		}
 	}
@@ -304,7 +286,7 @@ definition {
 		}
 
 		task ("Type the segment name") {
-			ACSegments.nameSegment(segmentName = "Static Segment Test");
+			ACUtils.setItemName(itemName = "Static Segment Test");
 		}
 
 		task ("Add new user as member") {
@@ -390,7 +372,7 @@ definition {
 		}
 
 		task ("Type the segment name") {
-			ACSegments.nameSegment(segmentName = "Static Segment Test");
+			ACUtils.setItemName(itemName = "Static Segment Test");
 		}
 
 		task ("Add new user as member") {

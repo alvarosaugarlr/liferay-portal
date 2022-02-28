@@ -10,6 +10,7 @@
  */
 
 import ClayForm, {ClayInput} from '@clayui/form';
+import ClayIcon from '@clayui/icon';
 import React, {useContext, useEffect, useState} from 'react';
 
 import {DiagramBuilderContext} from '../../../../../DiagramBuilderContext';
@@ -24,10 +25,12 @@ const ResourceActions = () => {
 			...previousValue,
 			data: {
 				...previousValue.data,
-				assignments: {
-					assignmentType: ['resourceActions'],
-					resourceAction: value,
-				},
+				assignments: value
+					? {
+							assignmentType: ['resourceActions'],
+							resourceAction: value,
+					  }
+					: null,
 			},
 		}));
 
@@ -46,12 +49,27 @@ const ResourceActions = () => {
 					{Liferay.Language.get('resource-actions')}
 
 					<span className="ml-1 mr-1 text-warning">*</span>
+
+					<span
+						data-tooltip-align="bottom-right"
+						title={Liferay.Language.get(
+							'enter-the-comma-separated-resource-actions'
+						)}
+					>
+						<ClayIcon
+							className="text-muted"
+							symbol="question-circle-full"
+						/>
+					</span>
 				</label>
 
 				<ClayInput
 					component="textarea"
 					id="resource-actions"
 					onChange={onChange}
+					placeholder={Liferay.Language.get(
+						'type-resource-actions-here'
+					)}
 					type="text"
 					value={resourceActions}
 				/>

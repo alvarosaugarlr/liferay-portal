@@ -38,10 +38,12 @@ import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
 import com.liferay.portal.kernel.util.DigesterUtil;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.FriendlyURLNormalizer;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.kernel.xml.UnsecureSAXReaderUtil;
 import com.liferay.portal.model.DefaultModelHintsImpl;
@@ -51,7 +53,6 @@ import com.liferay.portal.service.permission.PortletPermissionImpl;
 import com.liferay.portal.util.DigesterImpl;
 import com.liferay.portal.util.FastDateFormatFactoryImpl;
 import com.liferay.portal.util.FileImpl;
-import com.liferay.portal.util.FriendlyURLNormalizerImpl;
 import com.liferay.portal.util.HtmlImpl;
 import com.liferay.portal.util.HttpImpl;
 import com.liferay.portal.util.InitUtil;
@@ -111,7 +112,10 @@ public class ToolDependencies {
 			new FriendlyURLNormalizerUtil();
 
 		friendlyURLNormalizerUtil.setFriendlyURLNormalizer(
-			new FriendlyURLNormalizerImpl());
+			(FriendlyURLNormalizer)ProxyUtil.newProxyInstance(
+				ToolDependencies.class.getClassLoader(),
+				new Class<?>[] {FriendlyURLNormalizer.class},
+				(proxy, method, args) -> null));
 
 		HtmlUtil htmlUtil = new HtmlUtil();
 
@@ -209,18 +213,6 @@ public class ToolDependencies {
 			return _portalCacheManager.getPortalCache(portalCacheName);
 		}
 
-		/**
-		 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-		 *             #getPortalCache(String)}
-		 */
-		@Deprecated
-		@Override
-		public PortalCache<? extends Serializable, ? extends Serializable>
-			getPortalCache(String portalCacheName, boolean blocking) {
-
-			return getPortalCache(portalCacheName);
-		}
-
 		@Override
 		public PortalCache<? extends Serializable, ? extends Serializable>
 			getPortalCache(
@@ -277,15 +269,6 @@ public class ToolDependencies {
 		@Override
 		public String getPortalCacheName() {
 			return _portalCacheName;
-		}
-
-		/**
-		 * @deprecated As of Athanasius (7.3.x), with no direct replacement
-		 */
-		@Deprecated
-		@Override
-		public boolean isBlocking() {
-			return false;
 		}
 
 		public boolean isMVCC() {
@@ -406,19 +389,6 @@ public class ToolDependencies {
 			return getPortalCache(portalCacheName, false, false);
 		}
 
-		/**
-		 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-		 *             #getPortalCache(String)}
-		 */
-		@Deprecated
-		@Override
-		public PortalCache<K, V> getPortalCache(
-				String portalCacheName, boolean blocking)
-			throws PortalCacheException {
-
-			return getPortalCache(portalCacheName);
-		}
-
 		@Override
 		public PortalCache<K, V> getPortalCache(
 				String portalCacheName, boolean blocking, boolean mvcc)
@@ -457,15 +427,6 @@ public class ToolDependencies {
 		@Override
 		public boolean isClusterAware() {
 			return false;
-		}
-
-		/**
-		 * @deprecated As of Mueller (7.2.x), replaced by {@link
-		 *             #reconfigurePortalCaches(URL, ClassLoader)}
-		 */
-		@Deprecated
-		@Override
-		public void reconfigurePortalCaches(URL configurationURL) {
 		}
 
 		@Override
@@ -518,18 +479,6 @@ public class ToolDependencies {
 			String portalCacheName) {
 
 			return _portalCacheManager.getPortalCache(portalCacheName);
-		}
-
-		/**
-		 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-		 *             #getPortalCache(String)}
-		 */
-		@Deprecated
-		@Override
-		public PortalCache<? extends Serializable, ?> getPortalCache(
-			String portalCacheName, boolean blocking) {
-
-			return getPortalCache(portalCacheName);
 		}
 
 		@Override

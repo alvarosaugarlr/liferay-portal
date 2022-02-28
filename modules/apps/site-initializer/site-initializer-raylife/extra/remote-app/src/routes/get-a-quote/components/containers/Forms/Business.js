@@ -96,7 +96,7 @@ export function FormBusiness({form}) {
 			>
 				<NumberControlledInput
 					control={control}
-					label="Years of industry experience?"
+					label={SUBSECTION_KEYS.YEAR_OF_INDUSTRY_EXPERIENCE}
 					moreInfoProps={{
 						callback: () =>
 							updateState(setFormPath('yearsOfExperience')),
@@ -127,7 +127,9 @@ export function FormBusiness({form}) {
 			>
 				<ControlledSwitch
 					control={control}
-					label="Do you store personally identifiable information about your customers?"
+					label={
+						SUBSECTION_KEYS.DO_YOU_STORE_PERSONALITY_IDENTIFIABLE
+					}
 					name={setFormPath('hasStoredCustomerInformation')}
 					onSelect={nextStep}
 					rules={{required: true}}
@@ -142,7 +144,7 @@ export function FormBusiness({form}) {
 			>
 				<ControlledSwitch
 					control={control}
-					label="Do you have a Raylife Auto policy?"
+					label={SUBSECTION_KEYS.DO_YOU_HAVE_RAYLIFE_POLICY}
 					name={setFormPath('hasAutoPolicy')}
 					onSelect={nextStep}
 					rules={{required: true}}
@@ -158,7 +160,7 @@ export function FormBusiness({form}) {
 				<LegalEntityControlledSelect
 					control={control}
 					inputProps={{className: 'mb-5'}}
-					label="Legal Entity"
+					label={SUBSECTION_KEYS.LEGAL_ENTITY}
 					name={setFormPath('legalEntity')}
 					rules={{
 						required: 'This field is required.',
@@ -175,7 +177,9 @@ export function FormBusiness({form}) {
 				>
 					<PercentageControlledInput
 						control={control}
-						label="Percent of sales from used merchandise?"
+						label={
+							SUBSECTION_KEYS.PERCENT_OF_SALES_FROM_MERCHANDISE
+						}
 						moreInfoProps={{
 							callback: () =>
 								updateState(setFormPath('salesMerchandise')),
@@ -211,7 +215,9 @@ export function FormBusiness({form}) {
 				>
 					<ControlledSwitch
 						control={control}
-						label="Do you sell products under your own brand or label?"
+						label={
+							SUBSECTION_KEYS.DO_YOU_SELL_PRODUCTS_UNDER_OWN_BRAND
+						}
 						name={setFormPath('hasSellProductsUnderOwnBrand')}
 						onSelect={nextStep}
 						rules={{required: true}}
@@ -228,7 +234,9 @@ export function FormBusiness({form}) {
 				>
 					<PercentageControlledInput
 						control={control}
-						label="What percentage of overall sales involve delivery?"
+						label={
+							SUBSECTION_KEYS.WHAT_PERCENTAGE_OF_OVERALL_INVOLVE_DELIVERY
+						}
 						name={setFormPath('overallSales')}
 						rules={{
 							pattern: {

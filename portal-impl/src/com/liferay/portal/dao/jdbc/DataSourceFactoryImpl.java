@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.jndi.JNDIUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.module.util.SystemBundleUtil;
+import com.liferay.portal.kernel.util.DigesterUtil;
 import com.liferay.portal.kernel.util.JavaDetector;
 import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -41,6 +42,7 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.spring.hibernate.DialectDetector;
+import com.liferay.portal.util.DigesterImpl;
 import com.liferay.portal.util.JarUtil;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
@@ -159,7 +161,7 @@ public class DataSourceFactoryImpl implements DataSourceFactory {
 			}
 			catch (ClassNotFoundException classNotFoundException) {
 				if (_log.isDebugEnabled()) {
-					_log.debug(classNotFoundException, classNotFoundException);
+					_log.debug(classNotFoundException);
 				}
 			}
 		}
@@ -600,8 +602,12 @@ public class DataSourceFactoryImpl implements DataSourceFactory {
 				PropsKeys.SETUP_DATABASE_JAR_URL, new Filter(driverClassName));
 			String name = PropsUtil.get(
 				PropsKeys.SETUP_DATABASE_JAR_NAME, new Filter(driverClassName));
+			String sha1 = PropsUtil.get(
+				PropsKeys.SETUP_DATABASE_JAR_SHA1, new Filter(driverClassName));
 
-			if (Validator.isNull(url) || Validator.isNull(name)) {
+			if (Validator.isNull(url) || Validator.isNull(name) ||
+				Validator.isNull(sha1)) {
+
 				throw classNotFoundException;
 			}
 
@@ -616,12 +622,16 @@ public class DataSourceFactoryImpl implements DataSourceFactory {
 			}
 
 			try {
+				DigesterUtil digesterUtil = new DigesterUtil();
+
+				digesterUtil.setDigester(new DigesterImpl());
+
 				JarUtil.downloadAndInstallJar(
 					new URL(url),
 					Paths.get(
 						PropsValues.LIFERAY_SHIELDED_CONTAINER_LIB_PORTAL_DIR,
 						name),
-					(URLClassLoader)classLoader);
+					(URLClassLoader)classLoader, sha1);
 			}
 			catch (Exception exception) {
 				_log.error(
@@ -781,7 +791,7 @@ public class DataSourceFactoryImpl implements DataSourceFactory {
 				mBeanServer.registerMBean(jmxConnectionPool, _objectName);
 			}
 			catch (Exception exception) {
-				_log.error(exception, exception);
+				_log.error(exception);
 			}
 
 			return mBeanServer;
@@ -804,7 +814,7 @@ public class DataSourceFactoryImpl implements DataSourceFactory {
 				mBeanServer.unregisterMBean(_objectName);
 			}
 			catch (Exception exception) {
-				_log.error(exception, exception);
+				_log.error(exception);
 			}
 		}
 

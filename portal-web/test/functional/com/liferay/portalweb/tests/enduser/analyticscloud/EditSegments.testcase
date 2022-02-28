@@ -69,7 +69,7 @@ definition {
 
 			ACSegments.createDynamicSegment();
 
-			ACSegments.nameSegment(segmentName = "Dynamic Segment Test");
+			ACUtils.setItemName(itemName = "Dynamic Segment Test");
 		}
 
 		task ("Add Segment Field and Edit Web Behavior Criteria") {
@@ -135,7 +135,7 @@ definition {
 
 		ACSegments.createDynamicSegment();
 
-		ACSegments.nameSegment(segmentName = "Dynamic Segment Test");
+		ACUtils.setItemName(itemName = "Dynamic Segment Test");
 
 		ACSegments.addSegmentField(segmentField = "Viewed Blog");
 
@@ -247,7 +247,7 @@ definition {
 
 		ACSegments.createStaticSegment();
 
-		ACSegments.nameSegment(segmentName = "Static Segment Test");
+		ACUtils.setItemName(itemName = "Static Segment Test");
 
 		ACSegments.addStaticMember(tableMember = "ac ac");
 
@@ -281,8 +281,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8136 | Test Summary: Rename Individuals Segment"
 	@priority = "5"
 	test CanRenameIndividualsSegment {
-		property portal.upstream = "quarantine";
-
 		ACUtils.createBlogsAndAddToPage();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
@@ -315,7 +313,7 @@ definition {
 
 		ACSegments.createDynamicSegment();
 
-		ACSegments.nameSegment(segmentName = "Dynamic Segment Test");
+		ACUtils.setItemName(itemName = "Dynamic Segment Test");
 
 		ACSegments.addSegmentField(segmentField = "Viewed Blog");
 
@@ -331,7 +329,7 @@ definition {
 
 		ACSegments.editSegment(segmentName = "Dynamic Segment Test");
 
-		ACSegments.nameSegment(segmentName = "Rename Dynamic Segment Test");
+		ACUtils.setItemName(itemName = "Rename Dynamic Segment Test");
 
 		ACSegments.saveSegment();
 
@@ -376,7 +374,7 @@ definition {
 
 		ACSegments.createStaticSegment();
 
-		ACSegments.nameSegment(segmentName = "Static Segment Test");
+		ACUtils.setItemName(itemName = "Static Segment Test");
 
 		ACSegments.addStaticMember(tableMember = "ac ac");
 
@@ -394,8 +392,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8589 | Test Summary: Editor shows static segment label"
 	@priority = "3"
 	test EditorShowsStaticSegmentLabel {
-		property portal.upstream = "quarantine";
-
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
 		JSONUser.addUser(
@@ -424,7 +420,7 @@ definition {
 
 		ACSegments.createStaticSegment();
 
-		ACSegments.nameSegment(segmentName = "Static Segment Test");
+		ACUtils.setItemName(itemName = "Static Segment Test");
 
 		ACSegments.addStaticMember(tableMember = "ac ac");
 
@@ -489,7 +485,7 @@ definition {
 		task ("Create segments and add 1 member") {
 			ACSegments.createStaticSegment();
 
-			ACSegments.nameSegment(segmentName = "Static Segment Test");
+			ACUtils.setItemName(itemName = "Static Segment Test");
 
 			ACSegments.addStaticMember(tableMember = "ac1 ac1");
 
@@ -597,7 +593,7 @@ definition {
 		task ("Create segment test and save") {
 			ACSegments.createStaticSegment();
 
-			ACSegments.nameSegment(segmentName = "Static Segment Test");
+			ACUtils.setItemName(itemName = "Static Segment Test");
 
 			ACSegments.addStaticMember(tableMember = "ac ac");
 
@@ -659,7 +655,7 @@ definition {
 
 			ACSegments.createStaticSegment();
 
-			ACSegments.nameSegment(segmentName = "Static Segment Test");
+			ACUtils.setItemName(itemName = "Static Segment Test");
 
 			ACSegments.addStaticMember(tableMember = "ac ac");
 
@@ -741,7 +737,7 @@ definition {
 
 			ACSegments.createStaticSegment();
 
-			ACSegments.nameSegment(segmentName = "New Segment Test");
+			ACUtils.setItemName(itemName = "New Segment Test");
 
 			ACSegments.addStaticMember(tableMember = "ac ac");
 
@@ -827,7 +823,7 @@ definition {
 		task ("Create a static segment add set name") {
 			ACSegments.createStaticSegment();
 
-			ACSegments.nameSegment(segmentName = "Static Segment Test");
+			ACUtils.setItemName(itemName = "Static Segment Test");
 		}
 
 		task ("Add All Members and View Added Members") {
@@ -890,7 +886,7 @@ definition {
 		task ("Create a static segment, add two static members and save segment") {
 			ACSegments.createStaticSegment();
 
-			ACSegments.nameSegment(segmentName = "Static Segment Test");
+			ACUtils.setItemName(itemName = "Static Segment Test");
 
 			for (var name : list "${users}") {
 				ACSegments.addStaticMember(tableMember = "${name} ${name}");
@@ -973,7 +969,7 @@ definition {
 		task ("Create segment test and save") {
 			ACSegments.createStaticSegment();
 
-			ACSegments.nameSegment(segmentName = "Static Segment Test");
+			ACUtils.setItemName(itemName = "Static Segment Test");
 
 			ACSegments.addStaticMultiMember(tableMember = "${nameList}");
 		}

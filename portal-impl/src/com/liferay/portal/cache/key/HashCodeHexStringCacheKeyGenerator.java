@@ -56,14 +56,4 @@ public class HashCodeHexStringCacheKeyGenerator extends BaseCacheKeyGenerator {
 		return getCacheKey(sb.getStrings());
 	}
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #getCacheKey(StringBundler)}
-	 */
-	@Deprecated
-	@Override
-	public String getCacheKey(com.liferay.portal.kernel.util.StringBundler sb) {
-		return getCacheKey(sb.getStrings());
-	}
-
 }

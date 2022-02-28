@@ -111,7 +111,7 @@
 				"en_US": "Steps Type"
 			},
 			"name": "stepsType",
-			"required": true,
+			"required": false,
 			"type": "String"
 		},
 		{
@@ -135,10 +135,8 @@
 			"type": "String"
 		}
 	],
-	"panelAppOrder": "100",
-	"panelCategoryKey": "site_administration.content",
 	"pluralLabel": {
 		"en_US": "Testray Cases"
 	},
-	"scope": "site"
+	"scope": "company"
 }

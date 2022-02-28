@@ -120,6 +120,11 @@ public class OrderDTOConverter implements DTOConverter<CommerceOrder, Order> {
 				createDate = commerceOrder.getCreateDate();
 				currencyCode = commerceCurrency.getCode();
 				customFields = expandoBridge.getAttributes();
+				deliveryTermDescription =
+					commerceOrder.getDeliveryCommerceTermEntryDescription();
+				deliveryTermId = commerceOrder.getDeliveryCommerceTermEntryId();
+				deliveryTermName =
+					commerceOrder.getDeliveryCommerceTermEntryName();
 				externalReferenceCode =
 					commerceOrder.getExternalReferenceCode();
 				id = commerceOrder.getCommerceOrderId();
@@ -140,6 +145,11 @@ public class OrderDTOConverter implements DTOConverter<CommerceOrder, Order> {
 					commerceOrder.getPaymentStatus(),
 					commerceOrderPaymentStatusLabel,
 					commerceOrderPaymentStatusLabelI18n);
+				paymentTermDescription =
+					commerceOrder.getPaymentCommerceTermEntryDescription();
+				paymentTermId = commerceOrder.getPaymentCommerceTermEntryId();
+				paymentTermName =
+					commerceOrder.getPaymentCommerceTermEntryName();
 				printedNote = commerceOrder.getPrintedNote();
 				purchaseOrderNumber = commerceOrder.getPurchaseOrderNumber();
 				requestedDeliveryDate =
@@ -314,8 +324,7 @@ public class OrderDTOConverter implements DTOConverter<CommerceOrder, Order> {
 			commerceOrder.getShippingDiscountAmount();
 
 		if (shippingDiscountAmount != null) {
-			order.setShippingDiscountAmount(
-				shippingDiscountAmount.doubleValue());
+			order.setShippingDiscountAmount(shippingDiscountAmount);
 			order.setShippingDiscountAmountFormatted(
 				_formatPrice(shippingDiscountAmount, commerceCurrency, locale));
 			order.setShippingDiscountPercentageLevel1(
@@ -486,7 +495,7 @@ public class OrderDTOConverter implements DTOConverter<CommerceOrder, Order> {
 		BigDecimal totalDiscountAmount = commerceOrder.getTotalDiscountAmount();
 
 		if (totalDiscountAmount != null) {
-			order.setTotalDiscountAmount(totalDiscountAmount.doubleValue());
+			order.setTotalDiscountAmount(totalDiscountAmount);
 			order.setTotalDiscountAmountFormatted(
 				_formatPrice(totalDiscountAmount, commerceCurrency, locale));
 			order.setTotalDiscountPercentageLevel1(
@@ -507,8 +516,7 @@ public class OrderDTOConverter implements DTOConverter<CommerceOrder, Order> {
 			commerceOrder.getTotalDiscountWithTaxAmount();
 
 		if (totalDiscountWithTaxAmount != null) {
-			order.setTotalDiscountWithTaxAmount(
-				totalDiscountWithTaxAmount.doubleValue());
+			order.setTotalDiscountWithTaxAmount(totalDiscountWithTaxAmount);
 			order.setTotalDiscountWithTaxAmountFormatted(
 				_formatPrice(
 					totalDiscountWithTaxAmount, commerceCurrency, locale));

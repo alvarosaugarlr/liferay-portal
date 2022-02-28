@@ -229,12 +229,13 @@ renderResponse.setTitle(headerTitle);
 				<liferay-ui:message key="the-source-file-does-not-have-the-same-extension-as-the-original-file" />
 			</liferay-ui:error>
 
-			<%
-			long fileMaxSize = dlEditFileEntryDisplayContext.getMaximumUploadSize();
-			%>
-
 			<liferay-ui:error exception="<%= FileSizeException.class %>">
-				<liferay-ui:message arguments="<%= LanguageUtil.formatStorageSize(fileMaxSize, locale) %>" key="please-enter-a-file-with-a-valid-file-size-no-larger-than-x" translateArguments="<%= false %>" />
+
+				<%
+				FileSizeException fileSizeException = (FileSizeException)errorException;
+				%>
+
+				<liferay-ui:message arguments="<%= LanguageUtil.formatStorageSize(fileSizeException.getMaxSize(), locale) %>" key="please-enter-a-file-with-a-valid-file-size-no-larger-than-x" translateArguments="<%= false %>" />
 			</liferay-ui:error>
 
 			<liferay-ui:error exception="<%= UploadRequestSizeException.class %>">
@@ -249,6 +250,11 @@ renderResponse.setTitle(headerTitle);
 
 			<aui:fieldset-group markupView="lexicon">
 				<aui:fieldset>
+
+					<%
+					long fileMaxSize = dlEditFileEntryDisplayContext.getMaximumUploadSize();
+					%>
+
 					<c:if test="<%= fileMaxSize != 0 %>">
 						<div class="alert alert-info">
 							<liferay-ui:message arguments="<%= LanguageUtil.formatStorageSize(fileMaxSize, locale) %>" key="upload-documents-no-larger-than-x" translateArguments="<%= false %>" />
@@ -467,7 +473,7 @@ renderResponse.setTitle(headerTitle);
 									}
 								}
 								catch (Exception e) {
-									_log.error(e, e);
+									_log.error(e);
 								}
 								%>
 
@@ -560,6 +566,25 @@ renderResponse.setTitle(headerTitle);
 						<aui:input dateTogglerCheckboxLabel="never-expire" disabled="<%= dlEditFileEntryDisplayContext.isNeverExpire() %>" name="expirationDate" wrapperCssClass="expiration-date" />
 
 						<aui:input dateTogglerCheckboxLabel="never-review" disabled="<%= dlEditFileEntryDisplayContext.isNeverReview() %>" name="reviewDate" wrapperCssClass="review-date" />
+					</aui:fieldset>
+				</c:if>
+
+				<c:if test="<%= FFFriendlyURLEntryFileEntryConfigurationUtil.enabled() %>">
+					<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="friendly-url">
+
+						<%
+						Portlet portlet = PortletLocalServiceUtil.getPortletById(DLPortletKeys.DOCUMENT_LIBRARY);
+						%>
+
+						<liferay-friendly-url:input
+							className="<%= FileEntry.class.getName() %>"
+							classPK="<%= fileEntryId %>"
+							disabled="<%= true %>"
+							inputAddon='<%= StringUtil.shorten("/-/" + portlet.getFriendlyURLMapping(), 40) + StringPool.SLASH %>'
+							localizable="<%= false %>"
+							name="urlTitle"
+							showHistory="<%= false %>"
+						/>
 					</aui:fieldset>
 				</c:if>
 

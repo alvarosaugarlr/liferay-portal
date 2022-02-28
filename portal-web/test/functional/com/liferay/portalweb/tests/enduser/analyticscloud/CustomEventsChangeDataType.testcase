@@ -121,7 +121,7 @@ definition {
 
 			ACEventAnalysis.viewChangedAttributeDataType(
 				attributeName = "${attributeName}",
-				newDataType = "NUMBER");
+				newDataType = "Number");
 		}
 	}
 
@@ -171,9 +171,9 @@ definition {
 
 			ACEventAnalysis.viewChangedAttributeDataType(
 				attributeName = "${attributeName}",
-				newDataType = "DATE");
+				newDataType = "Date");
 
-			ACCustomEvents.viewDataType(typeValue = "DATE");
+			ACCustomEvents.viewDataType(typeValue = "Date");
 		}
 	}
 
@@ -223,7 +223,7 @@ definition {
 
 			ACEventAnalysis.viewChangedAttributeDataType(
 				attributeName = "${attributeName}",
-				newDataType = "BOOLEAN");
+				newDataType = "Boolean");
 		}
 	}
 
@@ -273,9 +273,9 @@ definition {
 
 			ACEventAnalysis.viewChangedAttributeDataType(
 				attributeName = "${attributeName}",
-				newDataType = "DURATION");
+				newDataType = "Duration");
 
-			ACCustomEvents.viewDataType(typeValue = "DURATION");
+			ACCustomEvents.viewDataType(typeValue = "Duration");
 		}
 	}
 

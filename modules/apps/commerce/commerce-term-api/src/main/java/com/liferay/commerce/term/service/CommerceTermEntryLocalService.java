@@ -42,7 +42,6 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 
 import java.io.Serializable;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -317,6 +316,11 @@ public interface CommerceTermEntryLocalService
 		long commerceTermEntryId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<CommerceTermEntry> getDeliveryCommerceTermEntries(
+		long companyId, long commerceOrderTypeId,
+		long commerceShippingOptionId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
 
 	/**
@@ -344,8 +348,8 @@ public interface CommerceTermEntryLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public BaseModelSearchResult<CommerceTermEntry> searchCommerceTermEntries(
-			long companyId, long accountEntryId, String keywords,
-			LinkedHashMap<String, String> params, int start, int end, Sort sort)
+			long companyId, long accountEntryId, String type, String keywords,
+			int start, int end, Sort sort)
 		throws PortalException;
 
 	/**

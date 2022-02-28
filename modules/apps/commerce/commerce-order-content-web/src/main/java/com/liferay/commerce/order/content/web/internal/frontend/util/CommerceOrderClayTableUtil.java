@@ -193,10 +193,13 @@ public class CommerceOrderClayTableUtil {
 
 			orders.add(
 				new Order(
+					commerceOrder.getExternalReferenceCode(),
 					commerceOrder.getCommerceOrderId(),
 					commerceOrder.getCommerceAccountName(),
 					dateFormat.format(orderDate), commerceOrder.getUserName(),
-					commerceOrderStatusLabel, workflowStatusLabel, amount));
+					commerceOrderStatusLabel,
+					commerceOrder.getPurchaseOrderNumber(), workflowStatusLabel,
+					amount));
 		}
 
 		return orders;
@@ -256,7 +259,7 @@ public class CommerceOrderClayTableUtil {
 			portletURL.setWindowState(LiferayWindowState.POP_UP);
 		}
 		catch (WindowStateException windowStateException) {
-			_log.error(windowStateException, windowStateException);
+			_log.error(windowStateException);
 		}
 
 		portletURL.setParameter("backURL", portletURL.toString());

@@ -79,7 +79,7 @@ definition {
 
 			ACSegments.createDynamicSegment();
 
-			ACSegments.nameSegment(segmentName = "New Segment Test");
+			ACUtils.setItemName(itemName = "New Segment Test");
 		}
 
 		task ("Add a Device Brand field") {
@@ -181,7 +181,7 @@ definition {
 
 			ACSegments.createDynamicSegment();
 
-			ACSegments.nameSegment(segmentName = "Dynamic Segment Test");
+			ACUtils.setItemName(itemName = "Dynamic Segment Test");
 		}
 
 		task ("Add an URL criteria from Session Attributes") {
@@ -228,6 +228,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9211 | Test Summary: Add segment using a session property 'URL'"
 	@priority = "4"
 	test CanCreateSessionAttributeUsingURL {
+		property portal.upstream = "quarantine";
+
 		task ("Connect the DXP to Analytics Cloud") {
 			var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud();
 		}
@@ -271,7 +273,7 @@ definition {
 
 			ACSegments.createDynamicSegment();
 
-			ACSegments.nameSegment(segmentName = "Dynamic Segment Test");
+			ACUtils.setItemName(itemName = "Dynamic Segment Test");
 		}
 
 		task ("Add an URL criteria from Session Attributes") {
@@ -329,7 +331,7 @@ definition {
 
 			ACSegments.createDynamicSegment();
 
-			ACSegments.nameSegment(segmentName = "Dynamic Segment Test");
+			ACUtils.setItemName(itemName = "Dynamic Segment Test");
 		}
 
 		task ("Add criterias from differents attributes") {

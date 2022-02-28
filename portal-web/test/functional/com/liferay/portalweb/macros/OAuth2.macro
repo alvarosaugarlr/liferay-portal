@@ -137,9 +137,9 @@ definition {
 			http://localhost:9080/o/oauth2/token \
 				--data client_id=abc123&client_secret=abc123&grant_type=authorization_code&code=${authorizationCode}
 		''';
-		var reponse = JSONCurlUtil.post("${curl}");
+		var response = JSONCurlUtil.post("${curl}");
 
-		if (contains("${reponse}", "access_token")) {
+		if (contains("${response}", "access_token")) {
 			echo("OAuth2 Authorization Code is working in cluster.");
 		}
 		else {
@@ -394,7 +394,7 @@ definition {
 
 		Button.click(button = "Authorize");
 
-		WaitForElementPresent(locator1 = "OAuth2#OAUTH2_TESTER_PORTAL_URL");
+		WaitForSPARefresh();
 
 		var currentURL = selenium.getCurrentUrl();
 

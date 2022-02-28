@@ -9,8 +9,28 @@ definition {
 			var baseURL = PropsUtil.get("portal.url");
 		}
 
-		if (!(isSet(productDescription))) {
-			var productDescription = "";
+		if (!(isSet(cost))) {
+			var cost = "0";
+		}
+
+		if (!(isSet(depth))) {
+			var depth = "0";
+		}
+
+		if (!(isSet(discontinued))) {
+			var discontinued = "false";
+		}
+
+		if (!(isSet(gtin))) {
+			var gtin = "";
+		}
+
+		if (!(isSet(height))) {
+			var height = "0";
+		}
+
+		if (!(isSet(manufacturerPartNumber))) {
+			var manufacturerPartNumber = "";
 		}
 
 		if (!(isSet(metaDescription))) {
@@ -25,8 +45,47 @@ definition {
 			var metaTitle = "";
 		}
 
+		if (!(isSet(price))) {
+			var price = "0";
+		}
+
+		if (!(isSet(productDescription))) {
+			var productDescription = "";
+		}
+
+		if (!(isSet(promoPrice))) {
+			var promoPrice = "0";
+		}
+
+		if (!(isSet(purchasable))) {
+			var purchasable = "true";
+		}
+
+		if (!(isSet(replacementSKU))) {
+			var replacementSkuId = "";
+		}
+		else {
+			var replacementSkuId = CommerceJSONProductsAPI._getSKUId(productSKU = "${replacementSKU}");
+		}
+
 		if (!(isSet(shortDescription))) {
 			var shortDescription = "";
+		}
+
+		if (!(isSet(sku))) {
+			var sku = "default";
+		}
+
+		if (!(isSet(unspc))) {
+			var unspc = "";
+		}
+
+		if (!(isSet(weight))) {
+			var weight = "0";
+		}
+
+		if (!(isSet(width))) {
+			var width = "0";
 		}
 
 		var catalogId = CommerceJSONCatalogsAPI._getCommerceCatalogIdByName(catalogName = "${catalogName}");
@@ -65,7 +124,24 @@ definition {
 					"shortDescription": {
 					  "en_US": "${shortDescription}"
 					},
-					"skuFormatted": "default",
+					"skus": [
+				    {
+				      "cost": "${cost}",
+				      "depth": "${depth}",
+				      "discontinued": "${discontinued}",
+				      "gtin": "${gtin}",
+				      "height": "${height}",
+				      "manufacturerPartNumber": "${manufacturerPartNumber}",
+				      "neverExpire": true,
+				      "published": true,
+				      "purchasable": "${purchasable}",
+				      "replacementSkuId": "${replacementSkuId}",
+				      "sku": "${sku}",
+				      "unspsc": "${unspc}",
+				      "weight": "${weight}",
+				      "width": "${width}"
+				    }
+				  ],
 					"tags": [],
 					"workflowStatusInfo": {
 					  "code": 0,
@@ -148,6 +224,30 @@ definition {
 		echo("The Commerce product count is: ${productsCount}");
 
 		return "${productsCount}";
+	}
+
+	macro _getSKUId {
+		Variables.assertDefined(parameterList = "${productSKU}");
+
+		var baseURL = "${baseURL}";
+
+		if (!(isSet(baseURL))) {
+			var baseURL = PropsUtil.get("portal.url");
+		}
+
+		var curl = '''
+			${baseURL}/o/headless-commerce-admin-catalog/v1.0/skus \
+			-u test@liferay.com:test \
+			-H 'accept: application/json' \
+		''';
+
+		if (isSet(productSKU)) {
+			var skuId = JSONCurlUtil.get("${curl}", "$.items[?(@['sku'] == '${productSKU}')].['id']");
+		}
+
+		echo("The SKU ID is: ${skuId}");
+
+		return "${skuId}";
 	}
 
 }

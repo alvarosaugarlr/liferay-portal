@@ -25,6 +25,7 @@ let connectionNodeId = '';
 let handleConnect = false;
 
 export default function BaseNode({
+	actions,
 	assignments,
 	className,
 	description,
@@ -39,6 +40,7 @@ export default function BaseNode({
 	script,
 	sourcePosition,
 	targetPosition,
+	taskTimers,
 	type,
 	xPos,
 	yPos,
@@ -138,11 +140,13 @@ export default function BaseNode({
 	if (newNode) {
 		setSelectedItem({
 			data: {
+				actions,
 				assignments,
 				description,
 				label,
 				newNode: false,
 				script,
+				taskTimers,
 			},
 			id,
 			type,
@@ -201,10 +205,12 @@ export default function BaseNode({
 					if (!descriptionSidebar) {
 						setSelectedItem({
 							data: {
+								actions,
 								assignments,
 								description,
 								label,
 								script,
+								taskTimers,
 							},
 							id,
 							type,

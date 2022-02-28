@@ -135,6 +135,21 @@
 	<td>//h1[contains(text(),"Let's get in touch.")]/parent::div//p[contains(text(),'${contextualMessage}')]</td>
 	<td></td>
 </tr>
+<tr>
+	<td>SITES</td>
+	<td>//div[contains(@class, 'applications-menu-shrink') and contains(., '${title}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MOBILE_TITLE</td>
+	<td>//h2[contains(., '${title}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TABLET_SECTION_TITLE</td>
+	<td>//h2[contains(@class, 'step-title') and contains(., '${title}')]</td>
+	<td></td>
+</tr>
 </tbody>
 </table>
 </body>

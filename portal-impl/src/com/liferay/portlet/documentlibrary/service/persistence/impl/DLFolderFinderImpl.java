@@ -945,7 +945,7 @@ public class DLFolderFinderImpl
 			}
 
 			sb.append(sql);
-			sb.append(" UNION ALL ");
+			sb.append(" UNION ");
 
 			sql = getFileEntriesSQL(
 				FIND_FE_BY_G_F_RC, groupId, mimeTypes, queryDefinition,
@@ -953,7 +953,7 @@ public class DLFolderFinderImpl
 
 			sb.append(sql);
 
-			sb.append(" UNION ALL ");
+			sb.append(" UNION ");
 
 			sql = getFileShortcutsSQL(
 				FIND_FS_BY_G_F_A_RC, groupId, mimeTypes, queryDefinition,
@@ -1453,7 +1453,7 @@ public class DLFolderFinderImpl
 			// LPS-52675
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(portalException, portalException);
+				_log.debug(portalException);
 			}
 		}
 

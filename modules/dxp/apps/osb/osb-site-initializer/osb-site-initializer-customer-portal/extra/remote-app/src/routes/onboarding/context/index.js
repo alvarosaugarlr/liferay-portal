@@ -11,6 +11,7 @@
 
 import {createContext, useContext, useEffect, useReducer} from 'react';
 import client from '../../../apolloClient';
+import {useApplicationProvider} from '../../../common/context/AppPropertiesProvider';
 import {Liferay} from '../../../common/services/liferay';
 import {
 	addAccountFlag,
@@ -18,12 +19,9 @@ import {
 	getKoroneikiAccounts,
 	getUserAccount,
 } from '../../../common/services/liferay/graphql/queries';
-import {searchParams} from '../../../common/services/liferay/searchParams';
-import {
-	ROLE_TYPES,
-	ROUTE_TYPES,
-	SEARCH_PARAMS_KEYS,
-} from '../../../common/utils/constants';
+import {getCurrentSession} from '../../../common/services/okta/rest/sessions';
+import {ROLE_TYPES, ROUTE_TYPES} from '../../../common/utils/constants';
+import {getAccountKey} from '../../../common/utils/getAccountKey';
 import {isValidPage} from '../../../common/utils/page.validation';
 import {PRODUCT_TYPES} from '../../customer-portal/utils/constants';
 import {ONBOARDING_STEP_TYPES} from '../utils/constants';
@@ -32,10 +30,12 @@ import reducer, {actionTypes} from './reducer';
 const AppContext = createContext();
 
 const AppContextProvider = ({assetsPath, children}) => {
+	const {oktaSessionURL} = useApplicationProvider();
 	const [state, dispatch] = useReducer(reducer, {
 		assetsPath,
 		koroneikiAccount: {},
 		project: undefined,
+		sessionId: '',
 		step: ONBOARDING_STEP_TYPES.welcome,
 		subscriptionGroups: undefined,
 		userAccount: undefined,
@@ -95,6 +95,17 @@ const AppContextProvider = ({assetsPath, children}) => {
 			}
 		};
 
+		const getSessionId = async () => {
+			const session = await getCurrentSession(oktaSessionURL);
+
+			if (session) {
+				dispatch({
+					payload: session.id,
+					type: actionTypes.UPDATE_SESSION_ID,
+				});
+			}
+		};
+
 		const getSubscriptionGroups = async (accountKey) => {
 			const {data} = await client.query({
 				query: getAccountSubscriptionGroups,
@@ -113,9 +124,7 @@ const AppContextProvider = ({assetsPath, children}) => {
 		};
 
 		const fetchData = async () => {
-			const projectExternalReferenceCode = searchParams.get(
-				SEARCH_PARAMS_KEYS.accountKey
-			);
+			const projectExternalReferenceCode = getAccountKey();
 
 			const user = await getUser(projectExternalReferenceCode);
 
@@ -139,6 +148,7 @@ const AppContextProvider = ({assetsPath, children}) => {
 				if (accountBrief) {
 					getProject(projectExternalReferenceCode, accountBrief);
 					getSubscriptionGroups(projectExternalReferenceCode);
+					getSessionId();
 
 					client.mutate({
 						mutation: addAccountFlag,
@@ -155,7 +165,7 @@ const AppContextProvider = ({assetsPath, children}) => {
 		};
 
 		fetchData();
-	}, []);
+	}, [oktaSessionURL]);
 
 	return (
 		<AppContext.Provider value={[state, dispatch]}>

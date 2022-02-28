@@ -500,9 +500,7 @@ public class PortletExportControllerImpl implements PortletExportController {
 				// LPS-52675
 
 				if (_log.isDebugEnabled()) {
-					_log.debug(
-						noSuchPortletPreferencesException,
-						noSuchPortletPreferencesException);
+					_log.debug(noSuchPortletPreferencesException);
 				}
 			}
 		}
@@ -577,7 +575,7 @@ public class PortletExportControllerImpl implements PortletExportController {
 		}
 		catch (IOException ioException) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(ioException.getMessage());
+				_log.warn(ioException);
 			}
 		}
 	}
@@ -1177,9 +1175,7 @@ public class PortletExportControllerImpl implements PortletExportController {
 			// LPS-52675
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(
-					noSuchPortletPreferencesException,
-					noSuchPortletPreferencesException);
+				_log.debug(noSuchPortletPreferencesException);
 			}
 
 			return;
@@ -1267,9 +1263,7 @@ public class PortletExportControllerImpl implements PortletExportController {
 			// LPS-52675
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(
-					noSuchPortletPreferencesException,
-					noSuchPortletPreferencesException);
+				_log.debug(noSuchPortletPreferencesException);
 			}
 
 			return;
@@ -1350,7 +1344,7 @@ public class PortletExportControllerImpl implements PortletExportController {
 			return exportImportServiceConfiguration.includeAllAssetLinks();
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 		}
 
 		return false;

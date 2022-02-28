@@ -12,44 +12,108 @@
  * details.
  */
 
+import {Align} from '@clayui/drop-down';
+import ClayIcon from '@clayui/icon';
 import ClayTabs from '@clayui/tabs';
+import classNames from 'classnames';
 import {useContext} from 'react';
 import {useNavigate} from 'react-router-dom';
 
 import {HeaderContext} from '../../context/HeaderContext';
+import DropDown from '../DropDown';
+
+const Divider = () => <p className="mx-2 text-paragraph-lg">/</p>;
 
 const Header = () => {
-	const [{heading, tabs}] = useContext(HeaderContext);
+	const [{dropdown, heading, tabs}] = useContext(HeaderContext);
 	const navigate = useNavigate();
 
 	return (
-		<div className="header-container">
-			{heading.map((header, index) => (
-				<span className="d-flex flex-column" key={index}>
-					<small className="font-weight-bold text-secondary">
-						{header.category}
-					</small>
+		<div className="d-flex flex-column header-container pt-4">
+			<div className="d-flex">
+				<div className="align-items-center d-flex justify-content-center mx-3">
+					<DropDown
+						items={dropdown}
+						position={Align.BottomLeft}
+						trigger={
+							<div className="align-items-end d-flex">
+								<a>
+									<ClayIcon
+										className="dropdown-poll-icon mr-2"
+										symbol="polls"
+									/>
 
-					<h1 className="font-weight-500">{header.title}</h1>
-				</span>
-			))}
+									<ClayIcon
+										className={classNames(
+											'dropdown-arrow-icon'
+										)}
+										symbol="caret-bottom"
+									/>
+								</a>
+							</div>
+						}
+					/>
+				</div>
 
-			<div>
-				<ClayTabs className="header-container-tabs" modern>
-					{tabs.map((tab, index) => (
-						<ClayTabs.Item
-							active={tab.active}
-							innerProps={{
-								'aria-controls': `tabpanel-${index}`,
-							}}
-							key={index}
-							onClick={() => navigate(tab.path)}
-						>
-							{tab.title}
-						</ClayTabs.Item>
-					))}
-				</ClayTabs>
+				<div className="d-flex flex-column">
+					<div className="d-flex flex-wrap">
+						{heading.map((header, index) => {
+							const isClickable =
+								header.path && index !== heading.length - 1;
+
+							return (
+								<span
+									className={classNames(
+										'd-flex flex-column header-item',
+										{
+											'cursor-pointer': isClickable,
+										}
+									)}
+									key={index}
+									onClick={() => {
+										if (isClickable && header.path) {
+											navigate(header.path);
+										}
+									}}
+								>
+									<small className="text-paragraph-xs text-secondary">
+										{header.category}
+									</small>
+
+									<div className="d-flex flex-row">
+										<p
+											className="header-title text-paragraph-lg"
+											title={header.title}
+										>
+											{header.title}
+										</p>
+
+										{!!heading.length &&
+											heading.length !== index + 1 && (
+												<Divider />
+											)}
+									</div>
+								</span>
+							);
+						})}
+					</div>
+				</div>
 			</div>
+
+			<ClayTabs className="header-container-tabs ml-3" modern>
+				{tabs.map((tab, index) => (
+					<ClayTabs.Item
+						active={tab.active}
+						innerProps={{
+							'aria-controls': `tabpanel-${index}`,
+						}}
+						key={index}
+						onClick={() => navigate(tab.path)}
+					>
+						{tab.title}
+					</ClayTabs.Item>
+				))}
+			</ClayTabs>
 		</div>
 	);
 };

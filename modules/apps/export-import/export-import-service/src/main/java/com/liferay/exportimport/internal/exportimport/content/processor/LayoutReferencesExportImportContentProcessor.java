@@ -874,7 +874,7 @@ public class LayoutReferencesExportImportContentProcessor
 		}
 		catch (ConfigurationException configurationException) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(configurationException.getMessage());
+				_log.warn(configurationException);
 			}
 		}
 
@@ -1185,10 +1185,10 @@ public class LayoutReferencesExportImportContentProcessor
 		}
 		catch (UnknownHostException unknownHostException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(unknownHostException, unknownHostException);
+				_log.debug(unknownHostException);
 			}
 			else if (_log.isWarnEnabled()) {
-				_log.warn(unknownHostException.getMessage());
+				_log.warn(unknownHostException);
 			}
 		}
 		catch (Exception exception) {

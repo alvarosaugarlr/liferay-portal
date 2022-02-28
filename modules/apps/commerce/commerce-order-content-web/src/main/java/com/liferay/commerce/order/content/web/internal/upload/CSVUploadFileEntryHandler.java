@@ -48,7 +48,8 @@ public class CSVUploadFileEntryHandler implements UploadFileEntryHandler {
 		String fileName = uploadPortletRequest.getFileName(_PARAMETER_NAME);
 
 		_dlValidator.validateFileSize(
-			fileName, uploadPortletRequest.getSize(_PARAMETER_NAME));
+			fileName, uploadPortletRequest.getContentType(_PARAMETER_NAME),
+			uploadPortletRequest.getSize(_PARAMETER_NAME));
 
 		String extension = FileUtil.getExtension(fileName);
 
@@ -97,7 +98,7 @@ public class CSVUploadFileEntryHandler implements UploadFileEntryHandler {
 		}
 		catch (PortalException portalException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(portalException, portalException);
+				_log.debug(portalException);
 			}
 
 			return false;

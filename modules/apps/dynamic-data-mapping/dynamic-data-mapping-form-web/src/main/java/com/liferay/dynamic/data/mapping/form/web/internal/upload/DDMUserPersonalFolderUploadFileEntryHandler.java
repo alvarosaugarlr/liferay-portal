@@ -72,7 +72,9 @@ public class DDMUserPersonalFolderUploadFileEntryHandler
 		String fileName = uploadPortletRequest.getFileName(_PARAMETER_NAME);
 		long size = uploadPortletRequest.getSize(_PARAMETER_NAME);
 
-		_dlValidator.validateFileSize(fileName, size);
+		_dlValidator.validateFileSize(
+			fileName, uploadPortletRequest.getContentType(_PARAMETER_NAME),
+			size);
 
 		try (InputStream inputStream = uploadPortletRequest.getFileAsStream(
 				_PARAMETER_NAME)) {
@@ -105,7 +107,7 @@ public class DDMUserPersonalFolderUploadFileEntryHandler
 		}
 		catch (PortalException portalException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(portalException, portalException);
+				_log.debug(portalException);
 			}
 
 			return false;
@@ -127,7 +129,7 @@ public class DDMUserPersonalFolderUploadFileEntryHandler
 		}
 		catch (NoSuchFileEntryException noSuchFileEntryException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(noSuchFileEntryException, noSuchFileEntryException);
+				_log.debug(noSuchFileEntryException);
 			}
 
 			return null;

@@ -1132,7 +1132,11 @@ definition {
 	}
 
 	macro deletePGViaMG {
-		LexiconEntry.gotoEllipsisMenuItem(menuItem = "Move to Recycle Bin");
+		Click(
+			key_rowEntry = "${mgDocumentTitle}",
+			locator1 = "Icon#ROW_VERTICAL_ELLIPSIS");
+
+		MenuItem.click(menuItem = "Move to Recycle Bin");
 
 		VerifyElementPresent(locator1 = "Message#SUCCESS");
 
@@ -1693,6 +1697,14 @@ definition {
 		}
 
 		if (IsElementNotPresent(locator1 = "DocumentsAndMedia#SIDEBAR_INFO_ACTIVE")) {
+			ManagementBar.clickInfo();
+		}
+
+		// Sometimes the info panel doesn't load. If that happens then collapse then expand the panel again.
+
+		if (IsElementNotPresent(locator1 = "DocumentsAndMedia#SIDEBAR_INFO_ACTIVE")) {
+			Refresh();
+
 			ManagementBar.clickInfo();
 		}
 

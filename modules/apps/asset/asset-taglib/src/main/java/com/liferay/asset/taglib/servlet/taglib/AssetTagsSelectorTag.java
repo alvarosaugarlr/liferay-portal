@@ -185,7 +185,7 @@ public class AssetTagsSelectorTag extends IncludeTag {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 
 			return new long[0];
@@ -232,7 +232,7 @@ public class AssetTagsSelectorTag extends IncludeTag {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -302,6 +302,10 @@ public class AssetTagsSelectorTag extends IncludeTag {
 				List<Map<String, String>> selectedItems = new ArrayList<>();
 
 				for (String tagName : getTagNames()) {
+					if (Validator.isNull(tagName)) {
+						continue;
+					}
+
 					selectedItems.add(
 						HashMapBuilder.put(
 							"label", tagName

@@ -643,9 +643,9 @@ public class JournalManagementToolbarDisplayContext
 			statuses.add(WorkflowConstants.STATUS_DENIED);
 		}
 
-		statuses.add(WorkflowConstants.STATUS_SCHEDULED);
 		statuses.add(WorkflowConstants.STATUS_APPROVED);
 		statuses.add(WorkflowConstants.STATUS_EXPIRED);
+		statuses.add(WorkflowConstants.STATUS_SCHEDULED);
 
 		return statuses;
 	}
@@ -658,6 +658,9 @@ public class JournalManagementToolbarDisplayContext
 		}
 		else if (status == WorkflowConstants.STATUS_EXPIRED) {
 			label = "with-expired-versions";
+		}
+		else if (status == WorkflowConstants.STATUS_SCHEDULED) {
+			label = "with-scheduled-versions";
 		}
 		else {
 			label = WorkflowConstants.getStatusLabel(status);
@@ -707,7 +710,7 @@ public class JournalManagementToolbarDisplayContext
 
 			// LPS-52675
 
-			_log.error(portalException, portalException);
+			_log.error(portalException);
 		}
 
 		return false;

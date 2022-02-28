@@ -481,6 +481,93 @@ public class Order implements Serializable {
 	protected Map<String, ?> customFields;
 
 	@Schema
+	public String getDeliveryTermDescription() {
+		return deliveryTermDescription;
+	}
+
+	public void setDeliveryTermDescription(String deliveryTermDescription) {
+		this.deliveryTermDescription = deliveryTermDescription;
+	}
+
+	@JsonIgnore
+	public void setDeliveryTermDescription(
+		UnsafeSupplier<String, Exception>
+			deliveryTermDescriptionUnsafeSupplier) {
+
+		try {
+			deliveryTermDescription =
+				deliveryTermDescriptionUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected String deliveryTermDescription;
+
+	@DecimalMin("0")
+	@Schema
+	public Long getDeliveryTermId() {
+		return deliveryTermId;
+	}
+
+	public void setDeliveryTermId(Long deliveryTermId) {
+		this.deliveryTermId = deliveryTermId;
+	}
+
+	@JsonIgnore
+	public void setDeliveryTermId(
+		UnsafeSupplier<Long, Exception> deliveryTermIdUnsafeSupplier) {
+
+		try {
+			deliveryTermId = deliveryTermIdUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Long deliveryTermId;
+
+	@Schema
+	public String getDeliveryTermName() {
+		return deliveryTermName;
+	}
+
+	public void setDeliveryTermName(String deliveryTermName) {
+		this.deliveryTermName = deliveryTermName;
+	}
+
+	@JsonIgnore
+	public void setDeliveryTermName(
+		UnsafeSupplier<String, Exception> deliveryTermNameUnsafeSupplier) {
+
+		try {
+			deliveryTermName = deliveryTermNameUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected String deliveryTermName;
+
+	@Schema
 	public String getExternalReferenceCode() {
 		return externalReferenceCode;
 	}
@@ -854,6 +941,92 @@ public class Order implements Serializable {
 	protected Status paymentStatusInfo;
 
 	@Schema
+	public String getPaymentTermDescription() {
+		return paymentTermDescription;
+	}
+
+	public void setPaymentTermDescription(String paymentTermDescription) {
+		this.paymentTermDescription = paymentTermDescription;
+	}
+
+	@JsonIgnore
+	public void setPaymentTermDescription(
+		UnsafeSupplier<String, Exception>
+			paymentTermDescriptionUnsafeSupplier) {
+
+		try {
+			paymentTermDescription = paymentTermDescriptionUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected String paymentTermDescription;
+
+	@DecimalMin("0")
+	@Schema
+	public Long getPaymentTermId() {
+		return paymentTermId;
+	}
+
+	public void setPaymentTermId(Long paymentTermId) {
+		this.paymentTermId = paymentTermId;
+	}
+
+	@JsonIgnore
+	public void setPaymentTermId(
+		UnsafeSupplier<Long, Exception> paymentTermIdUnsafeSupplier) {
+
+		try {
+			paymentTermId = paymentTermIdUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Long paymentTermId;
+
+	@Schema
+	public String getPaymentTermName() {
+		return paymentTermName;
+	}
+
+	public void setPaymentTermName(String paymentTermName) {
+		this.paymentTermName = paymentTermName;
+	}
+
+	@JsonIgnore
+	public void setPaymentTermName(
+		UnsafeSupplier<String, Exception> paymentTermNameUnsafeSupplier) {
+
+		try {
+			paymentTermName = paymentTermNameUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected String paymentTermName;
+
+	@Schema
 	public String getPrintedNote() {
 		return printedNote;
 	}
@@ -1086,17 +1259,18 @@ public class Order implements Serializable {
 	protected Double shippingAmountValue;
 
 	@Schema
-	public Double getShippingDiscountAmount() {
+	@Valid
+	public BigDecimal getShippingDiscountAmount() {
 		return shippingDiscountAmount;
 	}
 
-	public void setShippingDiscountAmount(Double shippingDiscountAmount) {
+	public void setShippingDiscountAmount(BigDecimal shippingDiscountAmount) {
 		this.shippingDiscountAmount = shippingDiscountAmount;
 	}
 
 	@JsonIgnore
 	public void setShippingDiscountAmount(
-		UnsafeSupplier<Double, Exception>
+		UnsafeSupplier<BigDecimal, Exception>
 			shippingDiscountAmountUnsafeSupplier) {
 
 		try {
@@ -1112,7 +1286,7 @@ public class Order implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Double shippingDiscountAmount;
+	protected BigDecimal shippingDiscountAmount;
 
 	@Schema
 	public String getShippingDiscountAmountFormatted() {
@@ -1145,6 +1319,38 @@ public class Order implements Serializable {
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String shippingDiscountAmountFormatted;
+
+	@Schema
+	public Double getShippingDiscountAmountValue() {
+		return shippingDiscountAmountValue;
+	}
+
+	public void setShippingDiscountAmountValue(
+		Double shippingDiscountAmountValue) {
+
+		this.shippingDiscountAmountValue = shippingDiscountAmountValue;
+	}
+
+	@JsonIgnore
+	public void setShippingDiscountAmountValue(
+		UnsafeSupplier<Double, Exception>
+			shippingDiscountAmountValueUnsafeSupplier) {
+
+		try {
+			shippingDiscountAmountValue =
+				shippingDiscountAmountValueUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Double shippingDiscountAmountValue;
 
 	@DecimalMin("0")
 	@Schema
@@ -2368,17 +2574,19 @@ public class Order implements Serializable {
 
 	@DecimalMin("0")
 	@Schema
-	public Double getTotalDiscountAmount() {
+	@Valid
+	public BigDecimal getTotalDiscountAmount() {
 		return totalDiscountAmount;
 	}
 
-	public void setTotalDiscountAmount(Double totalDiscountAmount) {
+	public void setTotalDiscountAmount(BigDecimal totalDiscountAmount) {
 		this.totalDiscountAmount = totalDiscountAmount;
 	}
 
 	@JsonIgnore
 	public void setTotalDiscountAmount(
-		UnsafeSupplier<Double, Exception> totalDiscountAmountUnsafeSupplier) {
+		UnsafeSupplier<BigDecimal, Exception>
+			totalDiscountAmountUnsafeSupplier) {
 
 		try {
 			totalDiscountAmount = totalDiscountAmountUnsafeSupplier.get();
@@ -2393,7 +2601,7 @@ public class Order implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Double totalDiscountAmount;
+	protected BigDecimal totalDiscountAmount;
 
 	@Schema
 	public String getTotalDiscountAmountFormatted() {
@@ -2426,6 +2634,37 @@ public class Order implements Serializable {
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String totalDiscountAmountFormatted;
+
+	@DecimalMin("0")
+	@Schema
+	public Double getTotalDiscountAmountValue() {
+		return totalDiscountAmountValue;
+	}
+
+	public void setTotalDiscountAmountValue(Double totalDiscountAmountValue) {
+		this.totalDiscountAmountValue = totalDiscountAmountValue;
+	}
+
+	@JsonIgnore
+	public void setTotalDiscountAmountValue(
+		UnsafeSupplier<Double, Exception>
+			totalDiscountAmountValueUnsafeSupplier) {
+
+		try {
+			totalDiscountAmountValue =
+				totalDiscountAmountValueUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Double totalDiscountAmountValue;
 
 	@DecimalMin("0")
 	@Schema
@@ -2697,19 +2936,20 @@ public class Order implements Serializable {
 
 	@DecimalMin("0")
 	@Schema
-	public Double getTotalDiscountWithTaxAmount() {
+	@Valid
+	public BigDecimal getTotalDiscountWithTaxAmount() {
 		return totalDiscountWithTaxAmount;
 	}
 
 	public void setTotalDiscountWithTaxAmount(
-		Double totalDiscountWithTaxAmount) {
+		BigDecimal totalDiscountWithTaxAmount) {
 
 		this.totalDiscountWithTaxAmount = totalDiscountWithTaxAmount;
 	}
 
 	@JsonIgnore
 	public void setTotalDiscountWithTaxAmount(
-		UnsafeSupplier<Double, Exception>
+		UnsafeSupplier<BigDecimal, Exception>
 			totalDiscountWithTaxAmountUnsafeSupplier) {
 
 		try {
@@ -2726,7 +2966,7 @@ public class Order implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Double totalDiscountWithTaxAmount;
+	protected BigDecimal totalDiscountWithTaxAmount;
 
 	@Schema
 	public String getTotalDiscountWithTaxAmountFormatted() {
@@ -2760,6 +3000,39 @@ public class Order implements Serializable {
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String totalDiscountWithTaxAmountFormatted;
+
+	@DecimalMin("0")
+	@Schema
+	public Double getTotalDiscountWithTaxAmountValue() {
+		return totalDiscountWithTaxAmountValue;
+	}
+
+	public void setTotalDiscountWithTaxAmountValue(
+		Double totalDiscountWithTaxAmountValue) {
+
+		this.totalDiscountWithTaxAmountValue = totalDiscountWithTaxAmountValue;
+	}
+
+	@JsonIgnore
+	public void setTotalDiscountWithTaxAmountValue(
+		UnsafeSupplier<Double, Exception>
+			totalDiscountWithTaxAmountValueUnsafeSupplier) {
+
+		try {
+			totalDiscountWithTaxAmountValue =
+				totalDiscountWithTaxAmountValueUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Double totalDiscountWithTaxAmountValue;
 
 	@Schema
 	public String getTotalFormatted() {
@@ -3134,6 +3407,44 @@ public class Order implements Serializable {
 			sb.append(_toJSON(customFields));
 		}
 
+		if (deliveryTermDescription != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"deliveryTermDescription\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(deliveryTermDescription));
+
+			sb.append("\"");
+		}
+
+		if (deliveryTermId != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"deliveryTermId\": ");
+
+			sb.append(deliveryTermId);
+		}
+
+		if (deliveryTermName != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"deliveryTermName\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(deliveryTermName));
+
+			sb.append("\"");
+		}
+
 		if (externalReferenceCode != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -3298,6 +3609,44 @@ public class Order implements Serializable {
 			sb.append(String.valueOf(paymentStatusInfo));
 		}
 
+		if (paymentTermDescription != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"paymentTermDescription\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(paymentTermDescription));
+
+			sb.append("\"");
+		}
+
+		if (paymentTermId != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"paymentTermId\": ");
+
+			sb.append(paymentTermId);
+		}
+
+		if (paymentTermName != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"paymentTermName\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(paymentTermName));
+
+			sb.append("\"");
+		}
+
 		if (printedNote != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -3416,6 +3765,16 @@ public class Order implements Serializable {
 			sb.append(_escape(shippingDiscountAmountFormatted));
 
 			sb.append("\"");
+		}
+
+		if (shippingDiscountAmountValue != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"shippingDiscountAmountValue\": ");
+
+			sb.append(shippingDiscountAmountValue);
 		}
 
 		if (shippingDiscountPercentageLevel1 != null) {
@@ -3858,6 +4217,16 @@ public class Order implements Serializable {
 			sb.append("\"");
 		}
 
+		if (totalDiscountAmountValue != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"totalDiscountAmountValue\": ");
+
+			sb.append(totalDiscountAmountValue);
+		}
+
 		if (totalDiscountPercentageLevel1 != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -3960,6 +4329,16 @@ public class Order implements Serializable {
 			sb.append(_escape(totalDiscountWithTaxAmountFormatted));
 
 			sb.append("\"");
+		}
+
+		if (totalDiscountWithTaxAmountValue != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"totalDiscountWithTaxAmountValue\": ");
+
+			sb.append(totalDiscountWithTaxAmountValue);
 		}
 
 		if (totalFormatted != null) {

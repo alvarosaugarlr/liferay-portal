@@ -45,7 +45,6 @@ import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.site.navigation.menu.item.display.page.internal.configuration.FFDisplayPageSiteNavigationMenuItemConfigurationUtil;
 import com.liferay.site.navigation.menu.item.display.page.internal.display.context.DisplayPageTypeSiteNavigationMenuTypeDisplayContext;
 import com.liferay.site.navigation.model.SiteNavigationMenuItem;
 import com.liferay.site.navigation.type.SiteNavigationMenuItemType;
@@ -123,7 +122,7 @@ public class DisplayPageTypeSiteNavigationMenuItemType
 			return true;
 		}
 		catch (RuntimeException runtimeException) {
-			_log.error(runtimeException, runtimeException);
+			_log.error(runtimeException);
 		}
 
 		return false;
@@ -131,13 +130,6 @@ public class DisplayPageTypeSiteNavigationMenuItemType
 
 	@Override
 	public String getAddTitle(Locale locale) {
-		if (!FFDisplayPageSiteNavigationMenuItemConfigurationUtil.
-				multipleSelectionEnabled()) {
-
-			return LanguageUtil.format(
-				locale, "select-x", _displayPageTypeContext.getLabel(locale));
-		}
-
 		String label = _displayPageTypeContext.getLabel(locale);
 
 		Optional<LayoutDisplayPageMultiSelectionProvider<?>>
@@ -199,16 +191,14 @@ public class DisplayPageTypeSiteNavigationMenuItemType
 			_displayPageTypeContext.getClassName());
 		itemSelectorCriterion.setMultiSelection(isMultiSelection());
 
-		PortletURL infoItemSelectorURL = _itemSelector.getItemSelectorURL(
-			RequestBackedPortletURLFactoryUtil.create(httpServletRequest),
-			renderResponse.getNamespace() + "selectItem",
-			itemSelectorCriterion);
-
-		if (infoItemSelectorURL == null) {
-			return StringPool.BLANK;
-		}
-
-		return infoItemSelectorURL.toString();
+		return PortletURLBuilder.create(
+			_itemSelector.getItemSelectorURL(
+				RequestBackedPortletURLFactoryUtil.create(httpServletRequest),
+				renderResponse.getNamespace() + "selectItem",
+				itemSelectorCriterion)
+		).setParameter(
+			"multipleSelection", isMultiSelection()
+		).buildString();
 	}
 
 	@Override
@@ -328,9 +318,7 @@ public class DisplayPageTypeSiteNavigationMenuItemType
 			defaultTitle = layoutDisplayPageObjectProvider.getTitle(locale);
 		}
 
-		if (!FFDisplayPageSiteNavigationMenuItemConfigurationUtil.
-				multipleSelectionEnabled() ||
-			!GetterUtil.getBoolean(
+		if (!GetterUtil.getBoolean(
 				typeSettingsUnicodeProperties.get("useCustomName"))) {
 
 			return defaultTitle;
@@ -416,12 +404,6 @@ public class DisplayPageTypeSiteNavigationMenuItemType
 
 	@Override
 	public boolean isMultiSelection() {
-		if (!FFDisplayPageSiteNavigationMenuItemConfigurationUtil.
-				multipleSelectionEnabled()) {
-
-			return false;
-		}
-
 		Optional<LayoutDisplayPageMultiSelectionProvider<?>>
 			layoutDisplayPageMultiSelectionProviderOptional =
 				_displayPageTypeContext.

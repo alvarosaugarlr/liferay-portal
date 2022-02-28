@@ -24,7 +24,7 @@ function formatAutocompleteValue(data) {
 function isEmailAddressValid(email) {
 	const emailRegex = /.+@.+\..+/i;
 
-	return emailRegex.test(email);
+	return emailRegex.test(email.label);
 }
 
 function formatAutocompleteUsersFromRequest(resource, inputValue) {
@@ -95,17 +95,15 @@ const Email = ({
 											);
 										}
 
-										if (
-											!!newItems.length &&
-											isEmailAddressValid(
-												newItems[newItems.length - 1]
-													?.label
-											)
-										) {
-											emailContent.current.addresses = newItems;
+										const validItens = newItems.filter(
+											isEmailAddressValid
+										);
+
+										if (validItens.length) {
+											emailContent.current.addresses = validItens;
 
 											return onMultiSelectItemsChanged(
-												newItems
+												validItens
 											);
 										}
 									}}
@@ -124,7 +122,7 @@ const Email = ({
 								<ClayForm.FeedbackGroup>
 									<ClayForm.Text>
 										{Liferay.Language.get(
-											'you-can-use-a-comma-to-enter-multiple-emails'
+											'type-a-comma-or-press-enter-to-input-email-addresses'
 										)}
 									</ClayForm.Text>
 								</ClayForm.FeedbackGroup>

@@ -32,9 +32,10 @@ import {
 import ImportSubmit from '../../../src/main/resources/META-INF/resources/js/import/ImportSubmit';
 
 const BASE_PROPS = {
-	disabled: false,
+	evaluateForm: () => {},
 	formDataQuerySelector: 'form',
 	formImportURL: 'https://formUrl.test',
+	formIsValid: true,
 	portletNamespace: 'test',
 };
 
@@ -111,6 +112,7 @@ describe('ImportSubmit', () => {
 		await waitFor(() => {
 			expect(mockApi.called(importTaskStatusURL)).toBeTruthy();
 		});
+
 		jest.useRealTimers();
 	});
 

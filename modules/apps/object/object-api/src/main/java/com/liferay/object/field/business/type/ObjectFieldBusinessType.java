@@ -14,6 +14,8 @@
 
 package com.liferay.object.field.business.type;
 
+import com.liferay.object.field.render.ObjectFieldRenderingContext;
+import com.liferay.object.model.ObjectField;
 import com.liferay.petra.string.StringPool;
 
 import java.util.Collections;
@@ -37,7 +39,10 @@ public interface ObjectFieldBusinessType {
 
 	public String getName();
 
-	public default Map<String, Object> getProperties() {
+	public default Map<String, Object> getProperties(
+		ObjectField objectField,
+		ObjectFieldRenderingContext objectFieldRenderingContext) {
+
 		return Collections.emptyMap();
 	}
 

@@ -19,14 +19,13 @@ import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.content.dashboard.item.action.ContentDashboardItemAction;
 import com.liferay.content.dashboard.item.action.exception.ContentDashboardItemActionException;
 import com.liferay.content.dashboard.item.action.provider.ContentDashboardItemActionProvider;
+import com.liferay.content.dashboard.web.internal.info.item.provider.util.InfoItemFieldValuesProviderUtil;
 import com.liferay.content.dashboard.web.internal.item.action.ContentDashboardItemActionProviderTracker;
 import com.liferay.content.dashboard.web.internal.item.type.ContentDashboardItemSubtype;
 import com.liferay.content.dashboard.web.internal.util.ContentDashboardGroupUtil;
 import com.liferay.document.library.constants.DLPortletKeys;
 import com.liferay.document.library.util.DLURLHelper;
-import com.liferay.info.field.InfoFieldValue;
 import com.liferay.info.item.InfoItemClassDetails;
-import com.liferay.info.item.InfoItemFieldValues;
 import com.liferay.info.item.InfoItemReference;
 import com.liferay.info.item.provider.InfoItemFieldValuesProvider;
 import com.liferay.petra.string.StringPool;
@@ -69,7 +68,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Alejandro Tardín
  */
 public class FileEntryContentDashboardItem
-	extends ContentDashboardBaseItem<FileEntry> {
+	implements ContentDashboardItem<FileEntry> {
 
 	public FileEntryContentDashboardItem(
 		List<AssetCategory> assetCategories, List<AssetTag> assetTags,
@@ -135,7 +134,7 @@ public class FileEntryContentDashboardItem
 				_portal.getSiteDefaultLocale(_fileEntry.getGroupId()));
 		}
 		catch (PortalException portalException) {
-			_log.error(portalException, portalException);
+			_log.error(portalException);
 
 			return Collections.emptyList();
 		}
@@ -166,9 +165,7 @@ public class FileEntryContentDashboardItem
 				catch (ContentDashboardItemActionException
 							contentDashboardItemActionException) {
 
-					_log.error(
-						contentDashboardItemActionException,
-						contentDashboardItemActionException);
+					_log.error(contentDashboardItemActionException);
 				}
 
 				return Optional.<ContentDashboardItemAction>empty();
@@ -268,33 +265,16 @@ public class FileEntryContentDashboardItem
 			return _portal.getSiteDefaultLocale(_fileEntry.getGroupId());
 		}
 		catch (PortalException portalException) {
-			_log.error(portalException, portalException);
+			_log.error(portalException);
 
 			return LocaleUtil.getDefault();
 		}
 	}
 
 	@Override
-	public Object getDisplayFieldValue(String fieldName, Locale locale) {
-		InfoFieldValue<Object> infoFieldValue =
-			_infoItemFieldValuesProvider.getInfoFieldValue(
-				_fileEntry, fieldName);
-
-		if (infoFieldValue == null) {
-			return null;
-		}
-
-		return infoFieldValue.getValue(locale);
-	}
-
-	@Override
-	public FileEntry getInfoItem() {
-		return _fileEntry;
-	}
-
-	@Override
-	public InfoItemFieldValuesProvider getInfoItemFieldValuesProvider() {
-		return _infoItemFieldValuesProvider;
+	public String getDescription(Locale locale) {
+		return InfoItemFieldValuesProviderUtil.getStringValue(
+			_fileEntry, _infoItemFieldValuesProvider, "description");
 	}
 
 	@Override
@@ -393,7 +373,7 @@ public class FileEntryContentDashboardItem
 			);
 		}
 		catch (PortalException portalException) {
-			_log.error(portalException, portalException);
+			_log.error(portalException);
 
 			return Collections.emptyList();
 		}
@@ -425,35 +405,35 @@ public class FileEntryContentDashboardItem
 	}
 
 	private String _getDownloadURL() {
-		InfoItemFieldValues infoItemFieldValues =
-			_infoItemFieldValuesProvider.getInfoItemFieldValues(_fileEntry);
+		return Optional.ofNullable(
+			ServiceContextThreadLocal.getServiceContext()
+		).map(
+			ServiceContext::getLiferayPortletRequest
+		).map(
+			portletRequest -> {
+				List<ContentDashboardItemAction> contentDashboardItemActions =
+					getContentDashboardItemActions(
+						_portal.getHttpServletRequest(portletRequest),
+						ContentDashboardItemAction.Type.DOWNLOAD);
 
-		InfoFieldValue<Object> infoFieldValue =
-			infoItemFieldValues.getInfoFieldValue("downloadURL");
+				if (!contentDashboardItemActions.isEmpty()) {
+					ContentDashboardItemAction contentDashboardItemAction =
+						contentDashboardItemActions.get(0);
 
-		if (infoFieldValue == null) {
-			return StringPool.BLANK;
-		}
+					return contentDashboardItemAction.getURL();
+				}
 
-		Object downloadURL = infoFieldValue.getValue();
-
-		return downloadURL.toString();
+				return null;
+			}
+		).orElse(
+			null
+		);
 	}
 
 	private String _getExtension() {
-		InfoItemFieldValues infoItemFieldValues =
-			_infoItemFieldValuesProvider.getInfoItemFieldValues(_fileEntry);
-
-		InfoFieldValue<Object> infoFieldValue =
-			infoItemFieldValues.getInfoFieldValue("fileName");
-
-		if (infoFieldValue == null) {
-			return StringPool.BLANK;
-		}
-
-		Object fileName = infoFieldValue.getValue();
-
-		return FileUtil.getExtension(fileName.toString());
+		return FileUtil.getExtension(
+			InfoItemFieldValuesProviderUtil.getStringValue(
+				_fileEntry, _infoItemFieldValuesProvider, "fileName"));
 	}
 
 	private String _getFileName() {
@@ -467,31 +447,56 @@ public class FileEntryContentDashboardItem
 	}
 
 	private String _getPreviewImageURL() {
-		InfoItemFieldValues infoItemFieldValues =
-			_infoItemFieldValuesProvider.getInfoItemFieldValues(_fileEntry);
+		return Optional.ofNullable(
+			ServiceContextThreadLocal.getServiceContext()
+		).map(
+			ServiceContext::getLiferayPortletRequest
+		).map(
+			portletRequest -> {
+				List<ContentDashboardItemAction> contentDashboardItemActions =
+					getContentDashboardItemActions(
+						_portal.getHttpServletRequest(portletRequest),
+						ContentDashboardItemAction.Type.PREVIEW_IMAGE);
 
-		InfoFieldValue<Object> infoFieldValue =
-			infoItemFieldValues.getInfoFieldValue("previewImage");
+				Stream<ContentDashboardItemAction> stream =
+					contentDashboardItemActions.stream();
 
-		if (infoFieldValue == null) {
-			return StringPool.BLANK;
-		}
-
-		return String.valueOf(infoFieldValue.getValue());
+				return stream.findAny(
+				).map(
+					ContentDashboardItemAction::getURL
+				).orElse(
+					null
+				);
+			}
+		).orElse(
+			null
+		);
 	}
 
 	private String _getPreviewURL() {
-		InfoItemFieldValues infoItemFieldValues =
-			_infoItemFieldValuesProvider.getInfoItemFieldValues(_fileEntry);
+		return Optional.ofNullable(
+			ServiceContextThreadLocal.getServiceContext()
+		).map(
+			ServiceContext::getLiferayPortletRequest
+		).map(
+			portletRequest -> {
+				List<ContentDashboardItemAction> contentDashboardItemActions =
+					getContentDashboardItemActions(
+						_portal.getHttpServletRequest(portletRequest),
+						ContentDashboardItemAction.Type.PREVIEW);
 
-		InfoFieldValue<Object> infoFieldValue =
-			infoItemFieldValues.getInfoFieldValue("previewURL");
+				if (!contentDashboardItemActions.isEmpty()) {
+					ContentDashboardItemAction contentDashboardItemAction =
+						contentDashboardItemActions.get(0);
 
-		if (infoFieldValue == null) {
-			return StringPool.BLANK;
-		}
+					return contentDashboardItemAction.getURL();
+				}
 
-		return String.valueOf(infoFieldValue.getValue());
+				return null;
+			}
+		).orElse(
+			null
+		);
 	}
 
 	private String _getSize(Locale locale) {
@@ -518,7 +523,7 @@ public class FileEntryContentDashboardItem
 						portletNamespace + "redirect", backURL);
 				}
 				catch (PortalException portalException) {
-					_log.error(portalException, portalException);
+					_log.error(portalException);
 
 					return null;
 				}
@@ -539,9 +544,7 @@ public class FileEntryContentDashboardItem
 		catch (ContentDashboardItemActionException
 					contentDashboardItemActionException) {
 
-			_log.error(
-				contentDashboardItemActionException,
-				contentDashboardItemActionException);
+			_log.error(contentDashboardItemActionException);
 
 			return null;
 		}

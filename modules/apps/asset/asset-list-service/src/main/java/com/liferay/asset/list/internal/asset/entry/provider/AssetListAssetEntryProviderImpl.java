@@ -78,6 +78,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
@@ -85,9 +86,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * @author Sarai Díaz
@@ -273,13 +271,47 @@ public class AssetListAssetEntryProviderImpl
 	protected AssetEntryQuery getAssetEntryQuery(
 		AssetListEntry assetListEntry, long segmentsEntryId, String userId) {
 
-		AssetEntryQuery assetEntryQuery = new AssetEntryQuery();
-
 		UnicodeProperties unicodeProperties = UnicodePropertiesBuilder.create(
 			true
 		).fastLoad(
 			assetListEntry.getTypeSettings(segmentsEntryId)
 		).build();
+
+		return _createAssetEntryQuery(
+			assetListEntry, userId, unicodeProperties);
+	}
+
+	protected AssetEntryQuery getAssetEntryQuery(
+		AssetListEntry assetListEntry, long[] segmentsEntryIds, String userId,
+		int end, int start) {
+
+		LongStream longStream = Arrays.stream(segmentsEntryIds);
+
+		List<String> typeSettings = longStream.mapToObj(
+			assetListEntry::getTypeSettings
+		).collect(
+			Collectors.toList()
+		);
+
+		AssetEntryQuery assetEntryQuery = _createAssetEntryQuery(
+			assetListEntry, userId,
+			UnicodePropertiesBuilder.create(
+				true
+			).setProperty(
+				"anyAssetType", StringUtil.merge(typeSettings, StringPool.COMMA)
+			).build());
+
+		assetEntryQuery.setEnd(end);
+		assetEntryQuery.setStart(start);
+
+		return assetEntryQuery;
+	}
+
+	private AssetEntryQuery _createAssetEntryQuery(
+		AssetListEntry assetListEntry, String userId,
+		UnicodeProperties unicodeProperties) {
+
+		AssetEntryQuery assetEntryQuery = new AssetEntryQuery();
 
 		_setCategoriesAndTagsAndKeywords(
 			assetEntryQuery, unicodeProperties,
@@ -360,17 +392,17 @@ public class AssetListAssetEntryProviderImpl
 		}
 
 		String orderByColumn1 = GetterUtil.getString(
-			unicodeProperties.getProperty("orderByColumn1", "modifiedDate"));
+			unicodeProperties.getProperty("orderByColumn1", "priority"));
 
 		assetEntryQuery.setOrderByCol1(orderByColumn1);
 
 		String orderByColumn2 = GetterUtil.getString(
-			unicodeProperties.getProperty("orderByColumn2", "title"));
+			unicodeProperties.getProperty("orderByColumn2", "modifiedDate"));
 
 		assetEntryQuery.setOrderByCol2(orderByColumn2);
 
 		String orderByType1 = GetterUtil.getString(
-			unicodeProperties.getProperty("orderByType1", "DESC"));
+			unicodeProperties.getProperty("orderByType1", "ASC"));
 
 		assetEntryQuery.setOrderByType1(orderByType1);
 
@@ -384,25 +416,6 @@ public class AssetListAssetEntryProviderImpl
 			assetEntryQuery);
 
 		return assetEntryQuery;
-	}
-
-	@Reference(
-		cardinality = ReferenceCardinality.MULTIPLE,
-		policy = ReferencePolicy.DYNAMIC,
-		policyOption = ReferencePolicyOption.GREEDY
-	)
-	protected void setAssetListAssetEntryQueryProcessor(
-		AssetListAssetEntryQueryProcessor assetListAssetEntryQueryProcessor) {
-
-		_assetListAssetEntryQueryProcessors.add(
-			assetListAssetEntryQueryProcessor);
-	}
-
-	protected void unsetAssetListAssetEntryQueryProcessor(
-		AssetListAssetEntryQueryProcessor assetListAssetEntryQueryProcessor) {
-
-		_assetListAssetEntryQueryProcessors.remove(
-			assetListAssetEntryQueryProcessor);
 	}
 
 	private List<AssetEntry> _dynamicSearch(
@@ -542,7 +555,8 @@ public class AssetListAssetEntryProviderImpl
 				new ArrayList<>();
 
 			segmentsEntryIds = _sortSegmentsByPriority(
-				assetListEntry, segmentsEntryIds);
+				assetListEntry,
+				_getCombinedSegmentsEntryIds(assetListEntry, segmentsEntryIds));
 
 			for (long segmentId : segmentsEntryIds) {
 				assetListEntryAssetEntryRels.addAll(
@@ -745,68 +759,14 @@ public class AssetListAssetEntryProviderImpl
 				assetEntryQuery, keywords);
 		}
 
-		List<AssetEntry> dynamicAssetEntries = new ArrayList<>();
+		AssetEntryQuery assetEntryQuery = getAssetEntryQuery(
+			assetListEntry,
+			_getCombinedSegmentsEntryIds(assetListEntry, segmentsEntryIds),
+			userId, end, start);
 
-		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS)) {
-			for (long segmentsEntryId :
-					_getCombinedSegmentsEntryIds(
-						assetListEntry, segmentsEntryIds)) {
-
-				AssetEntryQuery assetEntryQuery = getAssetEntryQuery(
-					assetListEntry, segmentsEntryId, userId);
-
-				List<AssetEntry> assetEntries = _dynamicSearch(
-					assetListEntry.getCompanyId(), assetCategoryIds,
-					assetEntryQuery, keywords);
-
-				dynamicAssetEntries.addAll(assetEntries);
-			}
-
-			return dynamicAssetEntries;
-		}
-
-		int count = 0;
-		int remaining = Math.max(0, end - start);
-		int subtotal = 0;
-
-		for (long segmentsEntryId :
-				_getCombinedSegmentsEntryIds(
-					assetListEntry, segmentsEntryIds)) {
-
-			AssetEntryQuery assetEntryQuery = getAssetEntryQuery(
-				assetListEntry, segmentsEntryId, userId);
-
-			count = _dynamicSearchCount(
-				assetListEntry.getCompanyId(), assetCategoryIds,
-				assetEntryQuery, keywords);
-
-			if ((subtotal + count) < start) {
-				subtotal = +count;
-
-				continue;
-			}
-
-			List<AssetEntry> assetEntries = _dynamicSearch(
-				assetListEntry.getCompanyId(), assetCategoryIds,
-				assetEntryQuery, keywords);
-
-			count = assetEntries.size();
-
-			List<AssetEntry> assetEntriesSublist = assetEntries.subList(
-				Math.max(start - subtotal, 0), Math.min(remaining, count));
-
-			dynamicAssetEntries.addAll(assetEntriesSublist);
-
-			remaining -= assetEntriesSublist.size();
-
-			subtotal += count;
-
-			if (remaining <= 0) {
-				break;
-			}
-		}
-
-		return dynamicAssetEntries;
+		return _dynamicSearch(
+			assetListEntry.getCompanyId(), assetCategoryIds, assetEntryQuery,
+			keywords);
 	}
 
 	private int _getDynamicAssetEntriesCount(
@@ -879,7 +839,7 @@ public class AssetListAssetEntryProviderImpl
 		}
 		catch (PortalException portalException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(portalException, portalException);
+				_log.debug(portalException);
 			}
 
 			return fieldName;

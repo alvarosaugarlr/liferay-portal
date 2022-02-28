@@ -517,6 +517,8 @@ definition {
 			entry = "",
 			newEntry = "Entry B");
 
+		Navigator.openURL();
+
 		ObjectAdmin.goToCustomObject(objectName = "CustomObject141652");
 
 		ObjectPortlet.viewEntryDetails(entry = "Entry B");
@@ -650,9 +652,11 @@ definition {
 			locator1 = "ObjectAdmin#OBJECT_FIELDS_LABEL_INPUT",
 			value1 = "Custom Field");
 
-		Select(
-			locator1 = "ObjectAdmin#OBJECT_FIELDS_TYPE",
-			value1 = "String");
+		Click(locator1 = "ObjectAdmin#OBJECT_FIELDS_TYPE");
+
+		Click(
+			key_fieldType = "Text",
+			locator1 = "ObjectAdmin#OBJECT_FIELDS_TYPE_OPTION");
 
 		Button.clickCancel();
 
@@ -843,13 +847,13 @@ definition {
 
 		ObjectAdmin.addObjectFieldViaUI(
 			fieldLabel = "Custom Field",
-			fieldType = "BigDecimal");
+			fieldType = "Precision Decimal");
 
 		Refresh();
 
 		ObjectAdmin.assertObjectField(
 			fieldLabel = "Custom Field",
-			fieldType = "BigDecimal");
+			fieldType = "PrecisionDecimal");
 	}
 
 	@description = "LPS-135549 - Verify it is possible to create a Boolean field"
@@ -934,13 +938,13 @@ definition {
 
 		ObjectAdmin.addObjectFieldViaUI(
 			fieldLabel = "Custom Field",
-			fieldType = "Double");
+			fieldType = "Decimal");
 
 		Refresh();
 
 		ObjectAdmin.assertObjectField(
 			fieldLabel = "Custom Field",
-			fieldType = "Double");
+			fieldType = "Decimal");
 	}
 
 	@description = "LPS-135549 - Verify it is possible to create an Integer field"
@@ -1007,11 +1011,11 @@ definition {
 
 		ObjectAdmin.addObjectFieldViaUI(
 			fieldLabel = "Custom Field",
-			fieldType = "Long");
+			fieldType = "Long Integer");
 
 		ObjectAdmin.assertObjectField(
 			fieldLabel = "Custom Field",
-			fieldType = "Long");
+			fieldType = "LongInteger");
 	}
 
 	@description = "LPS-135401 - Verify it is possible to create a Many to Many Relationship"
@@ -1102,7 +1106,7 @@ definition {
 
 		ObjectAdmin.assertObjectField(
 			fieldLabel = "Field Picklist",
-			fieldType = "String");
+			fieldType = "Picklist");
 	}
 
 	@description = "LPS-135549 - Verify it is possible to create a String field"
@@ -1123,13 +1127,13 @@ definition {
 
 		ObjectAdmin.addObjectFieldViaUI(
 			fieldLabel = "Custom Field",
-			fieldType = "String");
+			fieldType = "Text");
 
 		Refresh();
 
 		ObjectAdmin.assertObjectField(
 			fieldLabel = "Custom Field",
-			fieldType = "String");
+			fieldType = "Text");
 	}
 
 	@description = "LPS-137879 - Verify it is not possible to delete a Custom Object field after the Object is published"
@@ -1404,6 +1408,8 @@ definition {
 
 		Button.clickSave();
 
+		Navigator.openURL();
+
 		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject141661");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
@@ -1599,7 +1605,7 @@ definition {
 		ObjectAdmin.addObjectFieldViaUI(
 			fieldLabel = "Custom Field",
 			fieldName = "customObjectField",
-			fieldType = "String");
+			fieldType = "Text");
 
 		ObjectAdmin.viewFieldErrorMessage(message = "This name is already in use. Try another one.");
 	}
@@ -1780,7 +1786,7 @@ definition {
 		ObjectAdmin.addObjectFieldViaUI(
 			fieldLabel = "Custom Field",
 			fieldName = " ",
-			fieldType = "String");
+			fieldType = "Text");
 
 		ObjectAdmin.viewFieldErrorMessage(message = "Name is required.");
 	}
@@ -1804,7 +1810,7 @@ definition {
 		ObjectAdmin.addObjectFieldViaUI(
 			fieldLabel = "",
 			fieldName = "customField",
-			fieldType = "String");
+			fieldType = "Text");
 
 		ObjectAdmin.assertLabelFieldRequired();
 	}
@@ -1948,9 +1954,7 @@ definition {
 
 		ObjectAdmin.goToFieldsTab();
 
-		ObjectAdmin.addObjectFieldViaUI(
-			fieldLabel = "Custom Field",
-			fieldType = "Choose an Option");
+		ObjectAdmin.addObjectFieldViaUI(fieldLabel = "Custom Field");
 
 		ObjectAdmin.assertTypeFieldRequired();
 	}
@@ -2055,7 +2059,7 @@ definition {
 		ObjectAdmin.addObjectFieldViaUI(
 			fieldLabel = "Custom Field",
 			fieldName = "customField#$%",
-			fieldType = "Long");
+			fieldType = "Long Integer");
 
 		ObjectAdmin.viewFieldErrorMessage(message = "Name must only contain letters and digits.");
 	}
@@ -2077,7 +2081,7 @@ definition {
 		ObjectAdmin.addObjectFieldViaUI(
 			fieldLabel = "Custom Field",
 			fieldName = "CustomField",
-			fieldType = "String");
+			fieldType = "Text");
 
 		ObjectAdmin.viewFieldErrorMessage(message = "The first character of a name must be an lower case letter.");
 	}
@@ -2703,8 +2707,6 @@ definition {
 			relationshipType = "manyToMany");
 
 		for (var letter : list "A,B") {
-			Navigator.openURL();
-
 			ObjectAdmin.openObjectAdmin();
 
 			ObjectPortlet.selectCustomObject(label = "Custom Object ${letter}");
@@ -2734,6 +2736,8 @@ definition {
 				tabName = "Relationship Tab");
 
 			Button.clickSave();
+
+			Navigator.openURL();
 		}
 
 		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObjectA");
@@ -2746,12 +2750,16 @@ definition {
 			ObjectAdmin.addObjectStringFieldEntryViaUI(entryValue = "Entry ${letter}");
 		}
 
+		Navigator.openURL();
+
 		for (var letter : list "D,E,F") {
 			ObjectAdmin.goToCustomObject(objectName = "CustomObjectB");
 
 			ObjectAdmin.addObjectStringFieldEntryViaUI(entryValue = "Entry ${letter}");
 		}
 
+		Navigator.openURL();
+
 		ObjectAdmin.goToCustomObject(objectName = "CustomObjectA");
 
 		ObjectPortlet.viewEntryDetails(entry = "Entry A");
@@ -2762,18 +2770,14 @@ definition {
 			CreateObject.addRelationshipAndSelectEntry(titleFieldName = "Entry ${letter}");
 
 			Refresh();
-		}
 
-		ObjectAdmin.goToCustomObject(objectName = "CustomObjectA");
+			WaitForPageLoad();
 
-		ObjectPortlet.viewEntryDetails(entry = "Entry A");
-
-		ObjectAdmin.gotoRelationshipsTab();
-
-		for (var letter : list "D,E") {
 			ObjectPortlet.viewEntry(entry = "Entry ${letter}");
 		}
 
+		Navigator.openURL();
+
 		ObjectAdmin.goToCustomObject(objectName = "CustomObjectB");
 
 		ObjectPortlet.viewEntryDetails(entry = "Entry F");
@@ -2784,15 +2788,9 @@ definition {
 			CreateObject.addRelationshipAndSelectEntry(titleFieldName = "Entry ${letter}");
 
 			Refresh();
-		}
 
-		ObjectAdmin.goToCustomObject(objectName = "CustomObjectB");
+			WaitForPageLoad();
 
-		ObjectPortlet.viewEntryDetails(entry = "Entry F");
-
-		ObjectAdmin.gotoRelationshipsTab();
-
-		for (var letter : list "B,C") {
 			ObjectPortlet.viewEntry(entry = "Entry ${letter}");
 		}
 	}
@@ -2909,7 +2907,7 @@ definition {
 
 		ObjectAdmin.assertObjectField(
 			fieldLabel = "Custom Field A",
-			fieldType = "String");
+			fieldType = "Text");
 
 		ObjectAdmin.assertObjectFieldNotPresent(fieldLabel = "Custom Field B");
 	}
@@ -3161,7 +3159,7 @@ definition {
 
 		ObjectAdmin.addObjectFieldViaUI(
 			fieldLabel = "Custom Field",
-			fieldType = "String",
+			fieldType = "Text",
 			isMandatory = "true");
 
 		ObjectAdmin.goToFieldsDetails(label = "Custom Field");
@@ -4408,12 +4406,10 @@ definition {
 	@description = "LPS-139803 - Verify it the Object Entry Title of a Double type is displayed on the Relationship field when adding an entry"
 	@priority = "4"
 	test CanViewObjectEntryTitleDoubleOnRelationshipField {
-		property portal.upstream = "quarantine";
-
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object 141614",
-			objectName = "CustomObject141614",
-			pluralLabelName = "Custom Objects 141614");
+			labelName = "Custom Object",
+			objectName = "CustomObject",
+			pluralLabelName = "Custom Objects");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "Decimal",
@@ -4421,31 +4417,35 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "Double",
 			isRequired = "false",
-			objectName = "CustomObject141614");
+			objectName = "CustomObject");
 
 		ObjectAdmin.addObjectRelationshipViaAPI(
-			objectName_1 = "CustomObject141614",
-			objectName_2 = "CustomObject141614",
+			objectName_1 = "CustomObject",
+			objectName_2 = "CustomObject",
 			relationshipLabel = "Relationship",
 			relationshipName = "relationship",
 			relationshipType = "oneToMany");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject141614");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object 141614");
+		ObjectPortlet.selectCustomObject(label = "Custom Object");
 
 		CreateObject.selectTitleField(fieldLabel = "Double");
 
 		Button.clickSave();
 
+		WaitForPageLoad();
+
+		Navigator.openURL();
+
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "customObjectField",
-			objectName = "CustomObject141614",
+			objectName = "CustomObject",
 			value = "12.34");
 
-		ObjectAdmin.goToCustomObject(objectName = "CustomObject141614");
+		ObjectAdmin.goToCustomObject(objectName = "CustomObject");
 
 		CreateObject.assertAddedEntryRelationshipIsDisplayed(entry = "12.34");
 	}
@@ -4454,9 +4454,9 @@ definition {
 	@priority = "4"
 	test CanViewObjectEntryTitleIntegerOnRelationshipField {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object 141615",
-			objectName = "CustomObject141615",
-			pluralLabelName = "Custom Objects 141615");
+			labelName = "Custom Object",
+			objectName = "CustomObject",
+			pluralLabelName = "Custom Objects");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "Integer",
@@ -4464,31 +4464,35 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "Integer",
 			isRequired = "false",
-			objectName = "CustomObject141615");
+			objectName = "CustomObject");
 
 		ObjectAdmin.addObjectRelationshipViaAPI(
-			objectName_1 = "CustomObject141615",
-			objectName_2 = "CustomObject141615",
+			objectName_1 = "CustomObject",
+			objectName_2 = "CustomObject",
 			relationshipLabel = "Relationship",
 			relationshipName = "relationship",
 			relationshipType = "oneToMany");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject141615");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object 141615");
+		ObjectPortlet.selectCustomObject(label = "Custom Object");
 
 		CreateObject.selectTitleField(fieldLabel = "Integer");
 
 		Button.clickSave();
 
+		WaitForPageLoad();
+
+		Navigator.openURL();
+
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "customObjectField",
-			objectName = "CustomObject141615",
+			objectName = "CustomObject",
 			value = "123");
 
-		ObjectAdmin.goToCustomObject(objectName = "CustomObject141615");
+		ObjectAdmin.goToCustomObject(objectName = "CustomObject");
 
 		CreateObject.assertAddedEntryRelationshipIsDisplayed(entry = "123");
 	}
@@ -4646,6 +4650,8 @@ definition {
 			tabName = "Relationship Tab");
 
 		Button.clickSave();
+
+		Navigator.openURL();
 
 		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject141620");
 
@@ -5236,7 +5242,7 @@ definition {
 	@description = "LPS-135401 - Verify if Cascade deletion type of Relationship One to Many will allow the entry with relation (from the parent Object) and its relations to be deleted"
 	@priority = "5"
 	test CascadeDeletionOneToManyWillAllowDeleteParent {
-		property portal.acceptance = "quarantine";
+		property portal.upstream = "quarantine";
 
 		for (var letter : list "A,B") {
 			ObjectAdmin.addObjectViaAPI(
@@ -5271,6 +5277,8 @@ definition {
 
 		Button.clickSave();
 
+		Navigator.openURL();
+
 		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObjectA");
 
 		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObjectB");
@@ -5281,8 +5289,6 @@ definition {
 				objectName = "CustomObject${fieldEntry}",
 				value = "Entry ${fieldEntry}");
 		}
-
-		Navigator.openURL();
 
 		ObjectAdmin.goToCustomObject(objectName = "CustomObjectB");
 
@@ -5303,6 +5309,8 @@ definition {
 		ObjectPortlet.deleteEntry(entry = "Entry A");
 
 		ObjectPortlet.assertEntryNotPresent(entry = "Entry A");
+
+		Navigator.openURL();
 
 		ObjectAdmin.goToCustomObject(objectName = "CustomObjectB");
 
@@ -5372,6 +5380,8 @@ definition {
 			Button.clickSave();
 		}
 
+		Navigator.openURL();
+
 		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObjectA");
 
 		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObjectB");
@@ -5400,6 +5410,8 @@ definition {
 			Refresh();
 
 			ObjectPortlet.viewEntry(entry = "Entry C");
+
+			Navigator.openURL();
 		}
 
 		ObjectAdmin.goToCustomObject(objectName = "CustomObjectA");
@@ -5449,7 +5461,7 @@ definition {
 	@description = "LPS-135649 - Verify that a completed entry is displayed with an Approved status"
 	@priority = "5"
 	test CompletedEntryDisplaysApprovedStatus {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 141629",
@@ -5936,7 +5948,7 @@ definition {
 
 		ObjectAdmin.assertObjectField(
 			fieldLabel = "Custom Field",
-			fieldType = "String");
+			fieldType = "Text");
 	}
 
 	@description = "LPS-137874 - Verify that Objects created on a Virtual Instance are not displayed on the Forms Settings, Collection Providers and Display Page Template of the Main Instance and vice versa"
@@ -6271,6 +6283,7 @@ definition {
 			pluralLabelName = "Custom Objects");
 
 		ObjectAdmin.addObjectFieldViaAPI(
+			fieldBusinessType = "Text",
 			fieldLabelName = "Custom Field",
 			fieldName = "customObjectField",
 			fieldType = "String",
@@ -6591,6 +6604,7 @@ definition {
 			pluralLabelName = "Custom Objects");
 
 		ObjectAdmin.addObjectFieldViaAPI(
+			fieldBusinessType = "Text",
 			fieldLabelName = "Custom Field",
 			fieldName = "customObjectField",
 			fieldType = "String",
@@ -7379,6 +7393,8 @@ definition {
 	@description = "LPS-135401 - Verify if Prevent deletion type of Relationship Many to Many won't allow the user to delete an entry with relation"
 	@priority = "4"
 	test PreventDeletionManyToManyWontAllowDelete {
+		property portal.upstream = "quarantine";
+
 		for (var nameObject : list "A,B") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Custom Object ${nameObject}",
@@ -7587,7 +7603,7 @@ definition {
 	@description = "LPS-135401 - Verify if Prevent deletion type of Relationship One to Many won't allow the user to delete an entry with relation from the parent Object"
 	@priority = "5"
 	test PreventDeletionOneToManyWontAllowDelete {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 
 		for (var nameObject : list "A,B") {
 			ObjectAdmin.addObjectViaAPI(
@@ -7749,12 +7765,14 @@ definition {
 
 		ObjectAdmin.assertObjectField(
 			fieldLabel = "Custom Object A",
-			fieldType = "Long");
+			fieldType = "Relationship");
 	}
 
 	@description = "LPS-139005 - Verify that the Relationship field will not be displayed on a Collection Display with List Style set as Table when the parent object is inactivated"
 	@priority = "4"
 	test RelationshipFieldCannotBeDisplayedForCollectionDisplayTableWhenInactivated {
+		property portal.upstream = "quarantine";
+
 		for (var letter : list "A,B") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Custom Object ${letter}",
@@ -8108,6 +8126,8 @@ definition {
 				objectName = "CustomObject${letter}");
 		}
 
+		Navigator.openURL();
+
 		for (var letter : list "A,B") {
 			ObjectAdmin.openObjectAdmin();
 
@@ -8132,6 +8152,8 @@ definition {
 				tabName = "Relationship Tab");
 
 			Button.clickSave();
+
+			Navigator.openURL();
 		}
 
 		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObjectA");
@@ -8163,6 +8185,8 @@ definition {
 
 		CreateObject.activeCustomObject(objectName = "Custom Object B");
 
+		Navigator.openURL();
+
 		ObjectAdmin.openObjectAdmin();
 
 		CreateObject.inactiveCustomObject(objectName = "Custom Object A");
@@ -8183,9 +8207,9 @@ definition {
 
 		for (var letter : list "A,B") {
 			ObjectAdmin.addObjectViaAPI(
-				labelName = "Custom Object 140872 ${letter}",
-				objectName = "CustomObject140872${letter}",
-				pluralLabelName = "Custom Objects 140872 ${letter}");
+				labelName = "Custom Object ${letter}",
+				objectName = "CustomObject${letter}",
+				pluralLabelName = "Custom Objects ${letter}");
 		}
 
 		for (var letter : list "A,B") {
@@ -8195,23 +8219,29 @@ definition {
 				fieldName = "customObjectField${letter}",
 				fieldType = "String",
 				isRequired = "false",
-				objectName = "CustomObject140872${letter}");
+				objectName = "CustomObject${letter}");
 		}
 
 		ObjectAdmin.addObjectRelationshipViaAPI(
-			objectName_1 = "CustomObject140872A",
-			objectName_2 = "CustomObject140872B",
+			objectName_1 = "CustomObjectA",
+			objectName_2 = "CustomObjectB",
 			relationshipLabel = "Relationship",
 			relationshipName = "relationship",
 			relationshipType = "oneToMany");
 
 		ObjectAdmin.addObjectLayoutViaAPI(
 			layoutName = "Layout",
-			objectName = "CustomObject140872A");
+			objectName = "CustomObjectA");
+
+		Navigator.openURL();
+
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObjectA");
+
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObjectB");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object 140872 A");
+		ObjectPortlet.selectCustomObject(label = "Custom Object A");
 
 		ObjectAdmin.goToLayoutsTab();
 
@@ -8233,24 +8263,20 @@ definition {
 
 		Button.clickSave();
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject140872A");
-
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject140872B");
+		Navigator.openURL();
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "customObjectFieldA",
-			objectName = "CustomObject140872A",
+			objectName = "CustomObjectA",
 			value = "Entry 1");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object 140872 B");
+		CreateObject.inactiveCustomObject(objectName = "Custom Object B");
 
-		CreateObject.checkToggleInactive();
+		Navigator.openURL();
 
-		CreateObject.saveObject();
-
-		ObjectPortlet.selectCustomObject(label = "Custom Object 140872 A");
+		ObjectAdmin.goToCustomObject(objectName = "CustomObjectA");
 
 		ObjectPortlet.viewEntryDetails(entry = "Entry 1");
 

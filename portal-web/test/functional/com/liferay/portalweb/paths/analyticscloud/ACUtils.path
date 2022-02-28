@@ -26,6 +26,16 @@
 	<td></td>
 </tr>
 <tr>
+	<td>EDIT_NAME_BUTTON</td>
+	<td>//div[contains(@class,'editor')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>NAME_FIELD</td>
+	<td>//input[@name='name']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>LABEL</td>
 	<td>//label[normalize-space()='${label}']</td>
 	<td></td>
@@ -33,6 +43,16 @@
 <tr>
 	<td>LOADING_ANIMATION</td>
 	<td>//span[contains(@class,'loading-animation')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TABLE_CELL_INFORMATION</td>
+	<td>//a[contains(text(),'${key_nameList}')]//ancestor::tr//td[contains(@class,'table-column-text-end') and text()='${key_numberValue}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DELETE_BUTTON</td>
+	<td>//*[text()='${key_nameList}']/ancestor::tr//div[@class='quick-action-menu']//button[contains(@alt,'Delete')]</td>
 	<td></td>
 </tr>
 <!-- CLOSE MODAL -->

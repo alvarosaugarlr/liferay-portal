@@ -1,4 +1,4 @@
-@component-name = "portal-collaboration"
+@component-name = "portal-lima"
 definition {
 
 	property portal.acceptance = "true";
@@ -266,6 +266,9 @@ definition {
 	@priority = "4"
 	@refactordone
 	test CanViewWebsiteNotificationForNewEntry {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property portal.acceptance = "false";
+
 		Navigator.gotoPage(pageName = "Blogs Page");
 
 		Blogs.subscribePG();

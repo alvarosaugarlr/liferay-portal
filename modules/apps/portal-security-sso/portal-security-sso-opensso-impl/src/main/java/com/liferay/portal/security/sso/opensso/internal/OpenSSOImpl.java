@@ -126,17 +126,17 @@ public class OpenSSOImpl implements OpenSSO {
 			}
 		}
 		catch (MalformedURLException malformedURLException) {
-			_log.error(malformedURLException.getMessage());
+			_log.error(malformedURLException);
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(malformedURLException, malformedURLException);
+				_log.debug(malformedURLException);
 			}
 		}
 		catch (IOException ioException) {
-			_log.error(ioException.getMessage());
+			_log.error(ioException);
 
 			if (_log.isDebugEnabled()) {
-				_log.debug(ioException, ioException);
+				_log.debug(ioException);
 			}
 		}
 
@@ -224,7 +224,7 @@ public class OpenSSOImpl implements OpenSSO {
 		}
 		catch (IOException ioException) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(ioException, ioException);
+				_log.warn(ioException);
 			}
 		}
 
@@ -271,7 +271,7 @@ public class OpenSSOImpl implements OpenSSO {
 		}
 		catch (ConfigurationException configurationException) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(configurationException, configurationException);
+				_log.warn(configurationException);
 			}
 		}
 
@@ -399,7 +399,7 @@ public class OpenSSOImpl implements OpenSSO {
 		}
 		catch (IOException ioException) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(ioException, ioException);
+				_log.warn(ioException);
 			}
 
 			return false;

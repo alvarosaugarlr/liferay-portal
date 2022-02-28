@@ -887,6 +887,11 @@ components:
                         $ref: "#/components/schemas/OrganizationBrief"
                     readOnly: true
                     type: array
+                password:
+                    description:
+                        The user's password.
+                    type: string
+                    writeOnly: true
                 profileURL:
                     description:
                         A relative URL to the user's profile.
@@ -1013,7 +1018,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.headless.admin.user.client', and version '4.0.19'."
+        'com.liferay.headless.admin.user.client', and version '4.0.21'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -3572,6 +3577,7 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/UserAccount"
+            tags: ["UserAccount"]
     "/user-accounts/by-external-reference-code/{externalReferenceCode}":
         delete:
             operationId: deleteUserAccountByExternalReferenceCode
@@ -3630,6 +3636,7 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/UserAccount"
+            tags: ["UserAccount"]
     "/user-accounts/{userAccountId}":
         delete:
             # @review
@@ -3702,6 +3709,7 @@ paths:
                                 $ref: "#/components/schemas/UserAccount"
                     description:
                         "UserAccount successfully updated"
+            tags: ["UserAccount"]
         put:
             # @review
             description:
@@ -3734,6 +3742,7 @@ paths:
                                 $ref: "#/components/schemas/UserAccount"
                     description:
                         "UserAccount successfully updated"
+            tags: ["UserAccount"]
     "/user-accounts/{userAccountId}/email-addresses":
         get:
             description:

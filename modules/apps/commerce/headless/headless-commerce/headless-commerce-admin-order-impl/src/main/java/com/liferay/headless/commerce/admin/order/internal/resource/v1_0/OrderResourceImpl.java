@@ -372,6 +372,18 @@ public class OrderResourceImpl
 					order.getPrintedNote(), commerceOrder.getPrintedNote()));
 		}
 
+		// Terms and Conditions
+
+		if ((order.getDeliveryTermId() != null) ||
+			(order.getPaymentTermId() != null)) {
+
+			_commerceOrderService.updateTermsAndConditions(
+				commerceOrder.getCommerceOrderId(),
+				GetterUtil.getLong(order.getDeliveryTermId()),
+				GetterUtil.getLong(order.getPaymentTermId()),
+				contextAcceptLanguage.getPreferredLanguageId());
+		}
+
 		// Expando
 
 		Map<String, ?> customFields = order.getCustomFields();
@@ -599,6 +611,9 @@ public class OrderResourceImpl
 			(BigDecimal)GetterUtil.getNumber(
 				order.getTotalWithTaxAmount(),
 				commerceOrder.getTotalWithTaxAmount()),
+			(BigDecimal)GetterUtil.getNumber(
+				order.getTotalDiscountAmount(),
+				commerceOrder.getTotalDiscountAmount()),
 			GetterUtil.getString(
 				order.getAdvanceStatus(), commerceOrder.getAdvanceStatus()),
 			_commerceContextFactory.create(

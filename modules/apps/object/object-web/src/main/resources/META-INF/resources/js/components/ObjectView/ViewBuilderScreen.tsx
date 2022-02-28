@@ -14,7 +14,6 @@
 
 import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
 import ClayEmptyState from '@clayui/empty-state';
-import {ClayInput} from '@clayui/form';
 import ClayList from '@clayui/list';
 import ClayManagementToolbar from '@clayui/management-toolbar';
 import {useModal} from '@clayui/modal';
@@ -28,6 +27,7 @@ import ViewBuilderListItem from './ViewBuilderListItem';
 import ViewContext from './context';
 
 import './ViewBuilderScreen.scss';
+import {ManagementToolbarSearch} from './ManagementToolbarSearch/ManagementToolbarSearch';
 
 const ViewBuilderScreen: React.FC<{}> = () => {
 	const [{objectView}] = useContext(ViewContext);
@@ -48,9 +48,7 @@ const ViewBuilderScreen: React.FC<{}> = () => {
 	}, [objectView]);
 
 	const newFiltredItems = filteredItems.filter((objectViewColumn) =>
-		objectViewColumn.objectFieldName
-			.toLowerCase()
-			.includes(query.toLowerCase())
+		objectViewColumn.label.toLowerCase().includes(query.toLowerCase())
 	);
 
 	return (
@@ -61,40 +59,10 @@ const ViewBuilderScreen: React.FC<{}> = () => {
 				<Card.Body>
 					<ClayManagementToolbar>
 						<ClayManagementToolbar.ItemList expand>
-							<ClayManagementToolbar.Search>
-								<ClayInput.Group>
-									<ClayInput.GroupItem>
-										<ClayInput
-											aria-label="Search"
-											className="form-control input-group-inset input-group-inset-after"
-											onChange={({target}) =>
-												setQuery(target.value)
-											}
-											placeholder="Search"
-											type="text"
-											value={query}
-										/>
-
-										<ClayInput.GroupInsetItem
-											after
-											tag="span"
-										>
-											<ClayButtonWithIcon
-												className="navbar-breakpoint-d-none"
-												displayType="unstyled"
-												onClick={() => {}}
-												symbol="times"
-											/>
-
-											<ClayButtonWithIcon
-												displayType="unstyled"
-												symbol="search"
-												type="submit"
-											/>
-										</ClayInput.GroupInsetItem>
-									</ClayInput.GroupItem>
-								</ClayInput.Group>
-							</ClayManagementToolbar.Search>
+							<ManagementToolbarSearch
+								query={query}
+								setQuery={setQuery}
+							/>
 
 							<ClayManagementToolbar.Item>
 								<ClayButtonWithIcon
@@ -134,9 +102,7 @@ const ViewBuilderScreen: React.FC<{}> = () => {
 
 												<ClayList.ItemField expand>
 													<ClayList.ItemTitle>
-														{
-															viewColumn.objectFieldName
-														}
+														{viewColumn.label}
 													</ClayList.ItemTitle>
 												</ClayList.ItemField>
 											</ClayList.Item>

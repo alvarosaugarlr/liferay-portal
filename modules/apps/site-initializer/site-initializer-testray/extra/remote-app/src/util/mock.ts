@@ -32,7 +32,7 @@ export type Tasks = {
 
 export type Subtask = {
 	assignee: any;
-	erro: string;
+	error: string;
 	name: string;
 	score: number;
 	status: string;
@@ -53,22 +53,48 @@ type Routine = {
 	routineName?: any;
 	score: Progress;
 	startDate?: any;
-	status?: any;
+	status: string;
 	task?: any;
 };
-export enum status {
-	inAnalysis = 0,
-	open = 1,
-	complete = 2,
-}
+
+export const Status = {
+	blocked: 'label-inverse-secondary',
+	failed: 'label-inverse-danger',
+	in_analisys: 'label-inverse-secondary',
+	incomplete: 'label-inverse-light',
+	other: 'label-inverse-primary',
+	passed: 'label-inverse-success',
+	self: 'label-inverse-info',
+	test_fix: 'label-tonal-success',
+};
+
+export type Tests = {
+	case: string;
+	component: string;
+	issues: string;
+	priority: number;
+	run: number;
+	status: string;
+	team: string;
+};
 
 const generateItems = <T>(item: T, total = 20): T[] => {
 	return [...new Array(total)].map(() => item);
 };
 
+const getRandom = (max = 50) => Math.ceil(Math.random() * max);
+
+export function getRandomMaximumValue(count: number, max: number) {
+	return [...new Array(count)].map(() => getRandom(max));
+}
+
 const assigned = generateItems<Assigned>(
 	{
 		name: 'John Doe',
+
+		// url: 'https://clayui.com/images/long_user_image.png',
+
+		url: 'https://picsum.photos/200',
 	},
 	20
 );
@@ -94,10 +120,10 @@ export const tasks = generateItems<Tasks>(
 export const subtask = generateItems<Subtask>(
 	{
 		assignee,
-		erro: "java.lang.Exception: No results for path: $['users'][0]['id']",
+		error: "java.lang.Exception: No results for path: $['users'][0]['id']",
 		name: 'ST-1',
 		score: 10,
-		status: 'in analisys',
+		status: 'blocked',
 		tests: 5,
 	},
 	20
@@ -105,7 +131,7 @@ export const subtask = generateItems<Subtask>(
 
 export const progress = generateItems<Progress>(
 	{
-		incomplete: 10,
+		incomplete: 70,
 		other: 0,
 		self: 101,
 	},
@@ -122,11 +148,22 @@ export const routines = generateItems<Routine>(
 		routineName: 'CE Package Tester',
 		score: progress[0],
 		startDate: 'a day ago',
-		status: 'IN ANALYZES',
+		status: 'Blocked',
 		task: 'CE Package Tester - 7.4.3.10-ga10 - 3099 - 2022-01-31[08:44:04]',
 	},
 	20
 );
+
+export const Tests = generateItems<Tests>({
+	case:
+		'com.liferay.external.data.source.test.controller.test.ExternalDataSourceControllerTest',
+	component: 'Analytics Cloud',
+	issues: '-',
+	priority: 4,
+	run: 1,
+	status: Status.failed,
+	team: 'Analytics Cloud',
+});
 
 const name = 'Tomcat';
 
@@ -267,4 +304,12 @@ export const runs = [
 		passed: 0,
 		test_fix: 0,
 	},
+];
+
+export const TotalTestCases = [
+	['PASSED', 30529],
+	['FAILED', 5374],
+	['BLOCKED', 0],
+	['TEST FIX', 0],
+	['INCOMPLETE', 21],
 ];

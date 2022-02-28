@@ -17,6 +17,7 @@ package com.liferay.object.internal.deployer;
 import com.liferay.info.collection.provider.InfoCollectionProvider;
 import com.liferay.list.type.service.ListTypeEntryLocalService;
 import com.liferay.object.deployer.ObjectDefinitionDeployer;
+import com.liferay.object.internal.configuration.activator.FFGuestResourcePermissionConfigurationUtil;
 import com.liferay.object.internal.info.collection.provider.ObjectEntrySingleFormVariationInfoCollectionProvider;
 import com.liferay.object.internal.language.ObjectResourceBundle;
 import com.liferay.object.internal.related.models.ObjectEntry1to1ObjectRelatedModelsProviderImpl;
@@ -39,6 +40,7 @@ import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
+import com.liferay.object.service.ObjectViewLocalService;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.security.permission.ResourceActions;
@@ -84,6 +86,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 		ObjectFieldLocalService objectFieldLocalService,
 		ObjectRelationshipLocalService objectRelationshipLocalService,
 		ObjectScopeProviderRegistry objectScopeProviderRegistry,
+		ObjectViewLocalService objectViewLocalService,
 		PersistedModelLocalServiceRegistry persistedModelLocalServiceRegistry,
 		ResourceActions resourceActions,
 		ModelPreFilterContributor workflowStatusModelPreFilterContributor) {
@@ -98,6 +101,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 		_objectFieldLocalService = objectFieldLocalService;
 		_objectRelationshipLocalService = objectRelationshipLocalService;
 		_objectScopeProviderRegistry = objectScopeProviderRegistry;
+		_objectViewLocalService = objectViewLocalService;
 		_persistedModelLocalServiceRegistry =
 			persistedModelLocalServiceRegistry;
 		_resourceActions = resourceActions;
@@ -145,7 +149,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 			_bundleContext.registerService(
 				KeywordQueryContributor.class,
 				new ObjectEntryKeywordQueryContributor(
-					_objectFieldLocalService),
+					_objectFieldLocalService, _objectViewLocalService),
 				HashMapDictionaryBuilder.<String, Object>put(
 					"indexer.class.name", objectDefinition.getClassName()
 				).build()),
@@ -253,12 +257,20 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 	private void _readResourceActions(ObjectDefinition objectDefinition)
 		throws Exception {
 
+		String resourceActionsXml = "resource-actions/resource-actions.xml.tpl";
+
+		if (FFGuestResourcePermissionConfigurationUtil.enabled()) {
+			resourceActionsXml =
+				"resource-actions/ff-guest-resource-permission-resource-" +
+					"actions.xml.tpl";
+		}
+
 		_resourceActions.populateModelResources(
 			SAXReaderUtil.read(
 				StringUtil.replace(
 					StringUtil.read(
 						ObjectDefinitionDeployerImpl.class.getClassLoader(),
-						"resource-actions/resource-actions.xml.tpl"),
+						resourceActionsXml),
 					new String[] {
 						"[$MODEL_NAME$]", "[$PORTLET_NAME$]",
 						"[$RESOURCE_NAME$]"
@@ -281,6 +293,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 	private final ObjectRelationshipLocalService
 		_objectRelationshipLocalService;
 	private final ObjectScopeProviderRegistry _objectScopeProviderRegistry;
+	private final ObjectViewLocalService _objectViewLocalService;
 	private final PersistedModelLocalServiceRegistry
 		_persistedModelLocalServiceRegistry;
 	private final ResourceActions _resourceActions;

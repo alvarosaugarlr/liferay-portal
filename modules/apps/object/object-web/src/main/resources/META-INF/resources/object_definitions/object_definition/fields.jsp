@@ -49,9 +49,7 @@ renderResponse.setTitle(objectDefinition.getLabel(locale, true));
 			HashMapBuilder.<String, Object>put(
 				"apiURL", objectDefinitionsFieldsDisplayContext.getAPIURL()
 			).put(
-				"ffObjectFieldBusinessTypeConfigurationEnabled", objectDefinitionsFieldsDisplayContext.isFFObjectFieldBusinessTypeConfigurationEnabled()
-			).put(
-				"objectFieldBusinessTypes", objectDefinitionsFieldsDisplayContext.getObjectFieldBusinessTypeMaps(locale)
+				"objectFieldBusinessTypes", objectDefinitionsFieldsDisplayContext.getObjectFieldBusinessTypeMaps(false, locale)
 			).build()
 		%>'
 	/>

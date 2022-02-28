@@ -312,7 +312,7 @@ public class StagingBarPortlet extends MVCPortlet {
 						group, layout.isPrivateLayout());
 				}
 				catch (AuthException authException) {
-					_log.error(authException.getMessage());
+					_log.error(authException);
 
 					SessionErrors.add(renderRequest, AuthException.class);
 				}
@@ -333,7 +333,7 @@ public class StagingBarPortlet extends MVCPortlet {
 						renderRequest, RemoteExportException.class);
 				}
 				catch (Exception exception) {
-					_log.error(exception, exception);
+					_log.error(exception);
 
 					SessionErrors.add(renderRequest, Exception.class);
 				}

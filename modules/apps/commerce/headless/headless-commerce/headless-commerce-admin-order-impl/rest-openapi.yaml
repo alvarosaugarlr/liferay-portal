@@ -209,6 +209,19 @@ components:
                 customFields:
                     additionalProperties: true
                     type: object
+                deliveryTermDescription:
+                    example: Orders delivery terms description
+                    readOnly: true
+                    type: string
+                deliveryTermId:
+                    example: 30130
+                    format: int64
+                    minimum: 0
+                    type: integer
+                deliveryTermName:
+                    example: Orders delivery terms name
+                    readOnly: true
+                    type: string
                 externalReferenceCode:
                     example: AB-34098-789-N
                     type: string
@@ -260,6 +273,19 @@ components:
                 paymentStatusInfo:
                     $ref: "#/components/schemas/Status"
                     readOnly: true
+                paymentTermDescription:
+                    example: Orders payment terms description
+                    readOnly: true
+                    type: string
+                paymentTermId:
+                    example: 30130
+                    format: int64
+                    minimum: 0
+                    type: integer
+                paymentTermName:
+                    example: Orders payment terms name
+                    readOnly: true
+                    type: string
                 printedNote:
                     example: Order printed note
                     type: string
@@ -290,10 +316,13 @@ components:
                     minimum: 0
                     type: number
                 shippingDiscountAmount:
-                    format: double
+                    format: bigdecimal
                     type: number
                 shippingDiscountAmountFormatted:
                     type: string
+                shippingDiscountAmountValue:
+                    format: double
+                    type: number
                 shippingDiscountPercentageLevel1:
                     example: 20
                     format: double
@@ -450,11 +479,16 @@ components:
                     type: number
                 totalDiscountAmount:
                     example: 11
-                    format: double
+                    format: bigdecimal
                     minimum: 0
                     type: number
                 totalDiscountAmountFormatted:
                     type: string
+                totalDiscountAmountValue:
+                    example: 11
+                    format: double
+                    minimum: 0
+                    type: number
                 totalDiscountPercentageLevel1:
                     example: 20
                     format: double
@@ -497,11 +531,16 @@ components:
                     type: number
                 totalDiscountWithTaxAmount:
                     example: 11
-                    format: double
+                    format: bigdecimal
                     minimum: 0
                     type: number
                 totalDiscountWithTaxAmountFormatted:
                     type: string
+                totalDiscountWithTaxAmountValue:
+                    example: 11
+                    format: double
+                    minimum: 0
+                    type: number
                 totalFormatted:
                     type: string
                 totalWithTaxAmount:
@@ -1265,7 +1304,7 @@ info:
         name: Commerce Team
     description:
         "Liferay Commerce Admin Order API. A Java client JAR is available for use with the group ID 'com.liferay',
-        artifact ID 'com.liferay.headless.commerce.admin.order.client', and version '4.0.14'."
+        artifact ID 'com.liferay.headless.commerce.admin.order.client', and version '4.0.16'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"

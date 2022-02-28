@@ -14,6 +14,7 @@
 
 package com.liferay.commerce.initializer.util;
 
+import com.liferay.account.model.AccountEntry;
 import com.liferay.commerce.account.configuration.CommerceAccountGroupServiceConfiguration;
 import com.liferay.commerce.account.constants.CommerceAccountConstants;
 import com.liferay.commerce.account.model.CommerceAccount;
@@ -170,7 +171,7 @@ public class CommerceOrderGenerator {
 
 		List<CommerceAddress> commerceAddresses =
 			_commerceAddressLocalService.getCommerceAddressesByCompanyId(
-				commerceAccount.getCompanyId(), CommerceAccount.class.getName(),
+				commerceAccount.getCompanyId(), AccountEntry.class.getName(),
 				commerceAccount.getCommerceAccountId(), 0, 1, null);
 
 		if (commerceAddresses.isEmpty()) {
@@ -209,7 +210,7 @@ public class CommerceOrderGenerator {
 		// Update commerce order
 
 		commerceOrder = _commerceOrderLocalService.updateCommerceOrder(
-			commerceOrder.getCommerceOrderId(),
+			null, commerceOrder.getCommerceOrderId(),
 			commerceAddress.getCommerceAddressId(),
 			commerceAddress.getCommerceAddressId(),
 			commerceOrder.getCommercePaymentMethodKey(),
@@ -282,7 +283,7 @@ public class CommerceOrderGenerator {
 					commerceContext, serviceContext);
 			}
 			catch (Exception exception) {
-				_log.error(exception, exception);
+				_log.error(exception);
 			}
 		}
 	}
@@ -364,7 +365,7 @@ public class CommerceOrderGenerator {
 			}
 			catch (PortalException portalException) {
 				if (_log.isInfoEnabled()) {
-					_log.info(portalException, portalException);
+					_log.info(portalException);
 				}
 
 				// Order not generated, retry

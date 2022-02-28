@@ -40,7 +40,6 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.site.navigation.admin.constants.SiteNavigationAdminPortletKeys;
-import com.liferay.site.navigation.admin.web.internal.configuration.FFSiteNavigationAdminConfigurationUtil;
 import com.liferay.site.navigation.admin.web.internal.security.permission.resource.SiteNavigationMenuPermission;
 import com.liferay.site.navigation.admin.web.internal.util.SiteNavigationMenuPortletUtil;
 import com.liferay.site.navigation.model.SiteNavigationMenu;
@@ -260,10 +259,6 @@ public class SiteNavigationAdminDisplayContext {
 			"addSiteNavigationMenuItemOptions",
 			getAddSiteNavigationMenuItemDropdownItems()
 		).put(
-			"categoriesMultipleSelectionEnabled",
-			FFSiteNavigationAdminConfigurationUtil.
-				categoriesMultipleSelectionEnabled()
-		).put(
 			"deleteSiteNavigationMenuItemURL",
 			() -> PortletURLBuilder.createActionURL(
 				_liferayPortletResponse
@@ -435,7 +430,7 @@ public class SiteNavigationAdminDisplayContext {
 		}
 		catch (WindowStateException windowStateException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(windowStateException, windowStateException);
+				_log.debug(windowStateException);
 			}
 
 			return StringPool.BLANK;

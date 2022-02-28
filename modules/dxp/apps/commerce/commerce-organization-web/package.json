@@ -1,22 +1,6 @@
 {
 	"dependencies": {
-		"@clayui/autocomplete": "3.45.0",
-		"@clayui/button": "3.40.0",
-		"@clayui/data-provider": "3.45.0",
-		"@clayui/drop-down": "3.45.0",
-		"@clayui/icon": "3.40.0",
-		"@clayui/management-toolbar": "3.40.0",
-		"@clayui/modal": "3.45.0",
-		"@clayui/multi-select": "3.45.0",
-		"@liferay/frontend-js-react-web": "*",
-		"@liferay/frontend-js-state-web": "*",
-		"classnames": "2.3.1",
-		"commerce-frontend-js": "*",
-		"d3": "5.9.3",
-		"frontend-js-web": "*",
-		"prop-types": "15.7.2",
-		"react": "16.12.0",
-		"react-dom": "16.12.0"
+		"d3": "5.9.3"
 	},
 	"jest": {
 		"testPathIgnorePatterns": [
@@ -33,5 +17,5 @@
 		"test:watch": "liferay-npm-scripts test --watch",
 		"watch": "liferay-npm-scripts webpack --watch"
 	},
-	"version": "5.0.24"
+	"version": "5.0.25"
 }

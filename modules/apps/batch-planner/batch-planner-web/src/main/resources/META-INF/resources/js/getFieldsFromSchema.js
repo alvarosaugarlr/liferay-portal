@@ -16,17 +16,17 @@ const getFieldsFromSchema = (schema) => {
 	const dbFields = [];
 
 	for (const [label, property] of Object.entries(schema)) {
-		if (property.writeOnly || label.startsWith('x-')) {
+		if (property.writeOnly || property.readOnly || label.startsWith('x-')) {
 			continue;
 		}
 
-		let value = label;
+		let name = label;
 
 		if (property.extensions && property.extensions['x-parent-map']) {
-			value = property.extensions['x-parent-map'] + '_' + label;
+			name = property.extensions['x-parent-map'] + '_' + label;
 		}
 
-		const field = {label, value};
+		const field = {label, name, required: property.required};
 
 		dbFields.push(field);
 	}

@@ -6,7 +6,7 @@ definition {
 	property portal.upstream = "true";
 	property test.assert.warning.exceptions = "true";
 	property testray.component.names = "Redirect";
-	property testray.main.component.name = "Upgrades Collaboration";
+	property testray.main.component.name = "Upgrades Lima";
 
 	setUp {
 		SignIn.signIn();
@@ -26,6 +26,8 @@ definition {
 		property portal.version = "7.3.10.1";
 
 		Redirect.openToConfigInSystemSettings();
+
+		Redirect.viewActiveTabInSystemSettings();
 
 		FormFields.enableCheckbox(fieldName = "enabled");
 

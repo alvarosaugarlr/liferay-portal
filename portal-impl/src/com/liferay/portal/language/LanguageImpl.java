@@ -306,7 +306,7 @@ public class LanguageImpl implements Language, Serializable {
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(exception, exception);
+				_log.warn(exception);
 			}
 		}
 
@@ -476,7 +476,7 @@ public class LanguageImpl implements Language, Serializable {
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(exception, exception);
+				_log.warn(exception);
 			}
 		}
 
@@ -655,7 +655,7 @@ public class LanguageImpl implements Language, Serializable {
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(exception, exception);
+				_log.warn(exception);
 			}
 		}
 
@@ -795,7 +795,7 @@ public class LanguageImpl implements Language, Serializable {
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(exception, exception);
+				_log.warn(exception);
 			}
 		}
 
@@ -1043,7 +1043,7 @@ public class LanguageImpl implements Language, Serializable {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -1174,20 +1174,6 @@ public class LanguageImpl implements Language, Serializable {
 		return companyLocalesBag.getByLanguageCode(languageCode);
 	}
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #getResourceBundleLoader}
-	 */
-	@Deprecated
-	@Override
-	public com.liferay.portal.kernel.util.ResourceBundleLoader
-		getPortalResourceBundleLoader() {
-
-		ResourceBundleLoader resourceBundleLoader = getResourceBundleLoader();
-
-		return locale -> resourceBundleLoader.loadResourceBundle(locale);
-	}
-
 	@Override
 	public ResourceBundleLoader getResourceBundleLoader() {
 		return LanguageResources.PORTAL_RESOURCE_BUNDLE_LOADER;
@@ -1304,7 +1290,7 @@ public class LanguageImpl implements Language, Serializable {
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(exception, exception);
+				_log.warn(exception);
 			}
 		}
 
@@ -1447,7 +1433,7 @@ public class LanguageImpl implements Language, Serializable {
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(exception, exception);
+				_log.warn(exception);
 			}
 		}
 
@@ -1573,7 +1559,7 @@ public class LanguageImpl implements Language, Serializable {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -1771,7 +1757,7 @@ public class LanguageImpl implements Language, Serializable {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(exception, exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -2088,7 +2074,7 @@ public class LanguageImpl implements Language, Serializable {
 					// LPS-52675
 
 					if (_log.isDebugEnabled()) {
-						_log.debug(systemException, systemException);
+						_log.debug(systemException);
 					}
 
 					languageIds = PropsValues.LOCALES_ENABLED;

@@ -1,4 +1,4 @@
-@component-name = "portal-collaboration"
+@component-name = "portal-lima"
 definition {
 
 	property portal.acceptance = "true";
@@ -811,7 +811,7 @@ definition {
 			entryTitle = "Document_1.jpeg",
 			navItem = "Documents and Media",
 			paddingTop = "2",
-			panelList = "Styles");
+			panel = "Styles");
 
 		PageEditor.clickPublish();
 

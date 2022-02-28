@@ -230,11 +230,18 @@ public class RuntimeTag extends TagSupport implements DirectTag {
 			}
 		}
 
-		queryString = PortletParameterUtil.addNamespace(
-			portletInstanceKey, queryString);
+		if (Validator.isNotNull(queryString)) {
+			queryString = PortletParameterUtil.addNamespace(
+				portletInstanceKey, queryString);
 
-		httpServletRequest = DynamicServletRequest.addQueryString(
-			restrictPortletServletRequest, parameterMap, queryString, false);
+			httpServletRequest = DynamicServletRequest.addQueryString(
+				restrictPortletServletRequest, parameterMap, queryString,
+				false);
+		}
+		else {
+			httpServletRequest = new DynamicServletRequest(
+				restrictPortletServletRequest, parameterMap, false);
+		}
 
 		try {
 			httpServletRequest.setAttribute(
@@ -416,7 +423,7 @@ public class RuntimeTag extends TagSupport implements DirectTag {
 			return EVAL_PAGE;
 		}
 		catch (Exception exception) {
-			_log.error(exception, exception);
+			_log.error(exception);
 
 			throw new JspException(exception);
 		}
