@@ -231,15 +231,13 @@ public class OpenIdConnectAddRoleToUserLoginTest {
 		String firstName = userInfo.getGivenName();
 		String lastName = userInfo.getFamilyName();
 
-		Company company = new CompanyImpl();
-		company.setCompanyId(companyId);
 
 
 		try {
 			Mockito.when(
 				companyLocalServiceMock.getCompany(companyId)
 			).thenReturn(
-				company
+				companyMock
 			);
 		}
 		catch (PortalException portalException) {
@@ -267,19 +265,6 @@ public class OpenIdConnectAddRoleToUserLoginTest {
 		).thenReturn(
 			null
 		);
-
-
-		try {
-			Mockito.when(
-				companyImplMock.getLocale()
-			).thenReturn(
-				null
-			);
-		}
-		catch (PortalException portalException) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(portalException);
-			}		}
 
 		try {
 			Mockito.when(
@@ -355,7 +340,6 @@ public class OpenIdConnectAddRoleToUserLoginTest {
 	private final CompanyLocalService companyLocalServiceMock = Mockito.mock(CompanyLocalService.class);
 	private final Props props = Mockito.mock(Props.class);
 	private final RoleLocalService roleLocalServiceMock = Mockito.mock(RoleLocalService.class);
-	private final CompanyImpl companyImplMock = Mockito.mock(CompanyImpl.class);
 	private final Company companyMock = Mockito.mock(Company.class);
 	private final UserLocalServiceUtil userLocalServiceUtilMock = Mockito.mock(UserLocalServiceUtil.class);
 
