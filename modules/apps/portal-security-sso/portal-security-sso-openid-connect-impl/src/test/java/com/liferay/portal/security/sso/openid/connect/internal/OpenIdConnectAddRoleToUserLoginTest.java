@@ -131,7 +131,7 @@ public class OpenIdConnectAddRoleToUserLoginTest {
 			 userId = _openIdConnectUserInfoProcessorImpl.processUserInfo(userInfo, companyId, issuer, mainPath,
 				 portalURL);
 
-			assertNotEquals(userId, 0);
+			assertNotEquals(0, userId);
 		}
 		catch (PortalException portalException) {
 			if (_log.isDebugEnabled()) {
@@ -295,15 +295,25 @@ public class OpenIdConnectAddRoleToUserLoginTest {
 
 		try {
 			Mockito.when(
-				userLocalServiceMock.addUser(Mockito.eq(creatorUserId), Mockito.eq(companyId), Mockito.eq(autoPassword), Mockito.eq(password1), Mockito.eq(password2),
-					Mockito.eq(autoScreenName), Mockito.eq(screenName), Mockito.eq(emailAddress), Mockito.eq(locale), Mockito.eq(firstName),
-					Mockito.eq(userInfo.getMiddleName()), Mockito.eq(lastName), Mockito.eq(prefixId), Mockito.eq(suffixId), Mockito.eq(male),
-					Mockito.eq(birthdayMonth), Mockito.eq(birthdayDay), Mockito.eq(birthdayYear), Mockito.eq(jobTitle), Mockito.eq(groupIds),
-					Mockito.eq(organizationIds), Mockito.eq(roleIds), Mockito.eq(userGroupIds), Mockito.eq(sendEmail), Mockito.any(ServiceContext.class))
-			).thenReturn(
-				user
-			);
+				userLocalServiceMock.addUser(Mockito.anyLong(), Mockito.eq(companyId), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyString(),
+					Mockito.eq(autoScreenName), Mockito.anyString(), Mockito.anyString(), Mockito.eq(locale), Mockito.anyString(),
+					Mockito.anyString(), Mockito.anyString(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyBoolean(),
+					Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.any(),
+					Mockito.any(), Mockito.eq(roleIds), Mockito.any(), Mockito.anyBoolean(), Mockito.any(ServiceContext.class))
+			).thenAnswer(
+				invocationOnMock -> {
+					Object[] arguments = invocationOnMock.getArguments();
 
+					Object roleIdsArgument = arguments[21];
+
+					if (Objects.equals(roleIdsArgument, roleIds)) {
+						return user;
+					}
+					else {
+						return userError;
+					}
+				}
+			);
 		}
 		catch (PortalException portalException) {
 			if (_log.isDebugEnabled()) {
