@@ -146,15 +146,15 @@ public class EditInstanceMVCActionCommand extends BaseMVCActionCommand {
 
 		if (companyId <= 0) {
 			String screenNameAdminUser = ParamUtil.getString(
-				actionRequest, "screenname");
+				actionRequest, "administratorScreenName");
 			String emailAdminUser = ParamUtil.getString(
-				actionRequest, "administrator-email");
+				actionRequest, "administratorEmail");
 			String passwordAdminUser = ParamUtil.getString(
-				actionRequest, "password");
+				actionRequest, "administratorPassword");
 			String firstNameAdminUser = ParamUtil.getString(
-				actionRequest, "firstname");
+				actionRequest, "administratorFirstName");
 			String lastNameAdminUser = ParamUtil.getString(
-				actionRequest, "lastnmvcame");
+				actionRequest, "administratorLastName");
 
 			// Add instance
 
