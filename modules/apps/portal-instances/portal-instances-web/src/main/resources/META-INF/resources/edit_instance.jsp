@@ -107,21 +107,21 @@ renderResponse.setTitle((selCompany == null) ? LanguageUtil.get(request, "new-in
 						markupView="lexicon"
 						title="user-display-data"
 					>
-						<aui:input label="field.screen-name" name="screenname" type="text">
+						<aui:input label="field.screen-name" name="administratorScreenName" type="text">
 							<aui:validator name="required" />
 						</aui:input>
 
-						<aui:input name="administrator-email" type="text">
+						<aui:input name="administratorEmail" label="administrator-email" type="text">
 							<aui:validator name="required" />
 						</aui:input>
 
-						<aui:input label="password" name="passwordAdmin" type="password">
+						<aui:input label="password" name="administratorPassword" type="password">
 							<aui:validator name="required" />
 						</aui:input>
 
-						<aui:input label="field.first-name" name="firstname" type="text" />
+						<aui:input label="field.first-name" name="administratorFirstName" type="text" />
 
-						<aui:input label="field.last-name" name="lastname" type="text" />
+						<aui:input label="field.last-name" name="administratorLastName" type="text" />
 					</liferay-ui:panel>
 				</c:if>
 			</c:if>
