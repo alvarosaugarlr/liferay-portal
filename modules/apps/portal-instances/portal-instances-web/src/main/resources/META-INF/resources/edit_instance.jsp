@@ -1,4 +1,4 @@
-<%--
+<%@ page import="com.liferay.portal.kernel.util.PropsKeys" %><%--
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
@@ -97,6 +97,32 @@ renderResponse.setTitle((selCompany == null) ? LanguageUtil.get(request, "new-in
 						%>
 
 					</aui:select>
+				</c:if>
+
+				<c:if test='<%= Validator.isNull(PropsUtil.get(PropsKeys.DEFAULT_ADMIN_PASSWORD)) %>'>
+					<liferay-ui:panel
+						collapsible="<%= false %>"
+						extended="<%= true %>"
+						id="userDisplayDataVirtualInstancePanel"
+						markupView="lexicon"
+						title="user-display-data"
+					>
+						<aui:input label="field.screen-name" name="screenname" type="text">
+							<aui:validator name="required" />
+						</aui:input>
+
+						<aui:input name="administrator-email" type="text">
+							<aui:validator name="required" />
+						</aui:input>
+
+						<aui:input label="password" name="passwordAdmin" type="password">
+							<aui:validator name="required" />
+						</aui:input>
+
+						<aui:input label="field.first-name" name="firstname" type="text" />
+
+						<aui:input label="field.last-name" name="lastname" type="text" />
+					</liferay-ui:panel>
 				</c:if>
 			</c:if>
 		</aui:fieldset>
