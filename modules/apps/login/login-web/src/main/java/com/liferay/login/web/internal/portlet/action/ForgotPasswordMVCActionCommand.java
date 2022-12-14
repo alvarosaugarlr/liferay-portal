@@ -14,6 +14,7 @@
 
 package com.liferay.login.web.internal.portlet.action;
 
+import com.liferay.admin.kernel.util.Omniadmin;
 import com.liferay.captcha.configuration.CaptchaConfiguration;
 import com.liferay.captcha.util.CaptchaUtil;
 import com.liferay.login.web.constants.LoginPortletKeys;
@@ -266,7 +267,9 @@ public class ForgotPasswordMVCActionCommand extends BaseMVCActionCommand {
 					"Inactive user " + user.getUuid());
 			}
 
-			_userLocalService.checkLockout(user);
+			if (!_omniadmin.isOmniadmin(user)) {
+				_userLocalService.checkLockout(user);
+			}
 
 			return user;
 		}
@@ -400,5 +403,8 @@ public class ForgotPasswordMVCActionCommand extends BaseMVCActionCommand {
 
 	@Reference
 	private UserLocalService _userLocalService;
+
+	@Reference
+	private Omniadmin _omniadmin;
 
 }
