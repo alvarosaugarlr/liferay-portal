@@ -399,12 +399,12 @@ public class ForgotPasswordMVCActionCommand extends BaseMVCActionCommand {
 	private Language _language;
 
 	@Reference
+	private Omniadmin _omniadmin;
+
+	@Reference
 	private Portal _portal;
 
 	@Reference
 	private UserLocalService _userLocalService;
-
-	@Reference
-	private Omniadmin _omniadmin;
 
 }
