@@ -15,11 +15,8 @@
 package com.liferay.login.web.internal.portlet.action.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.PasswordPolicy;
-import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.service.PasswordPolicyLocalServiceUtil;
@@ -76,29 +73,7 @@ public class ForgotPasswordMVCActionCommandTest {
 	}
 
 	@Test
-	public void testLockoutNotAdminUser() throws Exception {
-		_mvcActionCommand.processAction(
-			_mockLiferayPortletActionRequest,
-			new MockLiferayPortletActionResponse());
-
-		User userReturn = (User)_mockLiferayPortletActionRequest.getAttribute(
-			WebKeys.FORGOT_PASSWORD_REMINDER_USER);
-
-		Company company = CompanyLocalServiceUtil.getCompany(_companyId);
-
-		String mailDefaultUser = "default@" + company.getMx();
-
-		Assert.assertEquals(mailDefaultUser, userReturn.getEmailAddress());
-	}
-
-	@Test
-	public void testLockoutYesAdminUser() throws Exception {
-		Role role = _roleLocalService.getRole(
-			_companyId, RoleConstants.ADMINISTRATOR);
-
-		_userLocalService.addRoleUser(
-			role.getRoleId(), _forgotPasswordUser.getUserId());
-
+	public void testLockoutAnyUser() throws Exception {
 		_mvcActionCommand.processAction(
 			_mockLiferayPortletActionRequest,
 			new MockLiferayPortletActionResponse());
