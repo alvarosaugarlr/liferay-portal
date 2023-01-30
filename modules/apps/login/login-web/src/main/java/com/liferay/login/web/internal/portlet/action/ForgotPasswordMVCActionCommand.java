@@ -267,9 +267,6 @@ public class ForgotPasswordMVCActionCommand extends BaseMVCActionCommand {
 					"Inactive user " + user.getUuid());
 			}
 
-			if (!_omniadmin.isOmniadmin(user)) {
-				_userLocalService.checkLockout(user);
-			}
 
 			return user;
 		}
