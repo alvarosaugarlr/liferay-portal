@@ -19,12 +19,15 @@ import com.liferay.account.constants.AccountConstants;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.AccountEntryOrganizationRelLocalService;
 import com.liferay.account.service.AccountEntryService;
+import com.liferay.account.service.AccountEntryUserRelService;
 import com.liferay.headless.admin.user.dto.v1_0.Account;
+import com.liferay.headless.admin.user.dto.v1_0.UserAccount;
 import com.liferay.headless.admin.user.internal.dto.v1_0.converter.AccountResourceDTOConverter;
 import com.liferay.headless.admin.user.internal.dto.v1_0.converter.OrganizationResourceDTOConverter;
 import com.liferay.headless.admin.user.internal.dto.v1_0.util.CustomFieldsUtil;
 import com.liferay.headless.admin.user.internal.odata.entity.v1_0.AccountEntityModel;
 import com.liferay.headless.admin.user.resource.v1_0.AccountResource;
+import com.liferay.headless.admin.user.resource.v1_0.UserAccountResource;
 import com.liferay.headless.common.spi.service.context.ServiceContextRequestUtil;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.kernel.model.Organization;
@@ -239,6 +242,8 @@ public class AccountResourceImpl
 			null, null, null, _getType(account), _getStatus(account),
 			_getServiceContext(account));
 
+		_createUsersAndAddAccountEntryUserRels(account, accountEntry);
+
 		accountEntry = _accountEntryService.updateExternalReferenceCode(
 			accountEntry.getAccountEntryId(),
 			account.getExternalReferenceCode());
@@ -304,6 +309,36 @@ public class AccountResourceImpl
 				account.getDescription(), _getDomains(account), null, null,
 				null, _getType(account), _getStatus(account),
 				_getServiceContext(account)));
+	}
+
+	private void _createUsersAndAddAccountEntryUserRels(
+			Account account, AccountEntry accountEntry)
+		throws Exception {
+
+		UserAccount[] userAccounts = account.getAccountUserAccounts();
+
+		long[] accountUserIds = new long[userAccounts.length];
+
+		int i = 0;
+
+		_userAccountResource.setContextUser(contextUser);
+		_userAccountResource.setContextCompany(contextCompany);
+		_userAccountResource.setContextAcceptLanguage(contextAcceptLanguage);
+		_userAccountResource.setContextHttpServletRequest(
+			contextHttpServletRequest);
+
+		for (UserAccount userAccount : userAccounts) {
+			UserAccount userAccountCreated =
+				_userAccountResource.putUserAccountByExternalReferenceCode(
+					userAccount.getExternalReferenceCode(), userAccount);
+
+			accountUserIds[i] = userAccountCreated.getId();
+
+			i++;
+		}
+
+		_accountEntryUserRelService.addAccountEntryUserRels(
+			accountEntry.getAccountEntryId(), accountUserIds);
 	}
 
 	private String[] _getDomains(Account account) {
@@ -502,11 +537,17 @@ public class AccountResourceImpl
 	private AccountEntryService _accountEntryService;
 
 	@Reference
+	private AccountEntryUserRelService _accountEntryUserRelService;
+
+	@Reference
 	private AccountResourceDTOConverter _accountResourceDTOConverter;
 
 	private final EntityModel _entityModel = new AccountEntityModel();
 
 	@Reference
 	private OrganizationResourceDTOConverter _organizationResourceDTOConverter;
+
+	@Reference
+	private UserAccountResource _userAccountResource;
 
 }
