@@ -239,6 +239,48 @@ public class DefaultObjectEntryManagerImpl
 	}
 
 	@Override
+	public void disassociateRelatedModels(
+			ObjectDefinition objectDefinition,
+			ObjectRelationship objectRelationship, long primaryKey,
+			ObjectDefinition relatedObjectDefinition, long userId)
+		throws Exception {
+
+		ObjectRelatedModelsProvider objectRelatedModelsProvider =
+			_objectRelatedModelsProviderRegistry.getObjectRelatedModelsProvider(
+				relatedObjectDefinition.getClassName(),
+				relatedObjectDefinition.getCompanyId(),
+				objectRelationship.getType());
+
+		if ((objectRelationship.getObjectDefinitionId1() !=
+				objectDefinition.getObjectDefinitionId()) &&
+			Objects.equals(
+				ObjectRelationshipConstants.TYPE_MANY_TO_MANY,
+				objectRelationship.getType())) {
+
+			objectRelationship =
+				_objectRelationshipLocalService.getObjectRelationship(
+					objectDefinition.getObjectDefinitionId(),
+					objectRelationship.getName());
+		}
+
+		for (Object relatedModel :
+				objectRelatedModelsProvider.getRelatedModels(
+					GroupThreadLocal.getGroupId(),
+					objectRelationship.getObjectRelationshipId(), primaryKey,
+					null, -1, -1)) {
+
+			com.liferay.object.model.ObjectEntry
+				relatedServiceBuilderObjectEntry =
+					(com.liferay.object.model.ObjectEntry)relatedModel;
+
+			objectRelatedModelsProvider.disassociateRelatedModels(
+				userId, objectRelationship.getObjectRelationshipId(),
+				primaryKey,
+				relatedServiceBuilderObjectEntry.getObjectEntryId());
+		}
+	}
+
+	@Override
 	public void executeObjectAction(
 			DTOConverterContext dtoConverterContext, String objectActionName,
 			ObjectDefinition objectDefinition, long objectEntryId)
@@ -552,14 +594,14 @@ public class DefaultObjectEntryManagerImpl
 				objectRelatedModelsProvider.getRelatedModels(
 					serviceBuilderObjectEntry.getGroupId(),
 					objectRelationship.getObjectRelationshipId(),
-					serviceBuilderObjectEntry.getPrimaryKey(),
+					serviceBuilderObjectEntry.getPrimaryKey(), null,
 					_getStartPosition(pagination),
 					_getEndPosition(pagination))),
 			pagination,
 			objectRelatedModelsProvider.getRelatedModelsCount(
 				serviceBuilderObjectEntry.getGroupId(),
 				objectRelationship.getObjectRelationshipId(),
-				serviceBuilderObjectEntry.getPrimaryKey()));
+				serviceBuilderObjectEntry.getPrimaryKey(), null));
 	}
 
 	@Override
@@ -591,7 +633,7 @@ public class DefaultObjectEntryManagerImpl
 					objectRelatedModelsProvider.getRelatedModels(
 						serviceBuilderObjectEntry.getGroupId(),
 						objectRelationship.getObjectRelationshipId(),
-						serviceBuilderObjectEntry.getPrimaryKey(),
+						serviceBuilderObjectEntry.getPrimaryKey(), null,
 						_getStartPosition(pagination),
 						_getEndPosition(pagination)),
 				baseModel -> _toDTO(
@@ -603,7 +645,7 @@ public class DefaultObjectEntryManagerImpl
 			objectRelatedModelsProvider.getRelatedModelsCount(
 				serviceBuilderObjectEntry.getGroupId(),
 				objectRelationship.getObjectRelationshipId(),
-				serviceBuilderObjectEntry.getPrimaryKey()));
+				serviceBuilderObjectEntry.getPrimaryKey(), null));
 	}
 
 	@Override
@@ -1030,12 +1072,12 @@ public class DefaultObjectEntryManagerImpl
 				dtoConverterContext,
 				objectRelatedModelsProvider.getRelatedModels(
 					groupId, objectRelationship.getObjectRelationshipId(),
-					objectEntryId, _getStartPosition(pagination),
+					objectEntryId, null, _getStartPosition(pagination),
 					_getEndPosition(pagination))),
 			pagination,
 			objectRelatedModelsProvider.getRelatedModelsCount(
 				groupId, objectRelationship.getObjectRelationshipId(),
-				objectEntryId));
+				objectEntryId, null));
 	}
 
 	private boolean _hasRelatedObjectEntries(
@@ -1072,7 +1114,7 @@ public class DefaultObjectEntryManagerImpl
 				count = objectRelatedModelsProvider.getRelatedModelsCount(
 					serviceBuilderObjectEntry.getGroupId(),
 					objectRelationship.getObjectRelationshipId(),
-					serviceBuilderObjectEntry.getPrimaryKey());
+					serviceBuilderObjectEntry.getPrimaryKey(), null);
 			}
 			catch (Exception exception) {
 				_log.error(exception);

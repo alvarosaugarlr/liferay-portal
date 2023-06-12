@@ -48,6 +48,7 @@ import {
 	getRolesList,
 	initialAccountsState,
 	initialDashboardNavigationItems,
+	publisherPermissionDescriptions,
 	publisherRoles,
 } from './PublishedDashboardPageUtil';
 
@@ -240,11 +241,7 @@ export function PublishedAppsDashboardPage() {
 
 		makeFetch();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [
-		page,
-		publishedAppTable.pageSize,
-		selectedAccount,
-	]);
+	}, [page, publishedAppTable.pageSize, selectedAccount]);
 
 	useEffect(() => {
 		const clickedNavigationItem =
@@ -314,6 +311,7 @@ export function PublishedAppsDashboardPage() {
 							dateCreated: member.dateCreated,
 							email: member.emailAddress,
 							image: member.image,
+							isInvitedMember:false,
 							isCustomerAccount: false,
 							isPublisherAccount: false,
 							lastLoginDate: member.lastLoginDate,
@@ -468,6 +466,8 @@ export function PublishedAppsDashboardPage() {
 				<MembersPage
 					dashboardNavigationItems={dashboardNavigationItems}
 					icon={membersIcon}
+					listOfRoles={publisherRoles}
+					rolesPermissionDescription={publisherPermissionDescriptions}
 					selectedAccount={selectedAccount}
 					setShowDashboardNavigation={setShowDashboardNavigation}
 				/>

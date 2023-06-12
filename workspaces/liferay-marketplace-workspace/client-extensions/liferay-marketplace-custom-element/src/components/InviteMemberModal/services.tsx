@@ -14,7 +14,7 @@
 
 import ClayAlert from '@clayui/alert';
 
-import {Liferay} from '../../liferay/liferay';
+import { Liferay } from '../../liferay/liferay';
 
 type requestBody = {
   alternateName: string;
@@ -24,7 +24,7 @@ type requestBody = {
   password: string;
 };
 
-export const getSiteURL = () => {
+const getSiteURL = () => {
   const layoutRelativeURL = Liferay.ThemeDisplay.getLayoutRelativeURL();
 
   if (layoutRelativeURL.includes('web')) {
@@ -35,33 +35,35 @@ export const getSiteURL = () => {
 };
 
 export async function getAccountRolesOnAPI(accountId: number) {
-	const accountRoles = await fetch(
-		`/o/headless-admin-user/v1.0/accounts/${accountId}/account-roles`,
-		{
-			headers: {
-				'accept': 'application/json',
-				'x-csrf-token': Liferay.authToken,
-			},
-		}
-	);
-	if (accountRoles.ok) {
-		const data = await accountRoles.json();
+  const accountRoles = await fetch(
+    `/o/headless-admin-user/v1.0/accounts/${accountId}/account-roles`,
+    {
+      headers: {
+        "accept": 'application/json',
+        'x-csrf-token': Liferay.authToken,
+      },
+    }
+  );
+  if (accountRoles.ok) {
+    const data = await accountRoles.json();
 
-		return data.items;
-	}
+    return data.items;
+  }
 }
 
 export async function createNewUser(requestBody: requestBody) {
   try {
     const response = await fetch(`/o/headless-admin-user/v1.0/user-accounts`, {
+      body: JSON.stringify(requestBody),
       headers: {
-        accept: 'application/json',
         'Content-Type': 'application/json',
+        "accept": 'application/json',
         'x-csrf-token': Liferay.authToken,
       },
       method: 'POST',
-      body: JSON.stringify(requestBody),
     });
+
+    return response.json();
   } catch (error) {
     <ClayAlert.ToastContainer>
       <ClayAlert
@@ -78,16 +80,41 @@ export async function addExistentUserIntoAccount(
   userEmail: string
 ) {
   try {
-    const response = await fetch(
+    await fetch(
       `/o/headless-admin-user/v1.0/accounts/${accountId}/user-accounts/by-email-address/${userEmail}`,
       {
         headers: {
-          accept: 'application/json',
+          "accept": 'application/json',
           'x-csrf-token': Liferay.authToken,
         },
         method: 'POST',
       }
     );
+  } catch (error) {
+    <ClayAlert.ToastContainer>
+      <ClayAlert autoClose={5000} displayType="danger" title="error" />
+    </ClayAlert.ToastContainer>;
+  }
+}
+
+export async function getUserByEmail(userEmail: String) {
+  try {
+    const responseFilteredUserList = await fetch(
+      `/o/headless-admin-user/v1.0/user-accounts?filter=emailAddress eq '${userEmail}'`,
+      {
+        headers: {
+          "accept": 'application/json',
+          'x-csrf-token': Liferay.authToken,
+        },
+      }
+    );
+
+    if (responseFilteredUserList.ok) {
+      const data = await responseFilteredUserList.json();
+      if (data.items.length) {
+        return data.items[0];
+      }
+    }
   } catch (error) {
     <ClayAlert.ToastContainer>
       <ClayAlert
@@ -99,89 +126,49 @@ export async function addExistentUserIntoAccount(
   }
 }
 
-export async function getUserByEmail(userEmail: String) {
-	try {
-		const responseFilteredUserList = await fetch(
-			`/o/headless-admin-user/v1.0/user-accounts?filter=emailAddress eq '${userEmail}'`,
-			{
-				headers: {
-					'accept': 'application/json',
-					'x-csrf-token': Liferay.authToken,
-				},
-			}
-		);
-
-		if (responseFilteredUserList.ok) {
-			const data = await responseFilteredUserList.json();
-			if (data.items.length) {
-				return data.items[0];
-			}
-		}
-	}
-	catch (error) {
-		<ClayAlert.ToastContainer>
-			<ClayAlert
-				autoClose={5000}
-				displayType="danger"
-				title="error"
-			></ClayAlert>
-		</ClayAlert.ToastContainer>;
-	}
-}
-
 export async function callRolesApi(
   accountId: number,
   roleId: number,
   userId: number
 ) {
-  const response = await fetch(
+  await fetch(
     `/o/headless-admin-user/v1.0/accounts/${accountId}/account-roles/${roleId}/user-accounts/${userId}`,
     {
       headers: {
-        accept: 'application/json',
         'Content-Type': 'application/json',
+        "accept": 'application/json',
         'x-csrf-token': Liferay.authToken,
       },
       method: 'POST',
     }
   );
-  if (response.ok) {
-    return;
-  }
 }
 
-export async function addAdditionalInfo(
-  acceptInviteStatus: boolean,
-  r_userToUserAddInfo_userId: number,
-  publisherName: string,
-  publisherId: number,
-  emailOfMember: string,
-  mothersName: string,
-  userFirstName: string,
-  inviterName: string,
-  inviteURL: string,
-  roles: string
-) {
-  const additionalInfoBody = {
-    acceptInviteStatus: acceptInviteStatus,
-    r_userToUserAddInfo_userId: r_userToUserAddInfo_userId,
-    inviteURL: inviteURL,
-    publisherName: publisherName,
-    r_accountToUserAdditionalInfos_accountEntryId: publisherId,
-    emailOfMember: emailOfMember,
-    mothersName: mothersName,
-    userFirstName: userFirstName,
-    inviterName: inviterName,
-    roles: roles,
-  };
+type AdditionalInfoBody = {
+  acceptInviteStatus: boolean;
+  accountName: string;
+  emailOfMember: string;
+  inviteURL: string;
+  inviterName: string;
+  mothersName: string;
+  r_accountToUserAdditionalInfos_accountEntryId: number;
+  r_userToUserAddInfo_userId: string;
+  roles: string;
+  userFirstName: string;
+};
 
-  const response = await fetch(`/o/c/useradditionalinfos/`, {
+export async function addAdditionalInfo(
+  additionalInfoBody: AdditionalInfoBody
+) {
+  return fetch(`/o/c/useradditionalinfos/`, {
+    body: JSON.stringify(additionalInfoBody),
     headers: {
-      accept: 'application/json',
       'Content-Type': 'application/json',
+      "accept": 'application/json',
       'x-csrf-token': Liferay.authToken,
     },
     method: 'POST',
-    body: JSON.stringify(additionalInfoBody),
   });
 }
+
+export { getSiteURL };

@@ -31,6 +31,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ASSERT_PARAGRAPH_TEXT</td>
+	<td>//div[contains(@class,'component-paragraph') and contains(.,'${key_value}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ANY_SELECT</td>
 	<td>//div[not(contains(@class,'hide'))]//div[contains(@class,'input-select-wrapper')][label[contains(.,'${key_selectFieldLabel}')]]/select</td>
 	<td></td>
@@ -766,6 +771,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>TABLE_CELL_BY_COLUMN_ORDER_NO_TITLE</td>
+	<td>//div[(@class="dnd-td") and contains(string(), '${key_cellName1}')]//..//div[(@class="dnd-td") and contains(string(), '${key_cellName2}')]//..//div[(@class="dnd-td")][${key_columnNumber}]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>TABLE_ENTRY_DELETE_BUTTON</td>
 	<td>//h4[contains(.,'${key_table}')]//..//div/a[contains(.,'${key_entryName}')]//..//..//../div/*[contains(.,'Delete')] | //div[contains(.,'${key_table}')]//div[@class='dnd-tr'][contains(.,'${key_entryName}')]//*[contains(text(),'Delete')]</td>
 	<td></td>
@@ -1274,6 +1284,11 @@
 <tr>
 	<td>TABLE_SEARCH_BY_NAME_AND_COLUMN_CONTENT</td>
 	<td>//div[@class='dnd-td' and contains(.,'${key_productName}')]/following-sibling::div[${key_columnNumber}][contains(text(),'${key_value}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TABLE_SEARCH_BY_NAME_AND_COLUMN_CONTENT_RELATIONS</td>
+	<td>//div[@class='commerce-product-definition-title' and contains(.,'${key_productName}')]/../../td[${key_columnNumber}][contains(text(),'${key_value}')]</td>
 	<td></td>
 </tr>
 <tr>

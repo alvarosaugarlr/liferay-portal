@@ -1,4 +1,7 @@
 {
+	"accountEntryRestricted": true,
+	"enableCategorization": true,
+	"externalReferenceCode": "MARKETPLACE-OBJECT-DEFINITION-1",
 	"label": {
 		"en_US": "User Additional Info"
 	},
@@ -44,9 +47,9 @@
 			"indexed": true,
 			"indexedAsKeyword": false,
 			"label": {
-				"en_US": "Publisher Name"
+				"en_US": "Account Name"
 			},
-			"name": "publisherName",
+			"name": "accountName",
 			"required": false,
 			"type": "String"
 		},

@@ -397,21 +397,24 @@ public class PoshiRunnerExecutor {
 		}
 
 		if (varValue instanceof String) {
-			varValue = _poshiVariablesContext.replaceExecuteVars(
-				(String)varValue);
-
 			varValue = _poshiVariablesContext.replaceCommandVars(
 				(String)varValue);
 
 			if (varValue instanceof String) {
-				Matcher matcher = _variablePattern.matcher((String)varValue);
+				varValue = _poshiVariablesContext.replaceExecuteVars(
+					(String)varValue);
 
-				if (matcher.matches() && varValue.equals(varValue)) {
-					if (updateLoggerStatus) {
-						_poshiLogger.updateStatus(element, "pass");
+				if (varValue instanceof String) {
+					Matcher matcher = _variablePattern.matcher(
+						(String)varValue);
+
+					if (matcher.matches() && varValue.equals(varValue)) {
+						if (updateLoggerStatus) {
+							_poshiLogger.updateStatus(element, "pass");
+						}
+
+						return;
 					}
-
-					return;
 				}
 			}
 		}
