@@ -14,9 +14,12 @@ import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.SearchDisplayStyleUtil;
 import com.liferay.portal.kernel.portlet.SearchOrderByUtil;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
+import com.liferay.portal.kernel.service.permission.UserPermissionUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -26,6 +29,7 @@ import com.liferay.site.memberships.constants.SiteMembershipsPortletKeys;
 import com.liferay.site.memberships.web.internal.util.DepotRolesUtil;
 import com.liferay.users.admin.kernel.util.UsersAdminUtil;
 
+import java.util.Iterator;
 import java.util.List;
 
 import javax.portlet.PortletURL;
@@ -205,16 +209,41 @@ public class SelectRolesDisplayContext {
 
 		Group group = GroupLocalServiceUtil.fetchGroup(getGroupId());
 
-		if (group.isDepot()) {
+		if (UserPermissionUtil.contains(themeDisplay.getPermissionChecker(),
+			themeDisplay.getUserId(), ActionKeys.ASSIGN_USER_ROLES)) {
+
+
+			List<Role> filteredGroupRoles = ListUtil.copy(roles);
+
+			Iterator<Role> iterator = filteredGroupRoles.iterator();
+
+			while (iterator.hasNext()) {
+				Role groupRole = iterator.next();
+
+				String roleName = groupRole.getName();
+
+				if (roleName.equals(RoleConstants.ORGANIZATION_USER) ||
+					roleName.equals(RoleConstants.SITE_MEMBER)) {
+
+					iterator.remove();
+				}
+			}
+
+			roleSearch.setResultsAndTotal(filteredGroupRoles);
+
+			
+		} else 	if (group.isDepot()) {
 			roles = DepotRolesUtil.filterGroupRoles(
 				themeDisplay.getPermissionChecker(), getGroupId(), roles);
+			roleSearch.setResultsAndTotal(roles);
 		}
 		else {
 			roles = UsersAdminUtil.filterGroupRoles(
 				themeDisplay.getPermissionChecker(), getGroupId(), roles);
+			roleSearch.setResultsAndTotal(roles);
 		}
 
-		roleSearch.setResultsAndTotal(roles);
+
 
 		_roleSearch = roleSearch;
 
