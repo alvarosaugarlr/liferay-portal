@@ -41,6 +41,9 @@ SelectRolesDisplayContext selectRolesDisplayContext = new SelectRolesDisplayCont
 						/>
 					</liferay-ui:search-container-column-text>
 				</c:when>
+
+
+
 				<c:when test='<%= Objects.equals(selectRolesDisplayContext.getDisplayStyle(), "descriptive") %>'>
 					<liferay-ui:search-container-column-text
 						colspan="<%= 2 %>"
@@ -90,4 +93,86 @@ SelectRolesDisplayContext selectRolesDisplayContext = new SelectRolesDisplayCont
 			markupView="lexicon"
 		/>
 	</liferay-ui:search-container>
+
+
+
+
+
+
+
+
+	<liferay-ui:search-container
+		id="roles"
+		searchContainer="<%= selectRolesDisplayContext.getTeamsSearchSearchContainer() %>"
+	>
+		<liferay-ui:search-container-row
+			className="com.liferay.portal.kernel.model.Team"
+			escapedModel="<%= true %>"
+			keyProperty="teamId"
+			modelVar="team"
+		>
+
+			<%
+				Map<String, Object> data = HashMapBuilder.<String, Object>put(
+					"id", team.getTeamId()
+				).build();
+			%>
+
+			<c:choose>
+				<c:when test='<%= Objects.equals(selectRolesDisplayContext.getDisplayStyle(), "icon") %>'>
+					<liferay-ui:search-container-column-text>
+						<clay:vertical-card
+							verticalCard="<%= new SelectTeamVerticalCard(team, renderRequest) %>"
+						/>
+					</liferay-ui:search-container-column-text>
+				</c:when>
+				<c:when test='<%= Objects.equals(selectRolesDisplayContext.getDisplayStyle(), "descriptive") %>'>
+					<liferay-ui:search-container-column-text
+						colspan="<%= 2 %>"
+					>
+						<h5>
+							<aui:a cssClass="selector-button" data="<%= data %>" href="javascript:void(0);">
+								<%= HtmlUtil.escape(team.getName()) %>
+							</aui:a>
+						</h5>
+
+						<h6 class="text-default">
+							<span><%= HtmlUtil.escape(team.getDescription()) %></span>
+						</h6>
+
+					</liferay-ui:search-container-column-text>
+				</c:when>
+				<c:when test='<%= Objects.equals(selectRolesDisplayContext.getDisplayStyle(), "list") %>'>
+					<liferay-ui:search-container-column-text
+						cssClass="table-cell-expand"
+						name="title"
+						truncate="<%= true %>"
+					>
+						<aui:a cssClass="selector-button" data="<%= data %>" href="javascript:void(0);">
+							<%= HtmlUtil.escape(team.getName()) %>
+						</aui:a>
+					</liferay-ui:search-container-column-text>
+
+					<liferay-ui:search-container-column-text
+						cssClass="table-cell-expand"
+						name="description"
+						value="<%= HtmlUtil.escape(team.getDescription()) %>"
+					/>
+
+					<liferay-ui:search-container-column-text
+						name="type"
+						value="<%= LanguageUtil.get(request, team.getName()) %>"
+					/>
+				</c:when>
+			</c:choose>
+		</liferay-ui:search-container-row>
+
+		<liferay-ui:search-iterator
+			displayStyle="<%= selectRolesDisplayContext.getDisplayStyle() %>"
+			markupView="lexicon"
+		/>
+	</liferay-ui:search-container>
+
+
+
 </aui:form>

@@ -2,3 +2,5 @@ Bundle-Name: Liferay Site Teams Web
 Bundle-SymbolicName: com.liferay.site.teams.web
 Bundle-Version: 5.0.39
 Web-ContextPath: /site-teams-web
+Export-Package:\
+	com.liferay.site.teams.web.internal.search

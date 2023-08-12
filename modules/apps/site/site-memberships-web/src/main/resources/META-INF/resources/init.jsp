@@ -76,6 +76,7 @@ page import="com.liferay.site.memberships.web.internal.display.context.ViewMembe
 page import="com.liferay.site.memberships.web.internal.frontend.taglib.clay.servlet.taglib.OrganizationsUserCard" %><%@
 page import="com.liferay.site.memberships.web.internal.frontend.taglib.clay.servlet.taglib.RoleVerticalCard" %><%@
 page import="com.liferay.site.memberships.web.internal.frontend.taglib.clay.servlet.taglib.SelectRoleVerticalCard" %><%@
+page import="com.liferay.site.memberships.web.internal.frontend.taglib.clay.servlet.taglib.SelectTeamVerticalCard" %><%@
 page import="com.liferay.site.memberships.web.internal.frontend.taglib.clay.servlet.taglib.UsersUserCard" %><%@
 page import="com.liferay.site.memberships.web.internal.frontend.taglib.clay.servlet.taglib.ViewMembershipRequestsPendingUserCard" %><%@
 page import="com.liferay.site.memberships.web.internal.frontend.taglib.clay.servlet.taglib.ViewMembershipRequestsUserCard" %><%@
