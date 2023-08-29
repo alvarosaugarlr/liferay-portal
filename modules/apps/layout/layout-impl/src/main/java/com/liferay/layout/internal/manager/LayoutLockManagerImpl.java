@@ -133,7 +133,7 @@ public class LayoutLockManagerImpl implements LayoutLockManager {
 	}
 
 	@Override
-	public List<LockedLayout> getLockedLayouts(long groupId) {
+	public List<LockedLayout> getLockedLayouts(long companyId, long groupId) {
 		List<Object[]> results = _layoutLocalService.dslQuery(
 			DSLQueryFactoryUtil.select(
 				LayoutTable.INSTANCE.classPK, LockTable.INSTANCE.createDate,
@@ -143,11 +143,20 @@ public class LayoutLockManagerImpl implements LayoutLockManager {
 				LayoutTable.INSTANCE
 			).innerJoinON(
 				LockTable.INSTANCE,
-				LockTable.INSTANCE.key.eq(
-					DSLFunctionFactoryUtil.castText(LayoutTable.INSTANCE.plid))
+				LockTable.INSTANCE.companyId.eq(
+					companyId
+				).and(
+					LockTable.INSTANCE.className.eq(Layout.class.getName())
+				).and(
+					LockTable.INSTANCE.key.eq(
+						DSLFunctionFactoryUtil.castText(
+							LayoutTable.INSTANCE.plid))
+				)
 			).where(
 				LayoutTable.INSTANCE.groupId.eq(
 					groupId
+				).and(
+					LayoutTable.INSTANCE.classPK.gt(0L)
 				).and(
 					LayoutTable.INSTANCE.hidden.eq(true)
 				).and(
@@ -158,13 +167,14 @@ public class LayoutLockManagerImpl implements LayoutLockManager {
 				).and(
 					LayoutTable.INSTANCE.type.in(
 						new String[] {
+							LayoutConstants.TYPE_ASSET_DISPLAY,
 							LayoutConstants.TYPE_COLLECTION,
 							LayoutConstants.TYPE_CONTENT
 						})
 				)
 			).orderBy(
 				orderByStep -> orderByStep.orderBy(
-					LayoutTable.INSTANCE.modifiedDate.descending())
+					LockTable.INSTANCE.createDate.descending())
 			));
 
 		List<LockedLayout> lockedLayouts = new ArrayList<>(results.size());

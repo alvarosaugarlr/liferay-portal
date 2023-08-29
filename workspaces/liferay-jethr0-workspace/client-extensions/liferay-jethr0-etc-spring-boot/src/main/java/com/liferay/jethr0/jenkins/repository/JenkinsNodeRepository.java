@@ -6,9 +6,9 @@
 package com.liferay.jethr0.jenkins.repository;
 
 import com.liferay.jethr0.entity.repository.BaseEntityRepository;
-import com.liferay.jethr0.jenkins.dalo.JenkinsNodeDALO;
-import com.liferay.jethr0.jenkins.dalo.JenkinsServerDALO;
-import com.liferay.jethr0.jenkins.dalo.JenkinsServerToJenkinsNodesDALO;
+import com.liferay.jethr0.jenkins.dalo.JenkinsNodeEntityDALO;
+import com.liferay.jethr0.jenkins.dalo.JenkinsServerEntityDALO;
+import com.liferay.jethr0.jenkins.dalo.JenkinsServerToJenkinsNodesEntityRelationshipDALO;
 import com.liferay.jethr0.jenkins.node.JenkinsNode;
 import com.liferay.jethr0.jenkins.server.JenkinsServer;
 import com.liferay.jethr0.util.StringUtil;
@@ -128,7 +128,8 @@ public class JenkinsNodeRepository extends BaseEntityRepository<JenkinsNode> {
 
 			nodeJSONObject.put("primaryLabel", primaryLabel);
 
-			JenkinsNode jenkinsNode = _jenkinsNodeDALO.create(nodeJSONObject);
+			JenkinsNode jenkinsNode = _jenkinsNodeEntityDALO.create(
+				nodeJSONObject);
 
 			jenkinsNode.setJenkinsServer(jenkinsServer);
 
@@ -152,7 +153,8 @@ public class JenkinsNodeRepository extends BaseEntityRepository<JenkinsNode> {
 		Set<JenkinsNode> jenkinsNodes = new HashSet<>();
 
 		Set<Long> jenkinsNodeIds =
-			_jenkinsServerToJenkinsNodesDALO.getChildEntityIds(jenkinsServer);
+			_jenkinsServerToJenkinsNodesEntityRelationshipDALO.
+				getChildEntityIds(jenkinsServer);
 
 		for (JenkinsNode jenkinsNode : getAll()) {
 			if (!jenkinsNodeIds.contains(jenkinsNode.getId())) {
@@ -170,8 +172,8 @@ public class JenkinsNodeRepository extends BaseEntityRepository<JenkinsNode> {
 	}
 
 	@Override
-	public JenkinsNodeDALO getEntityDALO() {
-		return _jenkinsNodeDALO;
+	public JenkinsNodeEntityDALO getEntityDALO() {
+		return _jenkinsNodeEntityDALO;
 	}
 
 	@Override
@@ -204,14 +206,15 @@ public class JenkinsNodeRepository extends BaseEntityRepository<JenkinsNode> {
 		"nodeRAM=(\\d+)");
 
 	@Autowired
-	private JenkinsNodeDALO _jenkinsNodeDALO;
+	private JenkinsNodeEntityDALO _jenkinsNodeEntityDALO;
 
 	@Autowired
-	private JenkinsServerDALO _jenkinsServerDALO;
+	private JenkinsServerEntityDALO _jenkinsServerEntityDALO;
 
 	private JenkinsServerRepository _jenkinsServerRepository;
 
 	@Autowired
-	private JenkinsServerToJenkinsNodesDALO _jenkinsServerToJenkinsNodesDALO;
+	private JenkinsServerToJenkinsNodesEntityRelationshipDALO
+		_jenkinsServerToJenkinsNodesEntityRelationshipDALO;
 
 }

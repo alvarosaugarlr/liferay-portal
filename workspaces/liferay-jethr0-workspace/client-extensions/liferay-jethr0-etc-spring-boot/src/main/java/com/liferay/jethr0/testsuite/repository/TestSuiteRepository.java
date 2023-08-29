@@ -8,8 +8,8 @@ package com.liferay.jethr0.testsuite.repository;
 import com.liferay.jethr0.entity.repository.BaseEntityRepository;
 import com.liferay.jethr0.project.Project;
 import com.liferay.jethr0.testsuite.TestSuite;
-import com.liferay.jethr0.testsuite.dalo.ProjectsToTestSuitesDALO;
-import com.liferay.jethr0.testsuite.dalo.TestSuiteDALO;
+import com.liferay.jethr0.testsuite.dalo.ProjectsToTestSuitesEntityRelationshipDALO;
+import com.liferay.jethr0.testsuite.dalo.TestSuiteEntityDALO;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,8 +26,9 @@ public class TestSuiteRepository extends BaseEntityRepository<TestSuite> {
 	public Set<TestSuite> getAll(Project project) {
 		Set<TestSuite> projectTestSuites = new HashSet<>();
 
-		Set<Long> testSuiteIds = _projectsToTestSuitesDALO.getChildEntityIds(
-			project);
+		Set<Long> testSuiteIds =
+			_projectsToTestSuitesEntityRelationshipDALO.getChildEntityIds(
+				project);
 
 		for (TestSuite testSuite : getAll()) {
 			if (!testSuiteIds.contains(testSuite.getId())) {
@@ -45,14 +46,15 @@ public class TestSuiteRepository extends BaseEntityRepository<TestSuite> {
 	}
 
 	@Override
-	public TestSuiteDALO getEntityDALO() {
-		return _testSuiteDALO;
+	public TestSuiteEntityDALO getEntityDALO() {
+		return _testSuiteEntityDALO;
 	}
 
 	@Autowired
-	private ProjectsToTestSuitesDALO _projectsToTestSuitesDALO;
+	private ProjectsToTestSuitesEntityRelationshipDALO
+		_projectsToTestSuitesEntityRelationshipDALO;
 
 	@Autowired
-	private TestSuiteDALO _testSuiteDALO;
+	private TestSuiteEntityDALO _testSuiteEntityDALO;
 
 }

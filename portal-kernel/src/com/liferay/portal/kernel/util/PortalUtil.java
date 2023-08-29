@@ -15,7 +15,6 @@ import com.liferay.portal.kernel.model.LayoutQueryStringComposite;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.Portlet;
-import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.InvokerPortlet;
 import com.liferay.portal.kernel.portlet.LayoutFriendlyURLSeparatorComposite;
@@ -53,7 +52,6 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.PortletURL;
 import javax.portlet.PreferencesValidator;
-import javax.portlet.RenderRequest;
 import javax.portlet.ValidatorException;
 import javax.portlet.WindowState;
 
@@ -238,16 +236,6 @@ public class PortalUtil {
 	}
 
 	/**
-	 * Clears the render parameters in the request if the portlet is in the
-	 * action phase.
-	 *
-	 * @param renderRequest the render request
-	 */
-	public static void clearRequestParameters(RenderRequest renderRequest) {
-		_portal.clearRequestParameters(renderRequest);
-	}
-
-	/**
 	 * Copies the request parameters to the render parameters, unless a
 	 * parameter with that name already exists in the render parameters.
 	 *
@@ -359,45 +347,6 @@ public class PortalUtil {
 
 	public static long[] getAncestorSiteGroupIds(long groupId) {
 		return _portal.getAncestorSiteGroupIds(groupId);
-	}
-
-	/**
-	 * Returns the base model instance for the resource permission.
-	 *
-	 * @param  resourcePermission the resource permission
-	 * @return the base model instance, or <code>null</code> if the resource
-	 *         permission does not have a base model instance (such as if it's a
-	 *         portlet)
-	 * @throws PortalException if a portal exception occurred
-	 */
-	public static BaseModel<?> getBaseModel(
-			ResourcePermission resourcePermission)
-		throws PortalException {
-
-		return _portal.getBaseModel(resourcePermission);
-	}
-
-	/**
-	 * Returns the base model instance for the model name and primary key.
-	 *
-	 * @param  modelName the fully qualified class name of the model
-	 * @param  primKey the primary key of the model instance to get
-	 * @return the base model instance, or <code>null</code> if the model does
-	 *         not have a base model instance (such as if it's a portlet)
-	 * @throws PortalException if a portal exception occurred
-	 */
-	public static BaseModel<?> getBaseModel(String modelName, String primKey)
-		throws PortalException {
-
-		return _portal.getBaseModel(modelName, primKey);
-	}
-
-	public static List<Group> getBrowsableScopeGroups(
-			long userId, long companyId, long groupId, String portletId)
-		throws PortalException {
-
-		return _portal.getBrowsableScopeGroups(
-			userId, companyId, groupId, portletId);
 	}
 
 	/**
@@ -684,24 +633,12 @@ public class PortalUtil {
 			groupIds, checkContentSharingWithChildrenEnabled);
 	}
 
-	public static List<Group> getCurrentAndAncestorSiteGroups(long groupId)
-		throws PortalException {
-
-		return _portal.getCurrentAndAncestorSiteGroups(groupId);
-	}
-
 	public static List<Group> getCurrentAndAncestorSiteGroups(
 			long groupId, boolean checkContentSharingWithChildrenEnabled)
 		throws PortalException {
 
 		return _portal.getCurrentAndAncestorSiteGroups(
 			groupId, checkContentSharingWithChildrenEnabled);
-	}
-
-	public static List<Group> getCurrentAndAncestorSiteGroups(long[] groupIds)
-		throws PortalException {
-
-		return _portal.getCurrentAndAncestorSiteGroups(groupIds);
 	}
 
 	public static List<Group> getCurrentAndAncestorSiteGroups(
@@ -881,12 +818,6 @@ public class PortalUtil {
 
 		return _portal.getExpandoValue(
 			httpServletRequest, name, type, displayType);
-	}
-
-	public static String getFirstPageLayoutTypes(
-		HttpServletRequest httpServletRequest) {
-
-		return _portal.getFirstPageLayoutTypes(httpServletRequest);
 	}
 
 	public static String getForwardedHost(

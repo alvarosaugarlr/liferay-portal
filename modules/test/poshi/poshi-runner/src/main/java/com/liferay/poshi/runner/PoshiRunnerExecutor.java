@@ -867,11 +867,11 @@ public class PoshiRunnerExecutor {
 					returnElement.attributeValue("name"), returnValue);
 			}
 
-			_poshiLogger.logExternalMethodCommand(
+			_poshiLogger.startExternalMethodCommand(
 				executeElement, args, returnValue);
 		}
 		catch (Throwable throwable) {
-			_poshiLogger.startCommand(executeElement);
+			_poshiLogger.startExternalMethodCommand(executeElement, args, null);
 
 			_summaryLogger.startSummary(executeElement);
 
@@ -879,14 +879,16 @@ public class PoshiRunnerExecutor {
 				executeElement, throwable.getMessage(),
 				_poshiLogger.getDetailsLinkId());
 
-			_poshiLogger.failCommand(executeElement);
-
 			_poshiLogger.updateStatus(executeElement, "fail");
+
+			_poshiLogger.failCommand(executeElement);
 
 			throw throwable;
 		}
 
 		_poshiLogger.updateStatus(executeElement, "pass");
+
+		_poshiLogger.passCommand(executeElement);
 	}
 
 	public void runReturnElement(Element returnElement) throws Exception {

@@ -21,6 +21,7 @@ import com.liferay.object.web.internal.util.ObjectEntryUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -28,6 +29,14 @@ import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 
 import java.io.Serializable;
 
+import java.text.DateFormat;
+import java.text.Format;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -139,6 +148,29 @@ public class ObjectEntryRowInfoItemRenderer
 				FileEntry fileEntry = (FileEntry)value;
 
 				values.put(objectField.getName(), fileEntry.getLink());
+			}
+			else if (objectField.compareBusinessType(
+						ObjectFieldConstants.BUSINESS_TYPE_DATE)) {
+
+				Format format = FastDateFormatFactoryUtil.getDate(
+					DateFormat.DEFAULT, themeDisplay.getLocale(),
+					themeDisplay.getTimeZone());
+
+				values.put(objectField.getName(), format.format(value));
+			}
+			else if (objectField.compareBusinessType(
+						ObjectFieldConstants.BUSINESS_TYPE_DATE_TIME)) {
+
+				Format format = FastDateFormatFactoryUtil.getDateTime(
+					DateFormat.DEFAULT, DateFormat.DEFAULT,
+					themeDisplay.getLocale(), themeDisplay.getTimeZone());
+
+				ZonedDateTime zonedDateTime = ZonedDateTime.of(
+					(LocalDateTime)value, ZoneId.systemDefault());
+
+				values.put(
+					objectField.getName(),
+					format.format(Date.from(zonedDateTime.toInstant())));
 			}
 			else if (objectField.compareBusinessType(
 						ObjectFieldConstants.

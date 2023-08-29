@@ -7,9 +7,9 @@ package com.liferay.jethr0.gitbranch.repository;
 
 import com.liferay.jethr0.entity.repository.BaseEntityRepository;
 import com.liferay.jethr0.gitbranch.GitBranch;
-import com.liferay.jethr0.gitbranch.dalo.GitBranchDALO;
+import com.liferay.jethr0.gitbranch.dalo.GitBranchEntityDALO;
 import com.liferay.jethr0.project.Project;
-import com.liferay.jethr0.project.dalo.ProjectsToGitBranchesDALO;
+import com.liferay.jethr0.project.dalo.ProjectsToGitBranchesEntityRelationshipDALO;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,8 +26,9 @@ public class GitBranchRepository extends BaseEntityRepository<GitBranch> {
 	public Set<GitBranch> getAll(Project project) {
 		Set<GitBranch> projectGitBranches = new HashSet<>();
 
-		Set<Long> gitBranchIds = _projectsToGitBranchesDALO.getChildEntityIds(
-			project);
+		Set<Long> gitBranchIds =
+			_projectsToGitBranchesEntityRelationshipDALO.getChildEntityIds(
+				project);
 
 		for (GitBranch gitBranch : getAll()) {
 			if (!gitBranchIds.contains(gitBranch.getId())) {
@@ -45,14 +46,15 @@ public class GitBranchRepository extends BaseEntityRepository<GitBranch> {
 	}
 
 	@Override
-	public GitBranchDALO getEntityDALO() {
-		return _gitBranchDALO;
+	public GitBranchEntityDALO getEntityDALO() {
+		return _gitBranchEntityDALO;
 	}
 
 	@Autowired
-	private GitBranchDALO _gitBranchDALO;
+	private GitBranchEntityDALO _gitBranchEntityDALO;
 
 	@Autowired
-	private ProjectsToGitBranchesDALO _projectsToGitBranchesDALO;
+	private ProjectsToGitBranchesEntityRelationshipDALO
+		_projectsToGitBranchesEntityRelationshipDALO;
 
 }

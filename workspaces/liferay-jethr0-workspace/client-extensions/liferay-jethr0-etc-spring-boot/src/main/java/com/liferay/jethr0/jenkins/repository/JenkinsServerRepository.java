@@ -7,8 +7,8 @@ package com.liferay.jethr0.jenkins.repository;
 
 import com.liferay.jethr0.entity.repository.BaseEntityRepository;
 import com.liferay.jethr0.jenkins.cohort.JenkinsCohort;
-import com.liferay.jethr0.jenkins.dalo.JenkinsServerDALO;
-import com.liferay.jethr0.jenkins.dalo.JenkinsServerToJenkinsNodesDALO;
+import com.liferay.jethr0.jenkins.dalo.JenkinsServerEntityDALO;
+import com.liferay.jethr0.jenkins.dalo.JenkinsServerToJenkinsNodesEntityRelationshipDALO;
 import com.liferay.jethr0.jenkins.server.JenkinsServer;
 import com.liferay.jethr0.util.StringUtil;
 
@@ -112,8 +112,8 @@ public class JenkinsServerRepository
 	}
 
 	@Override
-	public JenkinsServerDALO getEntityDALO() {
-		return _jenkinsServerDALO;
+	public JenkinsServerEntityDALO getEntityDALO() {
+		return _jenkinsServerEntityDALO;
 	}
 
 	@Override
@@ -131,8 +131,8 @@ public class JenkinsServerRepository
 			jenkinsServer.setJenkinsCohort(jenkinsCohort);
 
 			for (long jenkinsNodeId :
-					_jenkinsServerToJenkinsNodesDALO.getChildEntityIds(
-						jenkinsServer)) {
+					_jenkinsServerToJenkinsNodesEntityRelationshipDALO.
+						getChildEntityIds(jenkinsServer)) {
 
 				if (jenkinsNodeId == 0) {
 					continue;
@@ -166,10 +166,11 @@ public class JenkinsServerRepository
 	private JenkinsNodeRepository _jenkinsNodeRepository;
 
 	@Autowired
-	private JenkinsServerDALO _jenkinsServerDALO;
+	private JenkinsServerEntityDALO _jenkinsServerEntityDALO;
 
 	@Autowired
-	private JenkinsServerToJenkinsNodesDALO _jenkinsServerToJenkinsNodesDALO;
+	private JenkinsServerToJenkinsNodesEntityRelationshipDALO
+		_jenkinsServerToJenkinsNodesEntityRelationshipDALO;
 
 	@Value("${jenkins.user.name}")
 	private String _jenkinsUserName;

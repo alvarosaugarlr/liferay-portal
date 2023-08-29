@@ -35,7 +35,6 @@ import com.liferay.portal.kernel.cookies.constants.CookiesConstants;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
-import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.encryptor.EncryptorUtil;
 import com.liferay.portal.kernel.exception.ImageTypeException;
 import com.liferay.portal.kernel.exception.NoSuchGroupException;
@@ -72,7 +71,6 @@ import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.PublicRenderParameter;
 import com.liferay.portal.kernel.model.ResourceConstants;
-import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.Team;
 import com.liferay.portal.kernel.model.Theme;
@@ -95,7 +93,6 @@ import com.liferay.portal.kernel.portlet.LiferayPortletConfig;
 import com.liferay.portal.kernel.portlet.LiferayPortletMode;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
-import com.liferay.portal.kernel.portlet.LiferayRenderRequest;
 import com.liferay.portal.kernel.portlet.LiferayRenderResponse;
 import com.liferay.portal.kernel.portlet.LiferayStateAwareResponse;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
@@ -129,7 +126,6 @@ import com.liferay.portal.kernel.service.ImageLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutFriendlyURLLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutSetLocalServiceUtil;
-import com.liferay.portal.kernel.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
 import com.liferay.portal.kernel.service.ResourceLocalServiceUtil;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
@@ -170,9 +166,7 @@ import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.InetAddressUtil;
 import com.liferay.portal.kernel.util.InheritableMap;
 import com.liferay.portal.kernel.util.JavaConstants;
-import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.ListMergeable;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -222,8 +216,6 @@ import java.awt.image.RenderedImage;
 
 import java.io.IOException;
 import java.io.Serializable;
-
-import java.lang.reflect.Method;
 
 import java.net.IDN;
 import java.net.Inet4Address;
@@ -785,16 +777,6 @@ public class PortalImpl implements Portal {
 		}
 
 		return url;
-	}
-
-	@Override
-	public void clearRequestParameters(RenderRequest renderRequest) {
-		LiferayRenderRequest liferayRenderRequest =
-			(LiferayRenderRequest)renderRequest;
-
-		if (liferayRenderRequest.isTriggeredByActionURL()) {
-			liferayRenderRequest.clearRenderParameters();
-		}
 	}
 
 	@Override
@@ -1425,122 +1407,6 @@ public class PortalImpl implements Portal {
 	}
 
 	@Override
-	public BaseModel<?> getBaseModel(ResourcePermission resourcePermission)
-		throws PortalException {
-
-		String modelName = resourcePermission.getName();
-
-		return getBaseModel(modelName, resourcePermission.getPrimKey());
-	}
-
-	@Override
-	public BaseModel<?> getBaseModel(String modelName, String primKey)
-		throws PortalException {
-
-		if (!modelName.contains(".model.")) {
-			return null;
-		}
-
-		String[] parts = StringUtil.split(modelName, CharPool.PERIOD);
-
-		if ((parts.length <= 2) || !parts[parts.length - 2].equals("model")) {
-			return null;
-		}
-
-		parts[parts.length - 2] = "service";
-
-		String serviceName =
-			StringUtil.merge(parts, StringPool.PERIOD) + "LocalServiceUtil";
-		String methodName = "get" + parts[parts.length - 1];
-
-		Method method = null;
-
-		try {
-			Class<?> serviceUtil = Class.forName(serviceName);
-
-			if (Validator.isNumber(primKey)) {
-				method = serviceUtil.getMethod(
-					methodName, new Class<?>[] {Long.TYPE});
-
-				return (BaseModel<?>)method.invoke(null, Long.valueOf(primKey));
-			}
-
-			method = serviceUtil.getMethod(
-				methodName, new Class<?>[] {String.class});
-
-			return (BaseModel<?>)method.invoke(null, primKey);
-		}
-		catch (Exception exception) {
-			Throwable throwable = exception.getCause();
-
-			if (throwable instanceof PortalException) {
-				throw (PortalException)throwable;
-			}
-			else if (throwable instanceof SystemException) {
-				throw (SystemException)throwable;
-			}
-
-			throw new SystemException(throwable);
-		}
-	}
-
-	@Override
-	public List<Group> getBrowsableScopeGroups(
-			long userId, long companyId, long groupId, String portletId)
-		throws PortalException {
-
-		List<Group> groups = new ArrayList<>();
-
-		groups.addAll(
-			0,
-			GroupLocalServiceUtil.search(
-				companyId, null, null,
-				LinkedHashMapBuilder.<String, Object>put(
-					"usersGroups", Long.valueOf(userId)
-				).build(),
-				QueryUtil.ALL_POS, QueryUtil.ALL_POS));
-
-		List<Organization> organizations =
-			OrganizationLocalServiceUtil.getUserOrganizations(userId);
-
-		for (Organization organization : organizations) {
-			groups.add(0, organization.getGroup());
-		}
-
-		if (PrefsPropsUtil.getBoolean(
-				companyId, PropsKeys.LAYOUT_USER_PRIVATE_LAYOUTS_ENABLED) ||
-			PrefsPropsUtil.getBoolean(
-				companyId, PropsKeys.LAYOUT_USER_PUBLIC_LAYOUTS_ENABLED)) {
-
-			groups.add(
-				0, GroupLocalServiceUtil.getUserGroup(companyId, userId));
-		}
-
-		groups.addAll(0, getCurrentAndAncestorSiteGroups(groupId));
-
-		List<Group> filteredGroups = new ArrayList<>();
-
-		for (Group group : ListUtil.unique(groups)) {
-			if (group.hasStagingGroup()) {
-				Group stagingGroup = group.getStagingGroup();
-
-				if ((stagingGroup.getGroupId() == groupId) &&
-					group.isStagedPortlet(portletId) &&
-					!group.isStagedRemotely() &&
-					group.isStagedPortlet(PortletKeys.DOCUMENT_LIBRARY)) {
-
-					filteredGroups.add(stagingGroup);
-				}
-			}
-			else {
-				filteredGroups.add(group);
-			}
-		}
-
-		return filteredGroups;
-	}
-
-	@Override
 	public String getCanonicalURL(
 			String completeURL, ThemeDisplay themeDisplay, Layout layout)
 		throws PortalException {
@@ -2146,13 +2012,6 @@ public class PortalImpl implements Portal {
 	}
 
 	@Override
-	public List<Group> getCurrentAndAncestorSiteGroups(long groupId)
-		throws PortalException {
-
-		return getCurrentAndAncestorSiteGroups(groupId, false);
-	}
-
-	@Override
 	public List<Group> getCurrentAndAncestorSiteGroups(
 			long groupId, boolean checkContentSharingWithChildrenEnabled)
 		throws PortalException {
@@ -2170,13 +2029,6 @@ public class PortalImpl implements Portal {
 				groupId, checkContentSharingWithChildrenEnabled));
 
 		return new ArrayList<>(groups);
-	}
-
-	@Override
-	public List<Group> getCurrentAndAncestorSiteGroups(long[] groupIds)
-		throws PortalException {
-
-		return getCurrentAndAncestorSiteGroups(groupIds, false);
 	}
 
 	@Override
@@ -2588,32 +2440,6 @@ public class PortalImpl implements Portal {
 		}
 
 		return value;
-	}
-
-	@Override
-	public String getFirstPageLayoutTypes(
-		HttpServletRequest httpServletRequest) {
-
-		StringBundler sb = new StringBundler();
-
-		for (String type : LayoutTypeControllerTracker.getTypes()) {
-			LayoutTypeController layoutTypeController =
-				LayoutTypeControllerTracker.getLayoutTypeController(type);
-
-			if (layoutTypeController.isFirstPageable()) {
-				sb.append(
-					LanguageUtil.get(
-						httpServletRequest, "layout.types." + type));
-				sb.append(StringPool.COMMA);
-				sb.append(StringPool.SPACE);
-			}
-		}
-
-		if (sb.index() >= 2) {
-			sb.setIndex(sb.index() - 2);
-		}
-
-		return sb.toString();
 	}
 
 	@Override

@@ -385,38 +385,11 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 		try {
 			_persistedScheduler.start();
 
-			initJobState();
-
 			_memoryScheduler.start();
 		}
 		catch (Exception exception) {
 			throw new SchedulerException(
 				"Unable to start scheduler", exception);
-		}
-	}
-
-	@Override
-	public void unschedule(
-			String jobName, String groupName, StorageType storageType)
-		throws SchedulerException {
-
-		try {
-			Scheduler scheduler = _getScheduler(storageType);
-
-			jobName = _fixMaxLength(jobName, _jobNameMaxLength, storageType);
-			groupName = _fixMaxLength(
-				groupName, _groupNameMaxLength, storageType);
-
-			JobKey jobKey = new JobKey(jobName, groupName);
-
-			unschedule(scheduler, jobKey);
-		}
-		catch (Exception exception) {
-			throw new SchedulerException(
-				StringBundler.concat(
-					"Unable to unschedule job {jobName=", jobName,
-					", groupName=", groupName, "}"),
-				exception);
 		}
 	}
 
@@ -522,6 +495,24 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 			return null;
 		}
 
+		String jobName = jobKey.getName();
+		String groupName = jobKey.getGroup();
+
+		Trigger trigger = scheduler.getTrigger(
+			new TriggerKey(jobName, groupName));
+
+		if (trigger == null) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"Unable to find trigger for job (" + jobKey +
+						"), will delete it");
+			}
+
+			scheduler.deleteJob(jobKey);
+
+			return null;
+		}
+
 		SchedulerResponse schedulerResponse = new SchedulerResponse();
 
 		JobDataMap jobDataMap = jobDetail.getJobDataMap();
@@ -540,20 +531,6 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 		schedulerResponse.setStorageType(
 			StorageType.valueOf(
 				jobDataMap.getString(SchedulerEngine.STORAGE_TYPE)));
-
-		String jobName = jobKey.getName();
-		String groupName = jobKey.getGroup();
-
-		TriggerKey triggerKey = new TriggerKey(jobName, groupName);
-
-		Trigger trigger = scheduler.getTrigger(triggerKey);
-
-		if (trigger == null) {
-			schedulerResponse.setGroupName(groupName);
-			schedulerResponse.setJobName(jobName);
-
-			return schedulerResponse;
-		}
 
 		message.put(SchedulerEngine.END_TIME, trigger.getEndTime());
 		message.put(
@@ -592,35 +569,6 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 		}
 
 		return schedulerResponses;
-	}
-
-	protected void initJobState() throws Exception {
-		List<String> groupNames = _persistedScheduler.getJobGroupNames();
-
-		for (String groupName : groupNames) {
-			Set<JobKey> jobKeys = _persistedScheduler.getJobKeys(
-				GroupMatcher.jobGroupEquals(groupName));
-
-			for (JobKey jobKey : jobKeys) {
-				Trigger trigger = _persistedScheduler.getTrigger(
-					new TriggerKey(jobKey.getName(), jobKey.getGroup()));
-
-				if (trigger != null) {
-					continue;
-				}
-
-				SchedulerEngineHelper schedulerEngineHelper =
-					_getSchedulerEngineHelper();
-
-				JobDetail jobDetail = _persistedScheduler.getJobDetail(jobKey);
-
-				schedulerEngineHelper.auditSchedulerJobs(
-					getMessage(jobDetail.getJobDataMap()),
-					TriggerState.EXPIRED);
-
-				_persistedScheduler.deleteJob(jobKey);
-			}
-		}
 	}
 
 	protected void schedule(
@@ -671,47 +619,6 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 					objectAlreadyExistsException);
 			}
 		}
-	}
-
-	protected void unschedule(Scheduler scheduler, JobKey jobKey)
-		throws Exception {
-
-		JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-
-		if (jobDetail == null) {
-			return;
-		}
-
-		TriggerKey triggerKey = new TriggerKey(
-			jobKey.getName(), jobKey.getGroup());
-
-		Trigger trigger = scheduler.getTrigger(triggerKey);
-
-		if (trigger == null) {
-			return;
-		}
-
-		JobDataMap jobDataMap = jobDetail.getJobDataMap();
-
-		JobState jobState = _getJobState(jobDataMap);
-
-		jobState.setTriggerDate(SchedulerEngine.END_TIME, new Date());
-		jobState.setTriggerDate(
-			SchedulerEngine.FINAL_FIRE_TIME, trigger.getPreviousFireTime());
-		jobState.setTriggerDate(SchedulerEngine.NEXT_FIRE_TIME, null);
-		jobState.setTriggerDate(
-			SchedulerEngine.PREVIOUS_FIRE_TIME, trigger.getPreviousFireTime());
-		jobState.setTriggerDate(
-			SchedulerEngine.START_TIME, trigger.getStartTime());
-		jobState.setTriggerState(TriggerState.UNSCHEDULED);
-
-		jobDataMap.put(
-			SchedulerEngine.JOB_STATE,
-			JobStateSerializeUtil.serialize(jobState));
-
-		scheduler.unscheduleJob(triggerKey);
-
-		scheduler.addJob(jobDetail, true);
 	}
 
 	protected void update(

@@ -6,10 +6,10 @@
 package com.liferay.jethr0.environment.repository;
 
 import com.liferay.jethr0.bui1d.Build;
-import com.liferay.jethr0.bui1d.dalo.BuildToEnvironmentsDALO;
+import com.liferay.jethr0.bui1d.dalo.BuildToEnvironmentsEntityRelationshipDALO;
 import com.liferay.jethr0.entity.repository.BaseEntityRepository;
 import com.liferay.jethr0.environment.Environment;
-import com.liferay.jethr0.environment.dalo.EnvironmentDALO;
+import com.liferay.jethr0.environment.dalo.EnvironmentEntityDALO;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,8 +26,8 @@ public class EnvironmentRepository extends BaseEntityRepository<Environment> {
 	public Set<Environment> getAll(Build build) {
 		Set<Environment> buildEnvironments = new HashSet<>();
 
-		Set<Long> environmentIds = _buildToEnvironmentsDALO.getChildEntityIds(
-			build);
+		Set<Long> environmentIds =
+			_buildToEnvironmentsEntityRelationshipDALO.getChildEntityIds(build);
 
 		for (Environment environment : getAll()) {
 			if (!environmentIds.contains(environment.getId())) {
@@ -45,14 +45,15 @@ public class EnvironmentRepository extends BaseEntityRepository<Environment> {
 	}
 
 	@Override
-	public EnvironmentDALO getEntityDALO() {
-		return _environmentDALO;
+	public EnvironmentEntityDALO getEntityDALO() {
+		return _environmentEntityDALO;
 	}
 
 	@Autowired
-	private BuildToEnvironmentsDALO _buildToEnvironmentsDALO;
+	private BuildToEnvironmentsEntityRelationshipDALO
+		_buildToEnvironmentsEntityRelationshipDALO;
 
 	@Autowired
-	private EnvironmentDALO _environmentDALO;
+	private EnvironmentEntityDALO _environmentEntityDALO;
 
 }
