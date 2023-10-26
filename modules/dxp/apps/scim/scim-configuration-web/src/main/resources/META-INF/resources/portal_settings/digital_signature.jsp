@@ -11,11 +11,7 @@
 	SCIMConfiguration scimConfiguration = (SCIMConfiguration)request.getAttribute(SCIMConfiguration.class.getName());
 %>
 
-<div class="row">
-	<div class="col-md-12">
-		<aui:input checked="<%= scimConfiguration.enabled() %>" inlineLabel="right" label='<%= LanguageUtil.get(resourceBundle, "enabled") %>' labelCssClass="simple-toggle-switch" name="enabled" type="toggle-switch" value="<%= scimConfiguration.enabled() %>" />
-	</div>
-</div>
+	<aui:input name="<%= Constants.CMD %>" type="hidden" value="" />
 
 
 <aui:input label="applicationName" name="applicationName" type="text" value="<%= scimConfiguration.applicationName() %>" />
@@ -40,26 +36,25 @@
 <aui:input label="accessToken" name="accessToken" type="text" value="<%= scimConfiguration.applicationName() %>" />
 
 
+<aui:button
+	name="genetareAccessToken"
+	id="genetareAccessToken"
+	label="discard-changes"
+	small="<%= true %>"
+	value="generate"
+/>
 
-<portlet:actionURL name="/digital_signature/save_site_configuration" var="cancelCheckoutURL">
-	<portlet:param name="<%= "cmd" %>" value="cambiar" />
-</portlet:actionURL>
-
-<form action="<%= cancelCheckoutURL %>" method="post"  name="fm">
-	<liferay-ui:message key="user-account-setup-description" />
-	<aui:button
-		name="deleteButton"
-		id="deleteButton"
-		label="discard-changes"
-		small="<%= true %>"
-		value="send"
-	/>
-</form>
-
+<aui:button
+	name="revokeAccessToken"
+	id="revokeAccessToken"
+	label="discard-changes"
+	small="<%= true %>"
+	value="revoke"
+/>
 
 <script>
 	var deleteButtonElement = document.getElementById(
-		'<portlet:namespace />deleteButton'
+		'<portlet:namespace />genetareAccessToken'
 	);
 
 	if (deleteButtonElement) {
@@ -70,9 +65,35 @@
 				onConfirm: (isConfirmed) => {
 					if (isConfirmed) {
 						var form = window.document['<portlet:namespace />fm'];
+						form['<portlet:namespace /><%= Constants.CMD %>'].value = '<%= SCIMWebKeys.SCIM_GENERATE %>';
+
+						form.submit();
 
 
-						submitForm(form);
+
+					}
+				},
+			});
+		});
+	}
+
+
+
+	var deleteButtonElement = document.getElementById(
+		'<portlet:namespace />revokeAccessToken'
+	);
+
+	if (deleteButtonElement) {
+		deleteButtonElement.addEventListener('click', (event) => {
+			Liferay.Util.openConfirmModal({
+				message:
+					'<liferay-ui:message key="are-you-sure-you-want-to-delete-this" />',
+				onConfirm: (isConfirmed) => {
+					if (isConfirmed) {
+						var form = window.document['<portlet:namespace />fm'];
+						form['<portlet:namespace /><%= Constants.CMD %>'].value = '<%= SCIMWebKeys.SCIM_REVOKE %>';
+
+						form.submit();
 
 
 

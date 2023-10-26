@@ -109,27 +109,11 @@ public class SCIMSiteSettingsConfigurationScreenWrapper
 					getDigitalSignatureConfiguration(
 						themeDisplay.getCompanyId(), 0));
 
-			httpServletRequest.setAttribute(
+			/*httpServletRequest.setAttribute(
 				SCIMWebKeys.DIGITAL_SIGNATURE_ACCOUNT_BASE_URI,
 				digitalSignatureConfiguration.accountBaseURI());
-			httpServletRequest.setAttribute(
-				SCIMWebKeys.DIGITAL_SIGNATURE_API_ACCOUNT_ID,
-				digitalSignatureConfiguration.apiAccountId());
-			httpServletRequest.setAttribute(
-				SCIMWebKeys.DIGITAL_SIGNATURE_API_USERNAME,
-				digitalSignatureConfiguration.applicationName());
-			httpServletRequest.setAttribute(
-				SCIMWebKeys.DIGITAL_SIGNATURE_ENABLED,
-				digitalSignatureConfiguration.enabled());
-			httpServletRequest.setAttribute(
-				SCIMWebKeys.SCIM_MATCHER_FIELD,
-				digitalSignatureConfiguration.matcherField());
-			httpServletRequest.setAttribute(
-				SCIMWebKeys.DIGITAL_SIGNATURE_INTEGRATION_KEY,
-				digitalSignatureConfiguration.integrationKey());
-			httpServletRequest.setAttribute(
-				SCIMWebKeys.DIGITAL_SIGNATURE_RSA_PRIVATE_KEY,
-				digitalSignatureConfiguration.rsaPrivateKey());
+*/
+
 		}
 
 	}

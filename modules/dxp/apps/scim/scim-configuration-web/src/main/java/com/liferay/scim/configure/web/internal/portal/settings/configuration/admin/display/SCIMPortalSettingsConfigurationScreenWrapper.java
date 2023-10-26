@@ -8,7 +8,7 @@ package com.liferay.scim.configure.web.internal.portal.settings.configuration.ad
 import com.liferay.configuration.admin.display.ConfigurationScreen;
 import com.liferay.configuration.admin.display.ConfigurationScreenWrapper;
 import com.liferay.scim.configure.web.internal.configuration.SCIMConfiguration;
-import com.liferay.digital.signature.configuration.DigitalSignatureConfigurationUtil;
+import com.liferay.scim.configure.web.internal.configuration.SCIMConfigurationUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -21,7 +21,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.liferay.scim.configure.web.internal.configuration.SCIMConfigurationUtil;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 

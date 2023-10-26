@@ -10,17 +10,9 @@ package com.liferay.scim.configure.web.internal.constants;
  */
 public class SCIMConstants {
 
-	public static final String[] ALLOWED_FILE_EXTENSIONS = {
-		"csv", "doc", "docm", "docx", "dot", "dotm", "dotx", "gif", "htm",
-		"html", "jpeg", "jpg", "msg", "pdf", "png", "pot", "potx", "pps", "ppt",
-		"pptm", "pptx", "rtf", "rtf", "tif", "tiff", "txt", "wpd", "xls",
-		"xlsm", "xlsx", "xps"
-	};
-
 	public static final String[] MATCHER_FIELD = {"userName", "emailAddress"};
 
-	public static final String[] SITE_SETTINGS_STRATEGIES = {
-		"always-inherit", "always-override", "inherit-or-override"
-	};
 
+
+	public static final String[] ALLOWED_FILE_EXTENSIONS = {"userName", "emailAddress"};
 }

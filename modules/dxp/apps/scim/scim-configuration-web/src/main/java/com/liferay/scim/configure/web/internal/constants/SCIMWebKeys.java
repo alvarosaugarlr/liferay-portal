@@ -10,34 +10,38 @@ package com.liferay.scim.configure.web.internal.constants;
  */
 public class SCIMWebKeys {
 
-	public static final String DIGITAL_SIGNATURE_ACCOUNT_BASE_URI =
-		"DIGITAL_SIGNATURE_ACCOUNT_BASE_URI";
-
-	public static final String DIGITAL_SIGNATURE_API_ACCOUNT_ID =
-		"DIGITAL_SIGNATURE_API_ACCOUNT_ID";
-
-	public static final String DIGITAL_SIGNATURE_API_USERNAME =
-		"DIGITAL_SIGNATURE_API_USERNAME";
-
-	public static final String DIGITAL_SIGNATURE_ENABLED =
-		"DIGITAL_SIGNATURE_ENABLED";
-
 	public static final String SCIM_MATCHER_FIELD =
 		"SCIM_MATCHER_FIELD";
 
-	public static final String DIGITAL_SIGNATURE_FILE_ENTRIES =
-		"DIGITAL_SIGNATURE_FILE_ENTRIES";
 
-	public static final String DIGITAL_SIGNATURE_FILE_ENTRY_ID =
-		"DIGITAL_SIGNATURE_FILE_ENTRY_ID";
+	public static final String SCIM_CONFIGURATION =
+		"SCIM_CONFIGURATION";
 
+	public static final String SCIM_GENERATE =
+		"generate";
+
+	public static final String SCIM_REVOKE =
+		"revoke";
+
+	public static final String DIGITAL_SIGNATURE_ACCOUNT_BASE_URI =
+		"revoke";
 	public static final String DIGITAL_SIGNATURE_INTEGRATION_KEY =
-		"DIGITAL_SIGNATURE_INTEGRATION_KEY";
-
+		"revoke";
 	public static final String DIGITAL_SIGNATURE_RSA_PRIVATE_KEY =
-		"DIGITAL_SIGNATURE_RSA_PRIVATE_KEY";
+		"revoke";
 
+	public static final String DIGITAL_SIGNATURE_ENABLED =
+		"revoke";
+
+	public static final String DIGITAL_SIGNATURE_API_USERNAME =
+		"revoke";
+	public static final String DIGITAL_SIGNATURE_API_ACCOUNT_ID =
+		"revoke";
 	public static final String DIGITAL_SIGNATURE_TITLE =
-		"DIGITAL_SIGNATURE_TITLE";
+		"revoke";
+	public static final String DIGITAL_SIGNATURE_FILE_ENTRIES =
+		"revoke";
+
+
 
 }

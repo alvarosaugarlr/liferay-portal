@@ -5,7 +5,7 @@
 
 package com.liferay.scim.configure.web.internal.portlet;
 
-import com.liferay.digital.signature.constants.DigitalSignaturePortletKeys;
+import com.liferay.scim.configure.web.internal.constants.SCIMWebKeys;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 
 import javax.portlet.Portlet;
@@ -29,7 +29,7 @@ import org.osgi.service.component.annotations.Component;
 		"javax.portlet.expiration-cache=0",
 		"javax.portlet.init-param.template-path=/META-INF/resources/",
 		"javax.portlet.init-param.view-template=/digital_signature/view.jsp",
-		"javax.portlet.name=" + DigitalSignaturePortletKeys.DIGITAL_SIGNATURE,
+		"javax.portlet.name=" + SCIMWebKeys.SCIM_CONFIGURATION,
 		"javax.portlet.resource-bundle=content.Language",
 		"javax.portlet.security-role-ref=power-user,user",
 		"javax.portlet.version=3.0"
