@@ -7,27 +7,42 @@ package com.liferay.scim.configure.web.internal.portal.settings.configuration.ad
 
 import com.liferay.configuration.admin.display.ConfigurationScreen;
 import com.liferay.configuration.admin.display.ConfigurationScreenWrapper;
-import com.liferay.scim.configure.web.internal.configuration.SCIMConfiguration;
-import com.liferay.scim.configure.web.internal.configuration.SCIMConfigurationUtil;
+import com.liferay.oauth2.provider.exception.NoSuchOAuth2ApplicationException;
+import com.liferay.oauth2.provider.model.OAuth2Application;
+import com.liferay.oauth2.provider.model.OAuth2Authorization;
+import com.liferay.oauth2.provider.service.OAuth2ApplicationLocalService;
+import com.liferay.oauth2.provider.service.OAuth2AuthorizationLocalService;
+import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.settings.configuration.admin.display.PortalSettingsConfigurationScreenContributor;
 import com.liferay.portal.settings.configuration.admin.display.PortalSettingsConfigurationScreenFactory;
 
+import java.io.IOException;
+import java.util.Dictionary;
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.liferay.scim.client.util.SCIMClientUtil;
+import com.liferay.scim.configure.web.internal.constants.SCIMConstants;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * @author José Abelenda
+ * @author Alvaro Saugar
  */
-@Component(service = ConfigurationScreen.class)
+@Component(
+	configurationPid = "com.liferay.scim.client.configuration.SCIMClientOAuth2ApplicationConfiguration",
+	service = ConfigurationScreen.class)
 public class SCIMPortalSettingsConfigurationScreenWrapper
 	extends ConfigurationScreenWrapper {
 
@@ -54,23 +69,23 @@ public class SCIMPortalSettingsConfigurationScreenWrapper
 
 		@Override
 		public String getCategoryKey() {
-			return "scim-signature";
+			return "scim-name";
 		}
 
 		@Override
 		public String getJspPath() {
-			return "/portal_settings/digital_signature.jsp";
+			return "/portal_settings/scim_configuration.jsp";
 		}
 
 		@Override
 		public String getKey() {
-			return "scim-signature";
+			return "scim-name";
 		}
 
 		@Override
 		public String getName(Locale locale) {
 			return _language.get(
-				locale, "digital-signature-configuration-name");
+				locale, "scim-configuration-name");
 		}
 
 		@Override
@@ -88,18 +103,73 @@ public class SCIMPortalSettingsConfigurationScreenWrapper
 			HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse) {
 
-			ThemeDisplay themeDisplay =
-				(ThemeDisplay)httpServletRequest.getAttribute(
-					WebKeys.THEME_DISPLAY);
+			Configuration configuration = null;
+			try {
+				configuration =
+					_configurationAdmin.getConfiguration("com.liferay.scim.client.configuration.SCIMClientOAuth2ApplicationConfiguration");
 
-			httpServletRequest.setAttribute(
-				SCIMConfiguration.class.getName(),
-				SCIMConfigurationUtil.
-					getDigitalSignatureConfiguration(
-						themeDisplay.getCompanyId(),
-						themeDisplay.getSiteGroupId()));
+				if (configuration != null) {
+					Dictionary<String, Object> properties =
+						configuration.getProperties();
+					String applicationName = (String)properties.get(SCIMConstants.PARAM_APPLICATION_NAME);
+					String matcherField = (String)properties.get(SCIMConstants.PARAM_MATCHER_FIELD);
+					httpServletRequest.setAttribute(SCIMConstants.PARAM_APPLICATION_NAME, applicationName);
+					httpServletRequest.setAttribute(SCIMConstants.PARAM_MATCHER_FIELD, matcherField);
+
+
+					ThemeDisplay themeDisplay =
+						(ThemeDisplay)httpServletRequest.getAttribute(
+							WebKeys.THEME_DISPLAY);
+
+					String clientId = SCIMClientUtil.generateSCIMClientId(
+						applicationName);
+					OAuth2Application oAuth2Application =
+						null;
+					try {
+						oAuth2Application = _oAuth2ApplicationLocalService.getOAuth2Application(themeDisplay.getCompanyId(),
+							clientId);
+
+						if (oAuth2Application != null) {
+							List<OAuth2Authorization> oAuth2Authorizations =
+								_oAuth2AuthorizationLocalService.getOAuth2Authorizations(
+									oAuth2Application.getOAuth2ApplicationId(), 0, 1,
+									null);
+
+							OAuth2Authorization oAuth2Authorization;
+							if (!oAuth2Authorizations.isEmpty()) {
+								oAuth2Authorization = oAuth2Authorizations.get(0);
+								String accessToken = oAuth2Authorization.getAccessTokenContent();
+								httpServletRequest.setAttribute(SCIMConstants.PARAM_TOKEN, accessToken);
+							}
+						}
+					}
+					catch (NoSuchOAuth2ApplicationException e) {
+						_log.info(e.getMessage());
+					}
+
+				}
+			}
+			catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 
 	}
+
+	@Reference
+	private ConfigurationProvider _configurationProvider;
+
+	@Reference
+	private OAuth2ApplicationLocalService _oAuth2ApplicationLocalService;
+
+	@Reference
+	private ConfigurationAdmin _configurationAdmin;
+
+	@Reference
+	private OAuth2AuthorizationLocalService _oAuth2AuthorizationLocalService;
+
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		SCIMPortalSettingsConfigurationScreenWrapper.class);
 
 }

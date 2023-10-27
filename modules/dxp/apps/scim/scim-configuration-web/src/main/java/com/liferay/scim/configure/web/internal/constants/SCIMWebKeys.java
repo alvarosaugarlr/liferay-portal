@@ -6,7 +6,7 @@
 package com.liferay.scim.configure.web.internal.constants;
 
 /**
- * @author Keven Leone
+ * @author Alvaro Saugar
  */
 public class SCIMWebKeys {
 
@@ -21,25 +21,6 @@ public class SCIMWebKeys {
 		"generate";
 
 	public static final String SCIM_REVOKE =
-		"revoke";
-
-	public static final String DIGITAL_SIGNATURE_ACCOUNT_BASE_URI =
-		"revoke";
-	public static final String DIGITAL_SIGNATURE_INTEGRATION_KEY =
-		"revoke";
-	public static final String DIGITAL_SIGNATURE_RSA_PRIVATE_KEY =
-		"revoke";
-
-	public static final String DIGITAL_SIGNATURE_ENABLED =
-		"revoke";
-
-	public static final String DIGITAL_SIGNATURE_API_USERNAME =
-		"revoke";
-	public static final String DIGITAL_SIGNATURE_API_ACCOUNT_ID =
-		"revoke";
-	public static final String DIGITAL_SIGNATURE_TITLE =
-		"revoke";
-	public static final String DIGITAL_SIGNATURE_FILE_ENTRIES =
 		"revoke";
 
 

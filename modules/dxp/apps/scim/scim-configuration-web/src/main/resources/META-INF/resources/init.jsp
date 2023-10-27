@@ -17,7 +17,7 @@ taglib uri="http://liferay.com/tld/react" prefix="react" %><%@
 taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 
-<%@ page import="com.liferay.scim.configure.web.internal.configuration.SCIMConfiguration" %><%@
+<%@ page import="com.liferay.scim.client.configuration.SCIMClientOAuth2ApplicationConfiguration" %><%@
 page import="com.liferay.scim.configure.web.internal.constants.SCIMConstants" %><%@
 page import="com.liferay.scim.configure.web.internal.constants.SCIMWebKeys" %><%@
 page import="com.liferay.portal.kernel.language.LanguageUtil" %><%@

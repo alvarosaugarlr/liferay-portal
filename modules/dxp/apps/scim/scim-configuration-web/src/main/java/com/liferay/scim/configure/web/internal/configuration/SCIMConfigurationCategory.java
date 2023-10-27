@@ -10,7 +10,7 @@ import com.liferay.configuration.admin.category.ConfigurationCategory;
 import org.osgi.service.component.annotations.Component;
 
 /**
- * @author José Abelenda
+ * @author Alvaro Saugar
  */
 @Component(service = ConfigurationCategory.class)
 public class SCIMConfigurationCategory
@@ -18,12 +18,12 @@ public class SCIMConfigurationCategory
 
 	@Override
 	public String getCategoryIcon() {
-		return "signature";
+		return "lock";
 	}
 
 	@Override
 	public String getCategoryKey() {
-		return "scim-signature";
+		return "scim-name";
 	}
 
 	@Override
