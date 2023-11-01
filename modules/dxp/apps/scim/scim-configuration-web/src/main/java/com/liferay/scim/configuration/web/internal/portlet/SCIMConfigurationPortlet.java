@@ -1,12 +1,12 @@
 /**
- * SPDX-FileCopyrightText: (c) 2000 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2023 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
 package com.liferay.scim.configure.web.internal.portlet;
 
-import com.liferay.scim.configure.web.internal.constants.SCIMWebKeys;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.scim.configure.web.internal.constants.SCIMWebKeys;
 
 import javax.portlet.Portlet;
 
@@ -25,8 +25,7 @@ import org.osgi.service.component.annotations.Component;
 		"com.liferay.portlet.private-session-attributes=false",
 		"com.liferay.portlet.render-weight=50",
 		"com.liferay.portlet.use-default-template=true",
-		"javax.portlet.display-name=SCIM",
-		"javax.portlet.expiration-cache=0",
+		"javax.portlet.display-name=SCIM", "javax.portlet.expiration-cache=0",
 		"javax.portlet.init-param.template-path=/META-INF/resources/",
 		"javax.portlet.init-param.view-template=/portal_settings/scim_configuration.jsp",
 		"javax.portlet.name=" + SCIMWebKeys.SCIM_CONFIGURATION,

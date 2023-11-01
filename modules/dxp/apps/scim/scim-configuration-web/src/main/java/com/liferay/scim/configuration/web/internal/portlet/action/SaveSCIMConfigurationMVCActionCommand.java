@@ -1,19 +1,18 @@
 /**
- * SPDX-FileCopyrightText: (c) 2000 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2023 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
 package com.liferay.scim.configure.web.internal.portlet.action;
 
-import aQute.bnd.annotation.metatype.Meta;
 import com.liferay.configuration.admin.constants.ConfigurationAdminPortletKeys;
 import com.liferay.oauth.client.LocalOAuthClient;
 import com.liferay.oauth2.provider.model.OAuth2Application;
-import com.liferay.oauth2.provider.model.OAuth2Authorization;
 import com.liferay.oauth2.provider.service.OAuth2ApplicationLocalService;
 import com.liferay.oauth2.provider.service.OAuth2AuthorizationLocalService;
 import com.liferay.oauth2.provider.service.OAuth2AuthorizationService;
-import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
+import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -25,26 +24,22 @@ import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
-import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.scim.client.util.SCIMClientUtil;
+import com.liferay.scim.configure.web.internal.constants.SCIMConstants;
+import com.liferay.scim.configure.web.internal.constants.SCIMWebKeys;
+
+import java.util.Dictionary;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 
-import com.liferay.scim.client.configuration.SCIMClientOAuth2ApplicationConfiguration;
-import com.liferay.scim.client.util.SCIMClientUtil;
-import com.liferay.scim.configure.web.internal.constants.SCIMConstants;
-import com.liferay.scim.configure.web.internal.constants.SCIMWebKeys;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.cm.Configuration;
-
-
-import java.util.Date;
 
 /**
  * @author Alvaro Saugar
@@ -81,41 +76,83 @@ public class SaveSCIMConfigurationMVCActionCommand
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
 
 		String clientId = SCIMClientUtil.generateSCIMClientId(
-			ParamUtil.getString(actionRequest, SCIMConstants.PARAM_APPLICATION_NAME));
+			ParamUtil.getString(
+				actionRequest, SCIMConstants.PARAM_APPLICATION_NAME));
 
 		if (SCIMWebKeys.SCIM_GENERATE.equals(cmd)) {
 			OAuth2Application oAuth2Application =
-				_oAuth2ApplicationLocalService.getOAuth2Application(themeDisplay.getCompanyId(),
-					clientId);
-			String tokens = _localOAuthClient.requestTokens(oAuth2Application, oAuth2Application.getUserId());
+				_oAuth2ApplicationLocalService.getOAuth2Application(
+					themeDisplay.getCompanyId(), clientId);
+
+			String tokens = _localOAuthClient.requestTokens(
+				oAuth2Application, oAuth2Application.getUserId());
 
 			JSONObject jsonObject = JSONFactoryUtil.createJSONObject(tokens);
 
 			String accessToken = jsonObject.getString("access_token");
 
 			actionRequest.setAttribute(SCIMConstants.PARAM_TOKEN, accessToken);
-			
-		} else if (SCIMWebKeys.SCIM_REVOKE.equals(cmd)) {
+		}
+		else if (SCIMWebKeys.SCIM_REVOKE.equals(cmd)) {
 			OAuth2Application oAuth2Application =
-				_oAuth2ApplicationLocalService.getOAuth2Application(themeDisplay.getCompanyId(),
-					clientId);
+				_oAuth2ApplicationLocalService.getOAuth2Application(
+					themeDisplay.getCompanyId(), clientId);
+
 			_oAuth2AuthorizationService.revokeAllOAuth2Authorizations(
 				oAuth2Application.getOAuth2ApplicationId());
-	
-		} else {
-
-			_configurationProvider.saveSystemConfiguration(
-				SCIMClientOAuth2ApplicationConfiguration.class,
-				HashMapDictionaryBuilder.<String, Object>put(
-					"companyId", themeDisplay.getCompanyId()
-				).put(
-					SCIMConstants.PARAM_APPLICATION_NAME, ParamUtil.getString(actionRequest, SCIMConstants.PARAM_APPLICATION_NAME)
-				).put(
-					SCIMConstants.PARAM_MATCHER_FIELD, ParamUtil.getString(actionRequest, SCIMConstants.PARAM_MATCHER_FIELD)
-				).build());
 		}
+		else {
+			String filterString = StringBundler.concat(
+				"(&(service.factoryPid=",
+				"com.liferay.scim.client.configuration.SCIMClientOAuth2ApplicationConfiguration",
+				")(", SCIMConstants.PARAM_COMPANY_ID, "=",
+				themeDisplay.getCompanyId(), "))");
 
+			Configuration[] configurations =
+				_configurationAdmin.listConfigurations(filterString);
+			Configuration configuration = null;
+
+			if (configurations != null) {
+				configuration = configurations[0];
+
+				Dictionary<String, Object> properties =
+					configuration.getProperties();
+
+				properties.put(
+					SCIMConstants.PARAM_APPLICATION_NAME,
+					ParamUtil.getString(
+						actionRequest, SCIMConstants.PARAM_APPLICATION_NAME));
+
+				properties.put(
+					SCIMConstants.PARAM_MATCHER_FIELD,
+					ParamUtil.getString(
+						actionRequest, SCIMConstants.PARAM_MATCHER_FIELD));
+
+				configuration.update(properties);
+			}
+			else {
+				configuration = _configurationAdmin.createFactoryConfiguration(
+					"com.liferay.scim.client.configuration.SCIMClientOAuth2ApplicationConfiguration",
+					StringPool.QUESTION);
+
+				configuration.update(
+					HashMapDictionaryBuilder.<String, Object>put(
+						SCIMConstants.PARAM_APPLICATION_NAME,
+						ParamUtil.getString(
+							actionRequest, SCIMConstants.PARAM_APPLICATION_NAME)
+					).put(
+						SCIMConstants.PARAM_MATCHER_FIELD,
+						ParamUtil.getString(
+							actionRequest, SCIMConstants.PARAM_MATCHER_FIELD)
+					).put(
+						"companyId", themeDisplay.getCompanyId()
+					).build());
+			}
+		}
 	}
+
+	@Reference
+	private ConfigurationAdmin _configurationAdmin;
 
 	@Reference
 	private ConfigurationProvider _configurationProvider;
@@ -131,8 +168,5 @@ public class SaveSCIMConfigurationMVCActionCommand
 
 	@Reference
 	private OAuth2AuthorizationService _oAuth2AuthorizationService;
-
-	@Reference
-	private ConfigurationAdmin _configurationAdmin;
 
 }
