@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-package com.liferay.scim.configure.web.internal.portlet.action;
+package com.liferay.scim.configuration.web.internal.portlet.action;
 
 import com.liferay.configuration.admin.constants.ConfigurationAdminPortletKeys;
 import com.liferay.oauth.client.LocalOAuthClient;
@@ -14,7 +14,7 @@ import com.liferay.oauth2.provider.service.OAuth2AuthorizationService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
@@ -28,8 +28,8 @@ import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.scim.client.util.SCIMClientUtil;
-import com.liferay.scim.configure.web.internal.constants.SCIMConstants;
-import com.liferay.scim.configure.web.internal.constants.SCIMWebKeys;
+import com.liferay.scim.configuration.web.internal.constants.SCIMConstants;
+import com.liferay.scim.configuration.web.internal.constants.SCIMWebKeys;
 
 import java.util.Dictionary;
 
@@ -47,7 +47,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	property = {
 		"javax.portlet.name=" + ConfigurationAdminPortletKeys.INSTANCE_SETTINGS,
-		"mvc.command.name=/scim/save_scim_configuration"
+		"mvc.command.name=/scim_configuration/save_scim_configuration"
 	},
 	service = MVCActionCommand.class
 )
@@ -87,7 +87,7 @@ public class SaveSCIMConfigurationMVCActionCommand
 			String tokens = _localOAuthClient.requestTokens(
 				oAuth2Application, oAuth2Application.getUserId());
 
-			JSONObject jsonObject = JSONFactoryUtil.createJSONObject(tokens);
+			JSONObject jsonObject = _jsonFactory.createJSONObject(tokens);
 
 			String accessToken = jsonObject.getString("access_token");
 
@@ -103,13 +103,13 @@ public class SaveSCIMConfigurationMVCActionCommand
 		}
 		else {
 			String filterString = StringBundler.concat(
-				"(&(service.factoryPid=",
-				"com.liferay.scim.client.configuration.SCIMClientOAuth2ApplicationConfiguration",
-				")(", SCIMConstants.PARAM_COMPANY_ID, "=",
+				"(&(service.factoryPid=", SCIMConstants.CONFIGURATION_PID, ")(",
+				SCIMConstants.PARAM_COMPANY_ID, "=",
 				themeDisplay.getCompanyId(), "))");
 
 			Configuration[] configurations =
 				_configurationAdmin.listConfigurations(filterString);
+
 			Configuration configuration = null;
 
 			if (configurations != null) {
@@ -132,8 +132,7 @@ public class SaveSCIMConfigurationMVCActionCommand
 			}
 			else {
 				configuration = _configurationAdmin.createFactoryConfiguration(
-					"com.liferay.scim.client.configuration.SCIMClientOAuth2ApplicationConfiguration",
-					StringPool.QUESTION);
+					SCIMConstants.CONFIGURATION_PID, StringPool.QUESTION);
 
 				configuration.update(
 					HashMapDictionaryBuilder.<String, Object>put(
@@ -156,6 +155,9 @@ public class SaveSCIMConfigurationMVCActionCommand
 
 	@Reference
 	private ConfigurationProvider _configurationProvider;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private LocalOAuthClient _localOAuthClient;

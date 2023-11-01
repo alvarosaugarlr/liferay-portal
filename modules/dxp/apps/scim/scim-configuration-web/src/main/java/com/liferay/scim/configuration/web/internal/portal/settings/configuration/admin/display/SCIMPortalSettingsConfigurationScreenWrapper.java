@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-package com.liferay.scim.configure.web.internal.portal.settings.configuration.admin.display;
+package com.liferay.scim.configuration.web.internal.portal.settings.configuration.admin.display;
 
 import com.liferay.configuration.admin.display.ConfigurationScreen;
 import com.liferay.configuration.admin.display.ConfigurationScreenWrapper;
@@ -23,7 +23,7 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.settings.configuration.admin.display.PortalSettingsConfigurationScreenContributor;
 import com.liferay.portal.settings.configuration.admin.display.PortalSettingsConfigurationScreenFactory;
 import com.liferay.scim.client.util.SCIMClientUtil;
-import com.liferay.scim.configure.web.internal.constants.SCIMConstants;
+import com.liferay.scim.configuration.web.internal.constants.SCIMConstants;
 
 import java.io.IOException;
 
@@ -111,7 +111,7 @@ public class SCIMPortalSettingsConfigurationScreenWrapper
 
 		@Override
 		public String getSaveMVCActionCommandName() {
-			return "/scim/save_scim_configuration";
+			return "/scim_configuration/save_scim_configuration";
 		}
 
 		@Override
@@ -142,6 +142,7 @@ public class SCIMPortalSettingsConfigurationScreenWrapper
 
 				if (configurations != null) {
 					configuration = configurations[0];
+
 					Dictionary<String, Object> properties =
 						configuration.getProperties();
 
@@ -150,6 +151,7 @@ public class SCIMPortalSettingsConfigurationScreenWrapper
 							SCIMConstants.PARAM_APPLICATION_NAME);
 						String matcherField = (String)properties.get(
 							SCIMConstants.PARAM_MATCHER_FIELD);
+
 						httpServletRequest.setAttribute(
 							SCIMConstants.PARAM_APPLICATION_NAME,
 							applicationName);
@@ -181,6 +183,7 @@ public class SCIMPortalSettingsConfigurationScreenWrapper
 									oAuth2Authorization =
 										oAuth2Authorizations.get(
 											oAuth2Authorizations.size() - 1);
+
 									String accessToken =
 										oAuth2Authorization.
 											getAccessTokenContent();
@@ -190,17 +193,23 @@ public class SCIMPortalSettingsConfigurationScreenWrapper
 								}
 							}
 						}
-						catch (NoSuchOAuth2ApplicationException e) {
-							_log.info(e.getMessage());
+						catch (NoSuchOAuth2ApplicationException
+									noSuchOAuth2ApplicationException) {
+
+							if (_log.isInfoEnabled()) {
+								_log.info(
+									noSuchOAuth2ApplicationException.
+										getMessage());
+							}
 						}
 					}
 				}
 			}
-			catch (IOException e) {
-				throw new RuntimeException(e);
+			catch (IOException ioException) {
+				throw new RuntimeException(ioException);
 			}
-			catch (InvalidSyntaxException e) {
-				throw new RuntimeException(e);
+			catch (InvalidSyntaxException invalidSyntaxException) {
+				throw new RuntimeException(invalidSyntaxException);
 			}
 		}
 

@@ -1,6 +1,6 @@
 <%--
 /**
- * SPDX-FileCopyrightText: (c) 2000 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2023 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 --%>
@@ -8,54 +8,88 @@
 <%@ include file="/init.jsp" %>
 
 <%
-	String paramApplicationName = (String)request.getAttribute(SCIMConstants.PARAM_APPLICATION_NAME);
-	String paramMatcherField = (String)request.getAttribute(SCIMConstants.PARAM_MATCHER_FIELD);
-	String paramToken = (String)request.getAttribute(SCIMConstants.PARAM_TOKEN);
+String paramApplicationName = (String)request.getAttribute(SCIMConstants.PARAM_APPLICATION_NAME);
+String paramMatcherField = (String)request.getAttribute(SCIMConstants.PARAM_MATCHER_FIELD);
 
+String paramToken = (String)request.getAttribute(SCIMConstants.PARAM_TOKEN);
+
+if (paramToken == null) {
+	paramToken = StringPool.BLANK;
+}
 %>
 
 	<aui:input name="<%= Constants.CMD %>" type="hidden" value="" />
 
-
 <aui:input label="application-name" name="applicationName" required="<%= true %>" type="text" value="<%= paramApplicationName %>" />
 
-
-<aui:select label="scim_matcherField" name="matcherField" required="<%= true %>" value="<%= paramMatcherField %>">
+<aui:select helpMessage="scim_matcherField-help" label="scim_matcherField" name="matcherField" required="<%= true %>" value="<%= paramMatcherField %>">
 	<aui:option label="" value="" />
 
 	<%
-		for (String matcherField : SCIMConstants.MATCHER_FIELD) {
+	for (String matcherField : SCIMConstants.MATCHER_FIELD) {
 	%>
 
 			<aui:option label="<%= matcherField %>" value="<%= matcherField %>" />
 
 	<%
-		}
+	}
 	%>
 
 </aui:select>
 
 <c:choose>
-	<c:when test='<%= paramApplicationName != null %>'>
-		<aui:input label="access-token" name="accessToken" type="textarea" value="<%= paramToken %>" />
+	<c:when test="<%= paramApplicationName != null %>">
 
+		<%
+		String paramTokenInputId = liferayPortletResponse.getNamespace() + "paramToken";
+		%>
 
-		<aui:button
-			name="genetareAccessToken"
-			id="genetareAccessToken"
-			label="discard-changes"
-			small="<%= true %>"
-			value="generate"
-		/>
+		<div class="form-group">
+			<label for="<%= paramTokenInputId %>">
+				<liferay-ui:message key="access-token" />
+
+				<liferay-ui:icon-help message='<%= LanguageUtil.get(request, "webdav-help") %>' />
+			</label>
+
+			<div class="input-group input-group-sm">
+				<div class="input-group-item input-group-prepend">
+					<input class="form-control" id="<%= paramTokenInputId %>" readonly value="<%= paramToken %>" />
+				</div>
+
+				<span class="input-group-append input-group-item input-group-item-shrink">
+			<clay:button
+				name="copyAccessToken"
+				id="copyAccessToken"
+				cssClass="scim-infopanel-copy-clipboard lfr-portal-tooltip"
+				data-clipboard-target='<%= "#" + paramTokenInputId %>'
+				displayType="secondary"
+				icon="paste"
+				title="copy-link"
+			/>
+		</span>
+			</div>
+		</div>
+
+		<label for="<portlet:namespace />genetareAccessToken">
+			<liferay-ui:message key="scim-generate-access-token" />
+
+			<liferay-ui:icon-help message='<%= LanguageUtil.get(request, "scim-generate-access-token-help") %>' />
+		</label>
+
+		</br>
+
+		<aui:button id="genetareAccessToken" label="discard-changes" name="genetareAccessToken" small="<%= true %>" value="generate" />
+
 		<c:choose>
-			<c:when test='<%= paramToken != null %>'>
-				<aui:button
-					name="revokeAccessToken"
-					id="revokeAccessToken"
-					label="discard-changes"
-					small="<%= true %>"
-					value="revoke"
-				/>
+			<c:when test="<%= paramToken != null %>">
+				</br> <label for="<portlet:namespace />revokeAccessToken">
+					<liferay-ui:message key="scim-revoke-all" />
+
+					<liferay-ui:icon-help message='<%= LanguageUtil.get(request, "scim-revoke-all-help") %>' />
+				</label>
+				</br>
+
+				<aui:button id="revokeAccessToken" label="discard-changes" name="revokeAccessToken" small="<%= true %>" value="revoke" />
 			</c:when>
 		</c:choose>
 	</c:when>
@@ -74,19 +108,15 @@
 				onConfirm: (isConfirmed) => {
 					if (isConfirmed) {
 						var form = window.document['<portlet:namespace />fm'];
-						form['<portlet:namespace /><%= Constants.CMD %>'].value = '<%= SCIMWebKeys.SCIM_GENERATE %>';
+						form['<portlet:namespace /><%= Constants.CMD %>'].value =
+							'<%= SCIMWebKeys.SCIM_GENERATE %>';
 
 						form.submit();
-
-
-
 					}
 				},
 			});
 		});
 	}
-
-
 
 	var revokeAccessToken = document.getElementById(
 		'<portlet:namespace />revokeAccessToken'
@@ -100,15 +130,25 @@
 				onConfirm: (isConfirmed) => {
 					if (isConfirmed) {
 						var form = window.document['<portlet:namespace />fm'];
-						form['<portlet:namespace /><%= Constants.CMD %>'].value = '<%= SCIMWebKeys.SCIM_REVOKE %>';
+						form['<portlet:namespace /><%= Constants.CMD %>'].value =
+							'<%= SCIMWebKeys.SCIM_REVOKE %>';
 
 						form.submit();
-
-
-
 					}
 				},
 			});
+		});
+	}
+
+	var copyccessToken = document.getElementById(
+		'<portlet:namespace />copyccessToken'
+	);
+
+	if (copyccessToken) {
+		copyccessToken.addEventListener('click', (event) => {
+			this._clipboard = new ClipboardJS('.scim-infopanel-copy-clipboard');
+
+			this._clipboard.on('success', this._handleClipboardSuccess.bind(this));
 		});
 	}
 </script>
