@@ -48,7 +48,6 @@ if (paramToken == null) {
 			<label for="<%= paramTokenInputId %>">
 				<liferay-ui:message key="access-token" />
 
-				<liferay-ui:icon-help message='<%= LanguageUtil.get(request, "webdav-help") %>' />
 			</label>
 
 			<div class="input-group input-group-sm">
