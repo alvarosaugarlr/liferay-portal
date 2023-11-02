@@ -94,6 +94,10 @@ if (paramToken == null) {
 	</c:when>
 </c:choose>
 
+<liferay-frontend:component
+	module="portal_settings/js/InfoPanel.es"
+/>
+
 <script>
 	var genetareAccessToken = document.getElementById(
 		'<portlet:namespace />genetareAccessToken'
@@ -151,3 +155,4 @@ if (paramToken == null) {
 		});
 	}
 </script>
+
