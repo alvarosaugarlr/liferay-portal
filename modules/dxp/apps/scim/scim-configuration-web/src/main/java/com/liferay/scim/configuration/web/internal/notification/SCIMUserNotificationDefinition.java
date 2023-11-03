@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: (c) 2000 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2023 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
@@ -10,6 +10,7 @@ import com.liferay.portal.kernel.model.UserNotificationDeliveryConstants;
 import com.liferay.portal.kernel.notifications.UserNotificationDefinition;
 import com.liferay.portal.kernel.notifications.UserNotificationDeliveryType;
 import com.liferay.scim.configuration.web.internal.constants.SCIMWebKeys;
+
 import org.osgi.service.component.annotations.Component;
 
 /**
@@ -19,15 +20,12 @@ import org.osgi.service.component.annotations.Component;
 	property = "javax.portlet.name=" + SCIMWebKeys.SCIM_CONFIGURATION,
 	service = UserNotificationDefinition.class
 )
-public class SCIMUserNotificationDefinition
-	extends UserNotificationDefinition {
+public class SCIMUserNotificationDefinition extends UserNotificationDefinition {
 
 	public SCIMUserNotificationDefinition() {
 		super(
 			SCIMWebKeys.SCIM_CONFIGURATION, 0,
-			MembershipRequestConstants.STATUS_PENDING,
-			"receive-a-notification-when-someone-sends-you-a-membership-" +
-			"request");
+			MembershipRequestConstants.STATUS_PENDING, "scim-email-subject");
 
 		addUserNotificationDeliveryType(
 			new UserNotificationDeliveryType(
