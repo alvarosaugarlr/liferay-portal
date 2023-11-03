@@ -47,7 +47,6 @@ if (paramToken == null) {
 		<div class="form-group">
 			<label for="<%= paramTokenInputId %>">
 				<liferay-ui:message key="access-token" />
-
 			</label>
 
 			<div class="input-group input-group-sm">
@@ -155,4 +154,3 @@ if (paramToken == null) {
 		});
 	}
 </script>
-
