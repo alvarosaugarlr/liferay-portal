@@ -26,4 +26,7 @@ dependencies {
 	compileOnly project(":core:petra:petra-reflect")
 	compileOnly project(":core:petra:petra-string")
 	compileOnly project(":dxp:apps:scim:scim-api")
+
+	compileOnly group: "com.sun.mail", name: "jakarta.mail", version: "1.6.6"
+
 }
