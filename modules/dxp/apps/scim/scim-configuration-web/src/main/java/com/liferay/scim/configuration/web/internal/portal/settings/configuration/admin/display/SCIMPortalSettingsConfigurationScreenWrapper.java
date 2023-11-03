@@ -142,8 +142,7 @@ public class SCIMPortalSettingsConfigurationScreenWrapper
 						WebKeys.THEME_DISPLAY);
 
 				String filterString = StringBundler.concat(
-					"(&(service.factoryPid=",
-					SCIMConstants.CONFIGURATION_PID,
+					"(&(service.factoryPid=", SCIMConstants.CONFIGURATION_PID,
 					")(", SCIMConstants.PARAM_COMPANY_ID, "=",
 					themeDisplay.getCompanyId(), "))");
 
