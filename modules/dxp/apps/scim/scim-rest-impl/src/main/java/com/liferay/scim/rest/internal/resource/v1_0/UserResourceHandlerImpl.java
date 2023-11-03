@@ -8,9 +8,13 @@ package com.liferay.scim.rest.internal.resource.v1_0;
 import com.liferay.expando.kernel.service.ExpandoColumnLocalService;
 import com.liferay.expando.kernel.service.ExpandoTableLocalService;
 import com.liferay.expando.kernel.service.ExpandoValueLocalService;
+import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.transaction.Isolation;
+import com.liferay.portal.kernel.transaction.Propagation;
+import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.scim.rest.dto.v1_0.QueryAttributes;
 import com.liferay.scim.rest.dto.v1_0.User;
@@ -40,8 +44,13 @@ import org.wso2.charon3.core.protocol.endpoints.UserResourceManager;
 /**
  * @author Rafael Praxedes
  */
-@Component(service = UserResourceHandler.class)
-public class UserResourceHandlerImpl implements UserResourceHandler {
+@Component(service = {UserResourceHandler.class, AopService.class})
+@Transactional(
+	isolation = Isolation.PORTAL, propagation = Propagation.SUPPORTS,
+	rollbackFor = Exception.class
+)
+public class UserResourceHandlerImpl
+	implements AopService, UserResourceHandler {
 
 	public Response deleteV2User(String id) {
 		return _buildResponse(_userResourceManager.delete(id, _userManager));
