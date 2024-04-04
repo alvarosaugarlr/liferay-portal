@@ -34,6 +34,8 @@ import {config as productNavigationUserPersonalBarWebConfig} from './tests/produ
 import {config as stableConfig} from './tests/stable/config';
 import {config as stylebookConfig} from './tests/style-book-web/config';
 import {config as usersAdminWebConfig} from './tests/users-admin-web/config';
+import {config as signinUtilityPage} from './tests/sign-in-utility-page/config';
+
 
 export default defineConfig({
 	expect: {
@@ -67,6 +69,7 @@ export default defineConfig({
 		productNavigationControlMenuWebConfig,
 		productNavigationProductMenuWebConfig,
 		productNavigationUserPersonalBarWebConfig,
+		signinUtilityPage,
 		stableConfig,
 		stylebookConfig,
 		usersAdminWebConfig,
