@@ -1846,10 +1846,23 @@ definition {
 
 		task ("Logout, setup IdP and SP") {
 			User.logoutPG();
+echo("contraseña");
+echo(PropsUtil.get("test.portal.default.admin.password"));
+echo(TestPropsUtil.get("default.admin.password"));
+echo("pasasl");
+var liferayHomeasl = PropsUtil.get("test.portal.default.admin.password");
+//var liferayHomeasl = "p4ssW0rd";
+
+echo("liferayHomeasl");
+echo(liferayHomeasl);
+echo(${liferayHomeasl});
+echo("${liferayHomeasl}");
+
+
 
 			SAML.setupIDP(
 				idpURL = "http://localhost:8080",
-				password = PropsUtil.get("default.admin.password"),
+				password = ${liferayHomeasl},
 				samlEntityId = "samlidp",
 				userEmailAddress = "test@liferay.com");
 
