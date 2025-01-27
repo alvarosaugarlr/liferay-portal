@@ -106,22 +106,15 @@ definition {
 	@description = "Add Identity Provider Configurations to Service Provider"
 	@summary = "Default summary"
 	macro addIDPConfigurationsToServiceProvider(idpUserMembershipsAttributeMappingText = null, idpCustomFieldAttributeMappingText = null, userEmailAddress = null, idpUserMembershipsAttributeMapping = null, idpAttributeMappingText = null, userResolution = null, idpEntityId = null, idpCustomFieldAttributeMapping = null, idpKeepAliveURL = null, uploadMetadataXML = null, idpAttributeMapping = null, nameIdentifierFormat = null, idpMetadataURLRaw = null, userMatchingAttributeIndex = null, idpURL = null, spURL = null) {
-echo("# de3ntro de addIDPConfigurationsToServiceProvider");
-echo(contains(${userEmailAddress}, "test@"));
-echo(${userEmailAddress});
 
         if (isSet(userEmailAddress)) {
-        echo("1");
         		if (contains(${userEmailAddress}, "test@")) {
-        		        echo("2");
-
         			User.firstLoginUI(
         				password = PropsUtil.get("default.admin.password"),
         				specificURL = ${spURL},
         				userEmailAddress = ${userEmailAddress});
                 }
                 else {
-                        echo("3");
 
 					User.firstLoginUI(
 						password = "test",
@@ -130,7 +123,6 @@ echo(${userEmailAddress});
 				}
 		}
 		else {
-		        echo("4");
 
 			User.firstLoginUI(
 				password = PropsUtil.get("default.admin.password"),
@@ -299,29 +291,19 @@ echo(${userEmailAddress});
 	@description = "Configures Liferay SAML as the IdP"
 	@summary = "Default summary"
 	macro configureLiferaySAMLAsIdP(idpSessionMaximumAge = null, idpSessionIdleTimeout = null, idpURL = null, userEmailAddress = null, samlEntityId = null, keystoreEnabled = null, password = null) {
-echo("configureLiferaySAMLAsIdP");
-echo("password");
-echo(${password});
-echo("idpURL");
-echo(idpURL);
+
 		// Configure IdP (Identity Provider) on specific Portal URL or default to current URL
 
 		if (isSet(idpURL)) {
-		echo("1");
 			if (isSet(userEmailAddress)) {
-					echo("2");
 
 				if (isSet(password)) {
-						echo("3");
-
 					User.firstLoginUI(
 						password = ${password},
 						specificURL = ${idpURL},
 						userEmailAddress = ${userEmailAddress});
 				}
 				else {
-						echo("4");
-
 					User.firstLoginUI(
 						password = "test",
 						specificURL = ${idpURL},
@@ -329,8 +311,6 @@ echo(idpURL);
 				}
 			}
 			else {
-					echo("5");
-
 				User.firstLoginUI(
 					password = PropsUtil.get("default.admin.password"),
 					specificURL = ${idpURL},
@@ -358,6 +338,7 @@ echo(idpURL);
 
 			SAMLNavigation.gotoGeneral();
 		}
+
 
 		SAMLRole.enable(samlEntityId = ${samlEntityId});
 
@@ -869,21 +850,7 @@ echo(idpURL);
 	@description = "7.4-SAML-S1: Configure Portal Instance to act as a SAML Identity Provider"
 	@summary = "Default summary"
 	macro setupIDP(idpSessionMaximumAge = null, idpSessionIdleTimeout = null, idpURL = null, userEmailAddress = null, samlEntityId = null, keystoreEnabled = null, password = null) {
-echo("contraseña1");
-echo(PropsUtil.get('default.admin.password'));
-echo(PropsUtil.get("liferay.home.dir.name"));
-var liferayHome = PropsUtil.get("liferay.home.dir.name");
-echo(liferayHome);
-echo("entra setupIDP");
-echo("password");
-echo(${password});
-echo("${password}");
-echo(password);
-var liferayHomeasl = PropsUtil.get("test.portal.default.admin.password");
-var liferayHomeasl = PropsUtil.get("test.portal.default.admin.password");
-echo("liferayHomeasl");
-echo(liferayHomeasl);
-echo(${liferayHomeasl});
+
 		SAML.configureLiferaySAMLAsIdP(
 			idpSessionIdleTimeout = ${idpSessionIdleTimeout},
 			idpSessionMaximumAge = ${idpSessionMaximumAge},
@@ -892,7 +859,6 @@ echo(${liferayHomeasl});
 			password = ${password},
 			samlEntityId = ${samlEntityId},
 			userEmailAddress = ${userEmailAddress});
-echo("fuera configureLiferaySAMLAsIdP");
 
 		// Logout from identity provider site
 
@@ -908,10 +874,19 @@ echo("fuera configureLiferaySAMLAsIdP");
 
 		if (IsElementNotPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
 			if (isSet(userEmailAddress)) {
-				User.firstLoginUI(
-					password = "test",
-					specificURL = ${spURL},
-					userEmailAddress = ${userEmailAddress});
+				if (contains(${userEmailAddress}, "test@")) {
+
+        			User.firstLoginUI(
+        				password = PropsUtil.get("default.admin.password"),
+        				specificURL = ${spURL},
+        				userEmailAddress = ${userEmailAddress});
+                }
+				else {
+					User.firstLoginUI(
+						password = "test",
+						specificURL = ${spURL},
+						userEmailAddress = ${userEmailAddress});
+				}
 			}
 			else {
 				User.firstLoginUI(
