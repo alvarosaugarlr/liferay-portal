@@ -48,7 +48,7 @@ public class AllowRestrictedHeadersCallable
 
 			if (_authenticate) {
 				String encodedUserNameAndPassword = Base64.encode(
-					"test@liferay.com:test".getBytes());
+					"test@liferay.com:p4ssW0rd".getBytes());
 
 				httpURLConnection.setRequestProperty(
 					"Authorization", "Basic " + encodedUserNameAndPassword);
