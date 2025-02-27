@@ -52,4 +52,93 @@ import io.swagger.v3.oas.models.media.Schema;
 )
 public class SchemaResourceImpl extends BaseSchemaResourceImpl {
 
+
+
+	@Override
+	public Object getV2Schemas() throws Exception {
+
+		User user = new User();
+		List<String> stringList = user.getSchemaList();
+		System.out.println(stringList);
+
+
+
+		Response
+			response1 = _openAPIResource.getOpenAPI(_resourceClasses, "json");
+		System.out.println(response1);
+
+		OpenAPI openAPI = (OpenAPI)response1.getEntity();
+
+		Components components = openAPI.getComponents();
+
+		Map<String, Schema> ff =  components.getSchemas();
+		System.out.println(ff);
+
+		return null;
+	}
+
+	private final Set<Class<?>> _resourceClasses = new HashSet<Class<?>>() {
+		{
+			add(GroupResourceImpl.class);
+
+			add(SchemaResourceImpl.class);
+
+			add(UserResourceImpl.class);
+
+			add(OpenAPIResourceImpl.class);
+		}
+	};
+
+	@Activate
+	protected void activate() {
+		_userManager = new UserManagerImpl(
+			_classNameLocalService, _companyLocalService, _configurationAdmin,
+			_expandoColumnLocalService, _expandoTableLocalService,
+			_expandoValueLocalService, _searcher, _searchRequestBuilderFactory,
+			_userGroupLocalService, _userGroupService, _userLocalService,
+			_userService);
+	}
+
+	@Reference
+	private ClassNameLocalService _classNameLocalService;
+
+	@Reference
+	private CompanyLocalService _companyLocalService;
+
+	@Reference
+	private ConfigurationAdmin _configurationAdmin;
+
+	@Reference
+	private ExpandoColumnLocalService _expandoColumnLocalService;
+
+	@Reference
+	private ExpandoTableLocalService _expandoTableLocalService;
+
+	@Reference
+	private ExpandoValueLocalService _expandoValueLocalService;
+
+	@Reference
+	private Searcher _searcher;
+
+	@Reference
+	private SearchRequestBuilderFactory _searchRequestBuilderFactory;
+
+	@Reference
+	private UserGroupLocalService _userGroupLocalService;
+
+	@Reference
+	private UserGroupService _userGroupService;
+
+	@Reference
+	private UserLocalService _userLocalService;
+
+	private UserManager _userManager;
+
+	@Reference
+	private UserService _userService;
+
+
+	@Reference
+	private OpenAPIResource _openAPIResource;
+
 }
