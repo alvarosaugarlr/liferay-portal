@@ -738,7 +738,7 @@ paths:
                                 oneOf:
                                     - format: binary
                                       type: string
-                                    - $ref: "#/components/schemas/SchemaResource"
+                                    - $ref: "#/components/schemas/Schemas"
                     description:
                         The list of Schemas.
             tags: ["Schema"]
