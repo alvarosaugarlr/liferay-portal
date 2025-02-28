@@ -64,7 +64,9 @@ import java.util.Objects;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
+import org.wso2.charon3.core.attributes.Attribute;
 import org.wso2.charon3.core.exceptions.AbstractCharonException;
+import org.wso2.charon3.core.exceptions.BadRequestException;
 import org.wso2.charon3.core.exceptions.CharonException;
 import org.wso2.charon3.core.exceptions.ConflictException;
 import org.wso2.charon3.core.exceptions.NotFoundException;
@@ -74,6 +76,7 @@ import org.wso2.charon3.core.objects.Group;
 import org.wso2.charon3.core.objects.User;
 import org.wso2.charon3.core.objects.plainobjects.GroupsGetResponse;
 import org.wso2.charon3.core.objects.plainobjects.UsersGetResponse;
+import org.wso2.charon3.core.protocol.endpoints.AbstractResourceManager;
 import org.wso2.charon3.core.utils.codeutils.ExpressionNode;
 import org.wso2.charon3.core.utils.codeutils.Node;
 import org.wso2.charon3.core.utils.codeutils.SearchRequest;
@@ -190,6 +193,21 @@ public class UserManagerImpl implements UserManager {
 				"Unable to delete user with user ID " + userId,
 				portalException);
 		}
+	}
+
+	@Override
+	public List<Attribute> getCoreSchema()
+		throws BadRequestException, CharonException, NotImplementedException {
+
+		ServiceContext serviceContext =
+			ServiceContextThreadLocal.getServiceContext();
+
+		ScimClientOAuth2ApplicationConfiguration
+			scimClientOAuth2ApplicationConfiguration =
+				_getScimClientOAuth2ApplicationConfiguration(
+					serviceContext.getCompanyId());
+
+		return null;
 	}
 
 	@Override
