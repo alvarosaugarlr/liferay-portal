@@ -64,7 +64,8 @@ test('virutal default.admin.password blank', async ({page}) => {
 
 
 
-
+const termsOfUseButton = page.getByRole('button', {name: 'Done'});
+    await termsOfUseButton.click();
 
 
     const virtualInstancesPage = new VirtualInstancesPage(page);
