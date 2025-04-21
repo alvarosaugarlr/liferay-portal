@@ -21,6 +21,9 @@ export class VirtualInstancesPage {
 	readonly newVirtualInstanceButton: Locator;
 	readonly page: Page;
 	readonly successMessage: Locator;
+	readonly addInstanceScreenNameField: Locator;
+	readonly addInstanceEmailAddressField: Locator;
+	readonly addInstancePasswordField: Locator;
 
 	private addInstanceFrame: FrameLocator;
 
@@ -41,6 +44,11 @@ export class VirtualInstancesPage {
 		this.addInstanceVirtualInstanceInitializer =
 			this.addInstanceFrame.getByLabel('Virtual Instance Initializer');
 		this.addInstanceWebIdField = this.addInstanceFrame.getByLabel('Web ID');
+
+		this.addInstanceScreenNameField = this.addInstanceFrame.getByLabel('Screen Name');
+		this.addInstanceEmailAddressField = this.addInstanceFrame.getByLabel('Email Address');
+		this.addInstancePasswordField = this.addInstanceFrame.getByLabel('Password');
+
 		this.applicationsMenuPage = new ApplicationsMenuPage(page);
 
 		this.errorMessage = this.addInstanceFrame.getByText(
@@ -94,6 +102,54 @@ export class VirtualInstancesPage {
 			await this.page.getByLabel('Close').click();
 		}
 	}
+
+	async addNewVirtualInstanceSettingAdminUser(
+		name: string,
+		screenName: string,
+		emailAddress: string,
+		password: string,
+		active = true,
+		maxUsers = '0',
+		virtualInstanceInitializer = ''
+	) {
+		await this.applicationsMenuPage.goToVirtualInstances();
+		await this.newVirtualInstanceButton.click();
+
+		// Sometimes the frame loads slowly
+
+		await this.page.waitForTimeout(1000);
+
+		await this.addInstanceWebIdField.fill(name);
+		await this.addInstanceVirtualHost.fill(name);
+		await this.addInstanceMailDomain.fill(name + '.com');
+		await this.addInstanceMaxUsers.fill(maxUsers);
+		await this.addInstanceActive.setChecked(active);
+		await this.addInstanceVirtualInstanceInitializer.selectOption(
+			virtualInstanceInitializer
+		);
+		await this.addInstanceScreenNameField.fill(screenName);
+		await this.addInstanceEmailAddressField.fill(emailAddress);
+		await this.addInstancePasswordField.fill(password);
+
+		await Promise.all([
+			this.addInstanceAddButton.click(),
+			this.page.waitForResponse((response) =>
+				response.url().includes('add_instance')
+			),
+		]);
+
+		await this.page.waitForTimeout(1000);
+
+		// Only wait for Virtual Instance creation if there are no errors
+
+		if (await this.errorMessage.isHidden()) {
+			await expect(await this.successMessage).toBeVisible({
+				timeout: 180 * 1000,
+			});
+			await this.page.getByLabel('Close').click();
+		}
+	}
+
 
 	async deleteVirtualInstance(name: string) {
 		await this.applicationsMenuPage.goToVirtualInstances();
