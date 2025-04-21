@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {expect, mergeTests} from '@playwright/test';
+import {Page, expect, mergeTests} from '@playwright/test';
 
 import {liferayConfig} from '../../liferay.config';
-import {
-    VirtualInstancesPage
-} from "../../pages/portal-instances-web/VirtualInstancesPage";
+//import {
+  //  VirtualInstancesPage
+//} from "../../pages/portal-instances-web/VirtualInstancesPage";
 import {userData} from "../../utils/performLogin";
 import {loginTest} from "../../fixtures/loginTest";
 import {
@@ -21,10 +21,9 @@ import {userGroupsPageTest} from "../../fixtures/userGroupsPageTest";
 import {
     usersAndOrganizationsPagesTest
 } from "../../fixtures/usersAndOrganizationsPagesTest";
-import {
-    virtualInstancesPagesTest
-} from "../../fixtures/virtualInstancesPagesTest";
+import {virtualInstancesPagesTest} from '../../fixtures/virtualInstancesPagesTest';
 import getRandomString from "../../utils/getRandomString";
+
 
 
 export const test = mergeTests(
@@ -32,7 +31,7 @@ export const test = mergeTests(
     serverAdministrationPageTest,
     userGroupsPageTest,
     usersAndOrganizationsPagesTest,
-    VirtualInstancesPage
+    virtualInstancesPagesTest
 );
 
 test('LPD-test', async ({
@@ -46,7 +45,12 @@ test('LPD-test', async ({
 
 });
 
-test('virutal default.admin.password blank', async ({page}, virtualInstancePage) => {
+test(
+    'virutal default.admin.password blank',
+    async ({
+               page,
+               virtualInstancesPage
+    }) => {
     await page.goto(liferayConfig.environment.baseUrl);
     await expect(page.getByRole('heading', { name: 'Set Password' }))
         .toBeVisible({
@@ -76,7 +80,8 @@ const termsOfUseButton = page.getByRole('button', {name: 'Done'});
     //const emailAddress = getRandomString();
     //const pàssword = getRandomString();
 
-    await virtualInstancePage.addNewVirtualInstanceSettingAdminUser(nameInstance, name, name+'@liferay.com', password);
+        //const virtualInstancesPage = new VirtualInstancesPage(page);
+    await virtualInstancesPage.addNewVirtualInstanceSettingAdminUser(nameInstance, name, name+'@liferay.com', password);
 
  /*   const virtualInstancesPage = new VirtualInstancesPage(page);
 
