@@ -18,6 +18,9 @@ export class VirtualInstancesPage {
 	readonly addInstanceWebIdField: Locator;
 	readonly applicationsMenuPage: ApplicationsMenuPage;
 	readonly errorMessage: Locator;
+	readonly errorMessageScreenName: Locator;
+	readonly errorMessageEmailAddress: Locator;
+	readonly errorMessagePassword: Locator;
 	readonly newVirtualInstanceButton: Locator;
 	readonly page: Page;
 	readonly successMessage: Locator;
@@ -53,6 +56,16 @@ export class VirtualInstancesPage {
 
 		this.errorMessage = this.addInstanceFrame.getByText(
 			'Error:Please enter a valid'
+		);
+
+		this.errorMessageScreenName = this.addInstanceFrame.getByText(
+			'The Screen Name field is required'
+		);
+		this.errorMessageEmailAddress = this.addInstanceFrame.getByText(
+			'The Email Address field is required'
+		);
+		this.errorMessagePassword = this.addInstanceFrame.getByText(
+			'The Password field is required'
 		);
 
 		this.newVirtualInstanceButton = page.getByRole('button', {name: 'Add'});
@@ -127,6 +140,19 @@ export class VirtualInstancesPage {
 		await this.addInstanceVirtualInstanceInitializer.selectOption(
 			virtualInstanceInitializer
 		);
+
+		await Promise.all([
+			this.addInstanceAddButton.click(),
+			this.page.waitForResponse((response) =>
+				response.url().includes('add_instance')
+			),
+		]);
+		await this.page.waitForTimeout(1000);
+
+		await expect(this.errorMessageScreenName).toBeVisible();
+		await expect(this.errorMessageEmailAddress).toBeVisible();
+		await expect(this.errorMessagePassword).toBeVisible();
+
 		await this.addInstanceScreenNameField.fill(screenName);
 		await this.addInstanceEmailAddressField.fill(emailAddress);
 		await this.addInstancePasswordField.fill(password);

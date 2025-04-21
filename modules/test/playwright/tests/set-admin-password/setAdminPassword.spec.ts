@@ -49,7 +49,8 @@ test(
     'virutal default.admin.password blank',
     async ({
                page,
-               virtualInstancesPage
+               virtualInstancesPage,
+               editVirtualInstancePage
     }) => {
     await page.goto(liferayConfig.environment.baseUrl);
     await expect(page.getByRole('heading', { name: 'Set Password' }))
@@ -96,5 +97,7 @@ test(
     expect(page.getByText('The Password field is required.')).toBeVisible();
 
   */
+
+        await  editVirtualInstancePage.checkEditVirtualInstanceFields(nameInstance);
 
 });
