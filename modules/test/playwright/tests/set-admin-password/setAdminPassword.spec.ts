@@ -21,13 +21,18 @@ import {userGroupsPageTest} from "../../fixtures/userGroupsPageTest";
 import {
     usersAndOrganizationsPagesTest
 } from "../../fixtures/usersAndOrganizationsPagesTest";
+import {
+    virtualInstancesPagesTest
+} from "../../fixtures/virtualInstancesPagesTest";
+import getRandomString from "../../utils/getRandomString";
 
 
 export const test = mergeTests(
     applicationsMenuPageTest,
     serverAdministrationPageTest,
     userGroupsPageTest,
-    usersAndOrganizationsPagesTest
+    usersAndOrganizationsPagesTest,
+    VirtualInstancesPage
 );
 
 test('LPD-test', async ({
@@ -41,7 +46,7 @@ test('LPD-test', async ({
 
 });
 
-test('virutal default.admin.password blank', async ({page}) => {
+test('virutal default.admin.password blank', async ({page}, virtualInstancePage) => {
     await page.goto(liferayConfig.environment.baseUrl);
     await expect(page.getByRole('heading', { name: 'Set Password' }))
         .toBeVisible({
@@ -66,9 +71,14 @@ test('virutal default.admin.password blank', async ({page}) => {
 
 const termsOfUseButton = page.getByRole('button', {name: 'Done'});
     await termsOfUseButton.click();
+    const nameInstance = getRandomString();
+    //const screenName = getRandomString();
+    //const emailAddress = getRandomString();
+    //const pàssword = getRandomString();
 
+    await virtualInstancePage.addNewVirtualInstanceSettingAdminUser(nameInstance, name, name+'@liferay.com', password);
 
-    const virtualInstancesPage = new VirtualInstancesPage(page);
+ /*   const virtualInstancesPage = new VirtualInstancesPage(page);
 
     virtualInstancesPage.goto();
 
@@ -79,5 +89,7 @@ const termsOfUseButton = page.getByRole('button', {name: 'Done'});
     await page.getByRole('button', {name: 'Add'}).click();
 
     expect(page.getByText('The Password field is required.')).toBeVisible();
+
+  */
 
 });
