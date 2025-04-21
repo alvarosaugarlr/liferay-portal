@@ -73,8 +73,8 @@ test(
 
 
 
-const termsOfUseButton = page.getByRole('button', {name: 'Done'});
-    await termsOfUseButton.click();
+//const termsOfUseButton = page.getByRole('button', {name: 'Done'});
+  //  await termsOfUseButton.click();
     const nameInstance = getRandomString();
     //const screenName = getRandomString();
     //const emailAddress = getRandomString();
