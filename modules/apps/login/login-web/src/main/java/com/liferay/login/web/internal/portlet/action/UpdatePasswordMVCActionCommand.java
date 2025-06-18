@@ -5,6 +5,8 @@
 
 package com.liferay.login.web.internal.portlet.action;
 
+import com.liferay.layout.utility.page.kernel.constants.LayoutUtilityPageEntryConstants;
+import com.liferay.layout.utility.page.kernel.provider.LayoutUtilityPageEntryLayoutProvider;
 import com.liferay.login.web.constants.LoginPortletKeys;
 import com.liferay.portal.action.UpdatePasswordAction;
 import com.liferay.portal.kernel.exception.NoSuchUserException;
@@ -14,11 +16,15 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.CompanyConstants;
+import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.Ticket;
 import com.liferay.portal.kernel.model.TicketConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
+import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
+import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.security.auth.AuthTokenUtil;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.pwd.PasswordEncryptorUtil;
@@ -40,6 +46,10 @@ import com.liferay.portal.security.pwd.PwdToolkitUtilThreadLocal;
 
 import jakarta.portlet.ActionRequest;
 import jakarta.portlet.ActionResponse;
+import jakarta.portlet.PortletRequest;
+import jakarta.portlet.PortletURL;
+import jakarta.portlet.WindowState;
+import jakarta.portlet.PortletMode;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -48,6 +58,8 @@ import java.util.Date;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+
 
 /**
  * @author Alvaro Saugar
@@ -58,7 +70,6 @@ import org.osgi.service.component.annotations.Reference;
 		"jakarta.portlet.name=" + LoginPortletKeys.FAST_LOGIN,
 		"jakarta.portlet.name=" + LoginPortletKeys.FORGOT_PASSWORD,
 		"jakarta.portlet.name=" + LoginPortletKeys.LOGIN,
-		"jakarta.portlet.name=" + LoginPortletKeys.UPDATE_PASSWORD,
 		"mvc.command.name=/login/update_password"
 	},
 	service = MVCActionCommand.class
@@ -104,8 +115,7 @@ public class UpdatePasswordMVCActionCommand extends BaseMVCActionCommand {
 		try {
 			updatePassword(actionRequest, actionResponse, themeDisplay, ticket);
 
-			String redirect = ParamUtil.getString(
-				actionRequest, WebKeys.REFERER);
+			String redirect = ParamUtil.getString(actionRequest, "redirect");
 
 			if (Validator.isNotNull(redirect)) {
 				redirect = _portal.escapeRedirect(redirect);
@@ -127,10 +137,104 @@ public class UpdatePasswordMVCActionCommand extends BaseMVCActionCommand {
 
 				SessionErrors.add(actionRequest, exception.getClass());
 			}
+			//String redirect = ParamUtil.getString(actionRequest, WebKeys.REFERER);
+			//actionResponse.sendRedirect(redirect);
 
-			_portal.sendError(exception, actionRequest, actionResponse);
+			//actionResponse.setRenderParameter(
+			//	"mvcPath", "/update_password.jsp");
+
+			/*
+			String portletName = LoginPortletKeys.UPDATE_PASSWORD;
+
+			String redirect =PortletURLBuilder.create(
+				PortletURLFactoryUtil.create(
+					actionRequest, portletName, themeDisplay.getPlid(),
+					PortletRequest.RENDER_PHASE)
+			).setMVCRenderCommandName(
+				"/portal/update_password"
+			).setParameter(
+				"saveLastPath", false
+			).setPortletMode(
+				PortletMode.VIEW
+			).setWindowState(
+				WindowState.MAXIMIZED
+			).buildString();
+
+			actionResponse.sendRedirect(redirect);
+
+
+			 */
+
+				_postProcessAuthFailure(actionRequest, actionResponse);
+
+			//hideDefaultErrorMessage(actionRequest);
 		}
 	}
+
+	private void _postProcessAuthFailure(
+		ActionRequest actionRequest, ActionResponse actionResponse)
+		throws Exception {
+
+		LiferayPortletRequest liferayPortletRequest =
+			_portal.getLiferayPortletRequest(actionRequest);
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		Layout layout =
+			_layoutUtilityPageEntryLayoutProvider.
+				getDefaultLayoutUtilityPageEntryLayout(
+					themeDisplay.getScopeGroupId(),
+					LayoutUtilityPageEntryConstants.TYPE_FORGOT_PASSWORD);
+
+		if (layout == null) {
+			layout = (Layout)actionRequest.getAttribute(WebKeys.LAYOUT);
+		}
+
+		PortletURL portletURL = PortletURLBuilder.create(
+			PortletURLFactoryUtil.create(
+				actionRequest, liferayPortletRequest.getPortlet(), layout,
+				PortletRequest.RENDER_PHASE)
+		).setMVCRenderCommandName(
+			"/portal/update_password"
+		).setRedirect(
+			() -> {
+				String redirect = ParamUtil.getString(
+					actionRequest, "redirect");
+
+				if (Validator.isNotNull(redirect)) {
+					return redirect;
+				}
+
+				return null;
+			}
+		).setParameter(
+			"saveLastPath", false
+		).setPortletMode(
+			PortletMode.VIEW
+		).setWindowState(
+			WindowState.MAXIMIZED
+		).buildPortletURL();
+
+
+
+		String portletName = liferayPortletRequest.getPortletName();
+
+		if (portletName.equals(LoginPortletKeys.LOGIN)) {
+			if (layout.isTypeUtility()) {
+				portletURL.setWindowState(WindowState.NORMAL);
+			}
+			else {
+				portletURL.setWindowState(WindowState.MAXIMIZED);
+			}
+		}
+		else {
+			portletURL.setWindowState(actionRequest.getWindowState());
+		}
+
+		actionResponse.sendRedirect(portletURL.toString());
+	}
+
 
 	protected Ticket getTicket(ActionRequest actionRequest)
 		throws PortalException {
@@ -323,4 +427,7 @@ public class UpdatePasswordMVCActionCommand extends BaseMVCActionCommand {
 	@Reference
 	private UserLocalService _userLocalService;
 
+	@Reference
+	private LayoutUtilityPageEntryLayoutProvider
+		_layoutUtilityPageEntryLayoutProvider;
 }
