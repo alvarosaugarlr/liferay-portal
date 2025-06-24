@@ -1,24 +1,23 @@
 /**
- * SPDX-FileCopyrightText: (c) 2000 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2025 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
 package com.liferay.login.web.internal.portlet.action;
 
 import com.liferay.login.web.constants.LoginPortletKeys;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
-import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.WebKeys;
 
 import jakarta.portlet.RenderRequest;
 import jakarta.portlet.RenderResponse;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
- * @author Peter Fellwock
+ * @author Alvaro Saugar
  */
 @Component(
 	property = {
@@ -26,31 +25,27 @@ import org.osgi.service.component.annotations.Reference;
 		"jakarta.portlet.name=" + LoginPortletKeys.FAST_LOGIN,
 		"jakarta.portlet.name=" + LoginPortletKeys.FORGOT_PASSWORD,
 		"jakarta.portlet.name=" + LoginPortletKeys.LOGIN,
-		"mvc.command.name=/login/login"
+		"jakarta.portlet.name=" + LoginPortletKeys.UPDATE_PASSWORD,
+		"mvc.command.name=/login/update_password"
 	},
 	service = MVCRenderCommand.class
 )
-public class LoginMVCRenderCommand implements MVCRenderCommand {
+public class UpdatePasswordMVCRenderCommand implements MVCRenderCommand {
 
 	@Override
 	public String render(
 		RenderRequest renderRequest, RenderResponse renderResponse) {
 
-		HttpServletRequest httpServletRequest =
-			_portal.getOriginalServletRequest(
-				_portal.getHttpServletRequest(renderRequest));
+		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
 
-		String currentUrl = (String)httpServletRequest.getAttribute(
-			"CURRENT_URL");
+		Company company = themeDisplay.getCompany();
 
-		if (currentUrl.contains("/portal/update_password")) {
-			return "/update_password.jsp";
+		if (!company.isSendPasswordResetLink()) {
+			return "/login.jsp";
 		}
 
-		return "/login.jsp";
+		return "/udpate_password.jsp";
 	}
-
-	@Reference
-	private Portal _portal;
 
 }

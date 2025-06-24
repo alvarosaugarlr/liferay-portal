@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: (c) 2024 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2025 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
@@ -10,7 +10,6 @@ import com.liferay.portal.kernel.model.Release;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
@@ -19,22 +18,19 @@ import jakarta.portlet.PortletException;
 import jakarta.portlet.RenderRequest;
 import jakarta.portlet.RenderResponse;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import java.io.IOException;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * @author Istvan Sajtos
+ * @author Alvaro Saugar
  */
 @Component(
 	property = {
 		"com.liferay.portlet.add-default-resource=true",
 		"com.liferay.portlet.css-class-wrapper=portlet-login",
-		"com.liferay.portlet.display-category=category.tools",
-		"com.liferay.portlet.icon=/icons/login.png",
+		"com.liferay.portlet.display-category=category.hidden",
 		"com.liferay.portlet.preferences-owned-by-group=true",
 		"com.liferay.portlet.private-request-attributes=false",
 		"com.liferay.portlet.private-session-attributes=false",
@@ -42,13 +38,11 @@ import org.osgi.service.component.annotations.Reference;
 		"com.liferay.portlet.restore-current-view=false",
 		"com.liferay.portlet.single-page-application=false",
 		"com.liferay.portlet.use-default-template=true",
-		"jakarta.portlet.display-name=Forgot Password",
 		"jakarta.portlet.expiration-cache=0",
 		"jakarta.portlet.init-param.add-process-action-success-action=false",
-		"jakarta.portlet.init-param.config-template=/forgot_password/configuration.jsp",
 		"jakarta.portlet.init-param.template-path=/META-INF/resources/",
-		"jakarta.portlet.init-param.view-template=/forgot_password.jsp",
-		"jakarta.portlet.name=" + LoginPortletKeys.FORGOT_PASSWORD,
+		"jakarta.portlet.init-param.view-template=/update_password.jsp",
+		"jakarta.portlet.name=" + LoginPortletKeys.UPDATE_PASSWORD,
 		"jakarta.portlet.portlet-mode=text/html;config",
 		"jakarta.portlet.resource-bundle=content.Language",
 		"jakarta.portlet.security-role-ref=guest,power-user,user",
@@ -56,7 +50,7 @@ import org.osgi.service.component.annotations.Reference;
 	},
 	service = Portlet.class
 )
-public class ForgotPasswordPortlet extends MVCPortlet {
+public class UpdatePasswordPortlet extends MVCPortlet {
 
 	@Override
 	public void render(
@@ -67,19 +61,6 @@ public class ForgotPasswordPortlet extends MVCPortlet {
 			renderRequest.setAttribute(
 				getMVCPathAttributeName(renderResponse.getNamespace()),
 				"/login.jsp");
-		}
-
-		HttpServletRequest httpServletRequest =
-			_portal.getOriginalServletRequest(
-				_portal.getHttpServletRequest(renderRequest));
-
-		String currentUrl = (String)httpServletRequest.getAttribute(
-			"CURRENT_URL");
-		currentUrl = _portal.escapeRedirect(currentUrl);
-		if (currentUrl.contains("/portal/update_password")) {
-			renderRequest.setAttribute(
-				getMVCPathAttributeName(renderResponse.getNamespace()),
-				"/update_password.jsp");
 		}
 
 		super.render(renderRequest, renderResponse);
@@ -99,17 +80,14 @@ public class ForgotPasswordPortlet extends MVCPortlet {
 
 		if ((Validator.isNull(mvcPath) &&
 			 Validator.isNull(mvcRenderCommandName)) ||
-			mvcPath.equals("/forgot_password.jsp") ||
-			mvcRenderCommandName.equals("/login/forgot_password")) {
+			mvcPath.equals("/update_password.jsp") ||
+			mvcRenderCommandName.equals("/login/update_password")) {
 
 			return false;
 		}
 
 		return true;
 	}
-
-	@Reference
-	private Portal _portal;
 
 	@Reference(
 		target = "(&(release.bundle.symbolic.name=com.liferay.login.web)(&(release.schema.version>=1.0.0)(!(release.schema.version>=2.0.0))))"
