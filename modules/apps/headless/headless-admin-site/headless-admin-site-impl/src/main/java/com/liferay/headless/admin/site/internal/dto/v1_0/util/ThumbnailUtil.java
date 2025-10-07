@@ -6,9 +6,14 @@
 package com.liferay.headless.admin.site.internal.dto.v1_0.util;
 
 import com.liferay.headless.admin.site.dto.v1_0.ItemExternalReference;
+import com.liferay.headless.admin.site.dto.v1_0.URLReference;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
+import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.exportimport.util.ExportImportAttachmentManagerUtil;
+import org.osgi.service.component.annotations.Reference;
+import com.liferay.document.library.kernel.service.DLFileEntryLocalServiceUtil;
 
 /**
  * @author Lourdes Fernández Besada
@@ -30,6 +35,25 @@ public class ThumbnailUtil {
 			{
 				setClassName(() -> FileEntry.class.getName());
 				setExternalReferenceCode(fileEntry::getExternalReferenceCode);
+			}
+		};
+	}
+
+	public static URLReference
+	getPortletFileEntryURLReference(long fileEntryId)
+		throws PortalException {
+
+		if (fileEntryId <= 0) {
+			return null;
+		}
+
+		DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.getFileEntry(fileEntryId);
+
+
+		return new URLReference() {
+			{
+				setUrl(() -> ExportImportAttachmentManagerUtil.getFileURL(dlFileEntry));
+			//	setExternalReferenceCode(dlFileEntry::getExternalReferenceCode);
 			}
 		};
 	}
