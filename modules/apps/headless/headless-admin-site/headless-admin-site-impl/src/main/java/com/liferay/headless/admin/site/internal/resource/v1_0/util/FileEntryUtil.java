@@ -6,6 +6,7 @@
 package com.liferay.headless.admin.site.internal.resource.v1_0.util;
 
 import com.liferay.headless.admin.site.dto.v1_0.ItemExternalReference;
+import com.liferay.headless.admin.site.dto.v1_0.URLReference;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.util.Validator;
@@ -37,5 +38,31 @@ public class FileEntryUtil {
 
 		return fileEntry.getFileEntryId();
 	}
+	public static long getPreviewFileEntryId(
+		long groupId, URLReference urlReference)
+		throws Exception {
+
+		if ((urlReference == null)
+	//		||
+	//		Validator.isNull(
+	//			urlReference.getExternalReferenceCode())
+		){
+
+			return 0;
+		}
+
+		FileEntry fileEntry =
+			PortletFileRepositoryUtil.
+				fetchPortletFileEntryByExternalReferenceCode(
+					//urlReference.getExternalReferenceCode(), groupId);
+			"groupId", groupId);
+
+		if (fileEntry == null) {
+			throw new UnsupportedOperationException();
+		}
+
+		return fileEntry.getFileEntryId();
+	}
+
 
 }

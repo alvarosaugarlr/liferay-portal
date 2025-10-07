@@ -560,7 +560,7 @@ components:
                         type: permission
                     type: array
                 thumbnail:
-                    $ref: "#/components/schemas/ItemExternalReference"
+                    $ref: "#/components/schemas/URLReference"
                     # @review
                     description:
                         The display page template's thumbnail.
@@ -1911,7 +1911,7 @@ components:
                         $ref: "#/components/schemas/ItemExternalReference"
                     type: array
                 thumbnail:
-                    $ref: "#/components/schemas/ItemExternalReference"
+                    $ref: "#/components/schemas/URLReference"
                     # @review
                     description:
                         The master page's thumbnail.
@@ -2929,6 +2929,16 @@ components:
                     description:
                         The localized submission of URL type.
             type: object
+        URLReference:
+            # @review
+            description:
+                A unique reference to an entity which remains constant across environments.
+            properties:
+                url:
+                    type: string
+            required:
+                - url
+            type: object
         UtilityPage:
             description:
                 The definition of a Utility Page.
@@ -2999,7 +3009,7 @@ components:
                         type: permission
                     type: array
                 thumbnail:
-                    $ref: "#/components/schemas/ItemExternalReference"
+                    $ref: "#/components/schemas/URLReference"
                     # @review
                     description:
                         The utility page's thumbnail.

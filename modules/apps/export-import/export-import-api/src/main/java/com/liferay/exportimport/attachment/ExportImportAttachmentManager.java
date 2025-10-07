@@ -9,10 +9,12 @@ import com.liferay.document.library.kernel.model.DLFileEntry;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Alejandro Tardín
  */
+@ProviderType
 public interface ExportImportAttachmentManager {
 
 	public String getFileURL(DLFileEntry dlFileEntry) throws Exception;

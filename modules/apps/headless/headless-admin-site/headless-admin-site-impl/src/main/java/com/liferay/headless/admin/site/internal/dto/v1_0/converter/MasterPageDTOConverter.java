@@ -20,6 +20,14 @@ import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import com.liferay.headless.admin.site.dto.v1_0.URLReference;
+import com.liferay.exportimport.attachment.ExportImportAttachmentManager;
+import com.liferay.document.library.kernel.model.DLFileEntry;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
+
+
+
 /**
  * @author Lourdes Fernández Besada
  */
@@ -81,12 +89,37 @@ public class MasterPageDTOConverter
 						layoutPageTemplateEntry.getGroupId()));
 				setThumbnail(
 					() ->
-						ThumbnailUtil.getPortletFileEntryItemExternalReference(
+						_getPortletFileEntryURLReference(
 							layoutPageTemplateEntry.getPreviewFileEntryId()));
+
+
 				setUuid(layoutPageTemplateEntry::getUuid);
 			}
 		};
 	}
+	private   URLReference
+	_getPortletFileEntryURLReference(long fileEntryId)
+		throws PortalException {
+
+		if (fileEntryId <= 0) {
+			return null;
+		}
+
+		DLFileEntry dlFileEntry = _dlFileEntryLocalService.getFileEntry(fileEntryId);
+
+
+		return new URLReference() {
+			{
+				setUrl(() -> _exportImportAttachmentManager.getFileURL(dlFileEntry));
+			}
+		};
+	}
+
+	@Reference
+	private DLFileEntryLocalService _dlFileEntryLocalService;
+
+	@Reference
+	private ExportImportAttachmentManager _exportImportAttachmentManager;
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;
