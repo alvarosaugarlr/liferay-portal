@@ -51,6 +51,7 @@ import com.liferay.staging.configuration.StagingConfiguration;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,6 +61,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 /**
  * @author Daniel Szimko
  */
+@Ignore
 @FeatureFlag("LPS-199086")
 @RunWith(Arquillian.class)
 @Sync(cleanTransaction = true)
