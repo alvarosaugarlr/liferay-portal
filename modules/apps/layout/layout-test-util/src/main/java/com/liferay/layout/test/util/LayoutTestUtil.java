@@ -99,7 +99,12 @@ public class LayoutTestUtil {
 		List<String> columns = layoutTemplate.getColumns();
 
 		String columnId = columns.get(0);
-
+		_log.error("++++++++++++++++++++++++LayoutTestUtil.addPortletToLayout");
+_log.error("userId:"+userId);
+		_log.error("layout:"+layout+"::::"+layout.getLayoutId());
+		_log.error("portletId:"+portletId);
+		_log.error("columnId:"+columnId);
+		_log.error("preferenceMap:"+preferenceMap);
 		return addPortletToLayout(
 			userId, layout, portletId, columnId, preferenceMap);
 	}
