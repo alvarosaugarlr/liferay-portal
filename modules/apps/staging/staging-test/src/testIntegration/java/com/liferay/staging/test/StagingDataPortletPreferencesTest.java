@@ -30,6 +30,8 @@ import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.osgi.util.ServiceTrackerFactory;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.test.util.ConfigurationTestUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
@@ -93,6 +95,7 @@ public class StagingDataPortletPreferencesTest
 
 	@Test
 	public void testDDLDisplayPortletPreferences() throws Exception {
+		_log.error("+++++++++++++++testDDLDisplayPortletPreferences");
 		Bundle bundle = FrameworkUtil.getBundle(getClass());
 
 		ServiceTracker<Portlet, Portlet> serviceTracker =
@@ -146,8 +149,12 @@ public class StagingDataPortletPreferencesTest
 			new String[] {String.valueOf(ddlRecordSet.getRecordSetKey())}
 		).build();
 
+		_log.error("+++++++++++++++before publishLayoutWithDisplayPortlet");
+		_log.error("+++++++++++++++publishLayoutWithDisplayPortlet-portletId:"+DDLPortletKeys.DYNAMIC_DATA_LISTS_DISPLAY);
+		_log.error("+++++++++++++++publishLayoutWithDisplayPortlet-preference:"+preferenceMap);
 		String portletId = publishLayoutWithDisplayPortlet(
 			DDLPortletKeys.DYNAMIC_DATA_LISTS_DISPLAY, preferenceMap, true);
+		_log.error("+++++++++++++++after publishLayoutWithDisplayPortlet");
 
 		Assert.assertEquals(
 			String.valueOf(displayDDMTemplate.getTemplateId()),
@@ -309,6 +316,8 @@ public class StagingDataPortletPreferencesTest
 		throws Exception {
 
 		if (addPortlet) {
+			_log.error("+++++++++++inside publishLayoutWithDisplayPortlet , addPortlet is true");
+			_log.error("+++++++++++inside publishLayoutWithDisplayPortlet , stagingLayout:"+stagingLayout);
 			portletId = LayoutTestUtil.addPortletToLayout(
 				stagingLayout, portletId, preferenceMap);
 		}
@@ -328,6 +337,9 @@ public class StagingDataPortletPreferencesTest
 
 		return portletId;
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		StagingDataPortletPreferencesTest.class);
 
 	protected PortletPreferences livePortletPreferences;
 

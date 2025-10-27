@@ -100,6 +100,9 @@ public class LayoutTestUtil {
 
 		String columnId = columns.get(0);
 		_log.error("++++++++++++++++++++++++LayoutTestUtil.addPortletToLayout");
+		_log.error("layoutTypePortlet:"+layoutTypePortlet);
+		_log.error("layoutTemplate:"+layoutTemplate);
+		_log.error("userId:"+userId);
 _log.error("userId:"+userId);
 		_log.error("layout:"+layout+"::::"+layout.getLayoutId());
 		_log.error("portletId:"+portletId);
@@ -113,12 +116,18 @@ _log.error("userId:"+userId);
 			long userId, Layout layout, String portletId, String columnId,
 			Map<String, String[]> preferenceMap)
 		throws Exception {
+		_log.error("****++++++++++++++addPortletToLayout");
 
 		LayoutTypePortlet layoutTypePortlet =
 			(LayoutTypePortlet)layout.getLayoutType();
+		_log.error("layoutTypePortlet:"+layoutTypePortlet);
+
+		_log.error("before addPortletId");
 
 		String newPortletId = layoutTypePortlet.addPortletId(
 			userId, portletId, columnId, -1);
+		_log.error("after addPortletId");
+		_log.error("newPortletId:"+newPortletId);
 
 		LayoutLocalServiceUtil.updateTypeSettings(
 			layout.getGroupId(), layout.isPrivateLayout(), layout.getLayoutId(),
