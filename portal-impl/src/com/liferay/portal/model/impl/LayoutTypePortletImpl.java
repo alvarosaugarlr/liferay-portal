@@ -1484,17 +1484,21 @@ public class LayoutTypePortletImpl
 	protected String addPortletId(
 		long userId, String portletId, String columnId, int columnPos,
 		boolean checkPermission, boolean strictHasPortlet) {
+		_log.error("****++++++++++++++addPortletId");
 
 		portletId = JS.getSafeName(portletId);
-
+		_log.error("portletId:"+portletId);
 		Layout layout = getLayout();
-
+		_log.error("layout:"+layout);
+		_log.error("layout.getLayoutId():"+layout.getLayoutId());
 		Portlet portlet = null;
 
 		try {
 			portlet = PortletLocalServiceUtil.getPortletById(
 				layout.getCompanyId(), portletId);
-
+			_log.error("portlet:"+portlet);
+			_log.error("portlet.getPortletId():"+portlet.getPortletId());
+			_log.error("portlet.getPortletName():"+portlet.getPortletName());
 			if (portlet == null) {
 				if (_log.isWarnEnabled()) {
 					_log.warn(
@@ -1504,6 +1508,10 @@ public class LayoutTypePortletImpl
 
 				return null;
 			}
+			_log.error("checkPermission:"+checkPermission);
+			_log.error("portletpermission:"+PortletPermissionUtil.contains(
+				PermissionThreadLocal.getPermissionChecker(), layout,
+				portlet, ActionKeys.ADD_TO_PAGE));
 
 			if (checkPermission &&
 				!PortletPermissionUtil.contains(
@@ -1523,6 +1531,7 @@ public class LayoutTypePortletImpl
 		catch (Exception exception) {
 			_log.error(exception);
 		}
+		_log.error("portlet.isSystem():"+portlet.isSystem());
 
 		if (portlet.isSystem()) {
 			if (_log.isWarnEnabled()) {
@@ -1534,6 +1543,9 @@ public class LayoutTypePortletImpl
 			return null;
 		}
 
+		_log.error("portlet.isInstanceable():"+portlet.isInstanceable());
+		_log.error("ortletIdCodec.hasInstanceId(portletId):"+PortletIdCodec.hasInstanceId(portletId));
+
 		if (portlet.isInstanceable() &&
 			!PortletIdCodec.hasInstanceId(portletId)) {
 
@@ -1541,6 +1553,10 @@ public class LayoutTypePortletImpl
 
 			portletId = PortletIdCodec.encode(portletId);
 		}
+
+		_log.error("portletId:"+portletId);
+
+		_log.error("hasPortletId(portletId, strictHasPortlet):"+hasPortletId(portletId, strictHasPortlet));
 
 		if (hasPortletId(portletId, strictHasPortlet)) {
 			if (_log.isInfoEnabled()) {
@@ -1554,6 +1570,8 @@ public class LayoutTypePortletImpl
 			return null;
 		}
 
+		_log.error("columnId:"+columnId);
+
 		if (columnId == null) {
 			LayoutTemplate layoutTemplate = getLayoutTemplate();
 
@@ -1563,6 +1581,8 @@ public class LayoutTypePortletImpl
 				columnId = columns.get(0);
 			}
 		}
+
+		_log.error("columnId:"+columnId);
 
 		if (columnId == null) {
 			if (_log.isInfoEnabled()) {
@@ -1574,6 +1594,11 @@ public class LayoutTypePortletImpl
 
 			return null;
 		}
+
+		_log.error("isColumnCustomizable(columnId):"+isColumnCustomizable(columnId));
+		_log.error("isColumnDisabled(columnId):"+isColumnDisabled(columnId));
+		_log.error("columnId.startsWith(_NESTED_PORTLETS_NAMESPACE):"+columnId.startsWith(_NESTED_PORTLETS_NAMESPACE));
+
 
 		if (isColumnCustomizable(columnId)) {
 			if (isColumnDisabled(columnId) &&
@@ -1589,6 +1614,7 @@ public class LayoutTypePortletImpl
 
 				return null;
 			}
+			_log.error("hasUserPreferences():"+hasUserPreferences());
 
 			if (hasUserPreferences()) {
 				portletId = PortletIdCodec.encode(
@@ -1597,79 +1623,141 @@ public class LayoutTypePortletImpl
 			}
 		}
 
+		_log.error("portletId:"+portletId);
+
+
 		String columnValue = StringPool.BLANK;
+
+		_log.error("portletId:"+portletId);
+		_log.error("portletId:"+portletId);
+
 
 		if (PortletIdCodec.hasInstanceId(columnId) &&
 			PortletIdCodec.hasUserId(columnId)) {
+			_log.error("entra primer if:");
 
 			PortletPreferences portletPreferences =
 				_getUserColumnPortletPreferences(columnId);
+
+			_log.error("portletPreferences:"+portletPreferences);
+
 
 			columnValue = portletPreferences.getValue(
 				columnId, StringPool.BLANK);
 		}
 		else if (hasUserPreferences()) {
+			_log.error("entra segundo if:");
+
 			columnValue = getUserPreference(columnId);
 		}
 		else {
+			_log.error("entra tercero if:");
+
 			columnValue = getTypeSettingsProperty(columnId);
 		}
+
+		_log.error("columnValue:"+columnValue);
+
 
 		if ((columnValue == null) &&
 			columnId.startsWith(_NESTED_PORTLETS_NAMESPACE)) {
 
 			addNestedColumn(columnId);
 		}
+		_log.error("columnPos:"+columnPos);
+
 
 		if (columnPos >= 0) {
 			List<String> portletIds = ListUtil.fromArray(
 				StringUtil.split(columnValue));
 
+			_log.error("portletIds:"+portletIds);
+
 			if (columnPos <= portletIds.size()) {
+				_log.error("entra en : columnPos <= portletIds.size()):");
+
 				portletIds.add(columnPos, portletId);
 			}
 			else {
+				_log.error("entra en else de : columnPos <= portletIds.size()):");
+
 				portletIds.add(portletId);
 			}
 
 			columnValue = StringUtil.merge(portletIds);
 		}
 		else {
+			_log.error("entra en : (columnPos >= 0):");
+
 			columnValue = StringUtil.add(columnValue, portletId);
 		}
 
+		_log.error("columnValue:"+columnValue);
+
+		_log.error("PortletIdCodec.hasInstanceId(columnId):"+PortletIdCodec.hasInstanceId(columnId));
+		_log.error("PortletIdCodec.hasUserId(columnId):"+PortletIdCodec.hasUserId(columnId));
+
+
+
 		if (PortletIdCodec.hasInstanceId(columnId) &&
 			PortletIdCodec.hasUserId(columnId)) {
+			_log.error("entra en if:");
 
 			PortletPreferences portletPreferences =
 				_getUserColumnPortletPreferences(columnId);
+
+			_log.error("portletPreferences:"+portletPreferences);
+
 
 			try {
 				portletPreferences.setValue(columnId, columnValue);
 
 				portletPreferences.store();
+				_log.error("despues store portletPreferences");
 			}
 			catch (Exception exception) {
 				_log.error("Unable to save portlet preferences", exception);
 			}
 		}
 		else if (hasUserPreferences()) {
+			_log.error("hasUserPreferences:"+hasUserPreferences());
+
+
 			setUserPreference(columnId, columnValue);
+			_log.error("después de setUserPreference:");
 		}
 		else {
+			_log.error("pasa por el tercer else:");
+
 			setTypeSettingsProperty(columnId, columnValue);
+			_log.error("después de setTypeSettingsProperty:");
+
 		}
 
 		try {
+			_log.error("_enablePortletLayoutListener:"+_enablePortletLayoutListener);
+			_log.error("portlet.isUndeployedPortlet():"+portlet.isUndeployedPortlet());
+
 			if (_enablePortletLayoutListener &&
 				!portlet.isUndeployedPortlet()) {
+				_log.error("entra if:");
 
 				PortletLayoutListener portletLayoutListener =
 					portlet.getPortletLayoutListenerInstance();
 
+				_log.error("portletLayoutListener:"+portletLayoutListener);
+
+
 				if (portletLayoutListener != null) {
+					_log.error("entra en el if:");
+					_log.error("portletId:"+portletId);
+					_log.error("layout.getPlid():"+layout.getPlid());
+
+
 					portletLayoutListener.onAddToLayout(
 						portletId, layout.getPlid());
+					_log.error("portletLayoutListener.onAddToLayout:"+portletLayoutListener.onAddToLayout());
+
 				}
 			}
 		}
@@ -1677,6 +1765,7 @@ public class LayoutTypePortletImpl
 			_log.error(
 				"Unable to fire portlet layout listener event", exception);
 		}
+		_log.error("portletId:"+portletId);
 
 		return portletId;
 	}
