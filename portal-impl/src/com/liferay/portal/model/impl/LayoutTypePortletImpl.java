@@ -1756,7 +1756,7 @@ public class LayoutTypePortletImpl
 
 					portletLayoutListener.onAddToLayout(
 						portletId, layout.getPlid());
-					_log.error("portletLayoutListener.onAddToLayout:"+portletLayoutListener.onAddToLayout());
+					_log.error("portletLayoutListener.onAddToLayout:"+portletLayoutListener.toString());
 
 				}
 			}
