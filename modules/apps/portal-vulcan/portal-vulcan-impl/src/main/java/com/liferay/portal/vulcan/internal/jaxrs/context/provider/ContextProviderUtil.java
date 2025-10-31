@@ -139,8 +139,16 @@ public class ContextProviderUtil {
 			if (!(resourceProvider instanceof
 					SafeReleaseInstanceResourceProvider)) {
 
-				classResourceInfo.setResourceProvider(
-					new SafeReleaseInstanceResourceProvider(resourceProvider));
+				String className = resourceProvider.getClass(
+				).getName();
+
+				if (!className.endsWith(
+						"SingletonServiceReferenceResourceProvider")) {
+
+					classResourceInfo.setResourceProvider(
+						new SafeReleaseInstanceResourceProvider(
+							resourceProvider));
+				}
 			}
 
 			Object instance = resourceProvider.getInstance(message);
