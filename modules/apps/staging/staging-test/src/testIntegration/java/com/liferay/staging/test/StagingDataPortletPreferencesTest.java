@@ -35,6 +35,8 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
@@ -152,6 +154,11 @@ public class StagingDataPortletPreferencesTest
 			"recordSetKey",
 			new String[] {String.valueOf(ddlRecordSet.getRecordSetKey())}
 		).build();
+
+
+		_log.error("++++++++++cambio permisos");
+		PermissionThreadLocal.setPermissionChecker(
+			PermissionCheckerFactoryUtil.create(TestPropsValues.getUser()));
 
 		_log.error("+++++++++++++++before publishLayoutWithDisplayPortlet");
 		_log.error("+++++++++++++++publishLayoutWithDisplayPortlet-portletId:"+DDLPortletKeys.DYNAMIC_DATA_LISTS_DISPLAY);
