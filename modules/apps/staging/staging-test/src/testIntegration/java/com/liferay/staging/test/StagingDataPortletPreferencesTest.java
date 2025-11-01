@@ -32,7 +32,11 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.test.util.ConfigurationTestUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -318,6 +322,14 @@ public class StagingDataPortletPreferencesTest
 		if (addPortlet) {
 			_log.error("+++++++++++inside publishLayoutWithDisplayPortlet , addPortlet is true");
 			_log.error("+++++++++++inside publishLayoutWithDisplayPortlet , stagingLayout:"+stagingLayout);
+
+
+			RoleTestUtil.addResourcePermission(
+				RoleConstants.USER, portletId,
+				ResourceConstants.SCOPE_COMPANY,
+				String.valueOf(TestPropsValues.getCompanyId()),
+				ActionKeys.ADD_TO_PAGE);
+
 			portletId = LayoutTestUtil.addPortletToLayout(
 				stagingLayout, portletId, preferenceMap);
 		}
