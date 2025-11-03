@@ -1513,6 +1513,12 @@ public class LayoutTypePortletImpl
 				PermissionThreadLocal.getPermissionChecker(), layout,
 				portlet, ActionKeys.ADD_TO_PAGE));
 
+			_log.error("PermissionThreadLocal.getPermissionChecker():"+PermissionThreadLocal.getPermissionChecker());
+			_log.error("layout:"+layout);
+			_log.error("portlet:"+portlet);
+			_log.error("ActionKeys.ADD_TO_PAGE:"+ActionKeys.ADD_TO_PAGE);
+
+
 			if (checkPermission &&
 				!PortletPermissionUtil.contains(
 					PermissionThreadLocal.getPermissionChecker(), layout,

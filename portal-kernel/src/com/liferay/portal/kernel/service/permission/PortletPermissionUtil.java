@@ -234,31 +234,45 @@ public class PortletPermissionUtil {
 			Portlet portlet, String actionId, boolean strict,
 			boolean checkStagingPermission)
 		throws PortalException {
-
+_log.error("***********entrad en contains");
 		long plid = -1;
 		long layoutMvccVersion = -1;
 
 		if (layout != null) {
+			_log.error("+++++layout != null");
+
 			plid = layout.getPlid();
 			layoutMvccVersion = layout.getMvccVersion();
+
+			_log.error("+++++plid:"+plid);
+			_log.error("+++++layoutMvccVersion:"+layoutMvccVersion);
+
 		}
 
 		Map<Object, Object> permissionChecksMap =
 			permissionChecker.getPermissionChecksMap();
+		_log.error("+++++permissionChecksMap:"+permissionChecksMap);
 
 		CacheKey cacheKey = new CacheKey(
 			groupId, plid, layoutMvccVersion, portlet.getPortletId(),
 			portlet.getMvccVersion(), actionId, strict, checkStagingPermission);
+		_log.error("+++++cacheKey:"+cacheKey);
 
 		Boolean contains = (Boolean)permissionChecksMap.get(cacheKey);
+		_log.error("+++++contains:"+contains);
 
 		if (contains == null) {
+			_log.error("+++++dentro de contains:");
+
 			contains = _contains(
 				permissionChecker, groupId, layout, portlet, actionId, strict,
 				checkStagingPermission);
+			_log.error("+++++contains:"+contains);
 
 			permissionChecksMap.put(cacheKey, contains);
+
 		}
+		_log.error("+++++contains:"+contains);
 
 		return contains;
 	}
@@ -495,38 +509,68 @@ public class PortletPermissionUtil {
 			Portlet portlet, String actionId, boolean strict,
 			boolean checkStagingPermission)
 		throws PortalException {
+		_log.error("******* dentro de _contains");
 
 		String portletId = portlet.getPortletId();
-
+		_log.error("+++++portletId:"+portletId);
+		_log.error("+++++layout:"+layout);
 		if (layout == null) {
+
+			_log.error("+++++permissionChecker.hasPermission(\n" +
+					   "\t\t\t\tgroupId, portletId, portletId, actionId):"+permissionChecker.hasPermission(
+				groupId, portletId, portletId, actionId));
+
 			return permissionChecker.hasPermission(
 				groupId, portletId, portletId, actionId);
 		}
 
 		Group group = null;
+		_log.error("+++++group:"+group);
 
 		if (groupId > 0) {
 			group = GroupLocalServiceUtil.fetchGroup(groupId);
 		}
+		_log.error("+++++group:"+group);
 
 		if (group == null) {
 			group = layout.getGroup();
 
 			groupId = layout.getGroupId();
 		}
+		_log.error("+++++groupId:"+groupId);
+
+		_log.error("+++++group.isControlPanel():"+group.isControlPanel());
+		_log.error("+++++layout.isTypeControlPanel():"+layout.isTypeControlPanel());
+		_log.error("+++++actionId.equals(ActionKeys.VIEW):"+actionId.equals(ActionKeys.VIEW));
 
 		if ((group.isControlPanel() || layout.isTypeControlPanel()) &&
 			actionId.equals(ActionKeys.VIEW)) {
 
 			return true;
 		}
+		_log.error("+++++layout instanceof VirtualLayout:"+(layout instanceof VirtualLayout));
 
 		if (layout instanceof VirtualLayout) {
+			_log.error("+++++layout.isCustomizable():"+layout.isCustomizable());
+
+			_log.error("+++++!actionId.equals(ActionKeys.VIEW):"+!actionId.equals(ActionKeys.VIEW));
+
 			if (layout.isCustomizable() && !actionId.equals(ActionKeys.VIEW)) {
+				_log.error("+++++actionId.equals(ActionKeys.ADD_TO_PAGE):"+actionId.equals(ActionKeys.ADD_TO_PAGE));
+
+
 				if (actionId.equals(ActionKeys.ADD_TO_PAGE)) {
+
+					_log.error("+++++_hasAddToPagePermission(\n" +
+							   "\t\t\t\t\t\tpermissionChecker, layout, portletId):"+_hasAddToPagePermission(
+						permissionChecker, layout, portletId));
+
 					return _hasAddToPagePermission(
 						permissionChecker, layout, portletId);
 				}
+				_log.error("+++++_hasCustomizePermission(\n" +
+						   "\t\t\t\t\tpermissionChecker, layout, portlet, actionId):"+_hasCustomizePermission(
+					permissionChecker, layout, portlet, actionId));
 
 				return _hasCustomizePermission(
 					permissionChecker, layout, portlet, actionId);
@@ -536,6 +580,11 @@ public class PortletPermissionUtil {
 
 			layout = virtualLayout.getSourceLayout();
 		}
+		_log.error("+++++!group.isLayoutSetPrototype():"+!group.isLayoutSetPrototype());
+		_log.error("+++++actionId.equals(ActionKeys.CONFIGURATION:"+actionId.equals(ActionKeys.CONFIGURATION));
+		_log.error("+++++(layout instanceof VirtualLayout):"+(layout instanceof VirtualLayout));
+		_log.error("+++++!layout.isLayoutUpdateable():"+!layout.isLayoutUpdateable());
+
 
 		if (!group.isLayoutSetPrototype() &&
 			actionId.equals(ActionKeys.CONFIGURATION) &&
@@ -546,12 +595,16 @@ public class PortletPermissionUtil {
 		}
 
 		String rootPortletId = PortletIdCodec.decodePortletName(portletId);
+		_log.error("+++++rootPortletId:"+rootPortletId);
+
+		_log.error("+++++checkStagingPermission:"+checkStagingPermission);
+
 
 		if (checkStagingPermission) {
 			Boolean hasPermission = StagingPermissionUtil.hasPermission(
 				permissionChecker, group, rootPortletId, groupId, rootPortletId,
 				actionId);
-
+			_log.error("+++++hasPermission:"+hasPermission);
 			if (hasPermission != null) {
 				return hasPermission.booleanValue();
 			}
@@ -559,11 +612,25 @@ public class PortletPermissionUtil {
 
 		String resourcePermissionPrimKey = getPrimaryKey(
 			layout.getPlid(), portletId);
+		_log.error("+++++resourcePermissionPrimKey:"+resourcePermissionPrimKey);
+
+		_log.error("+++++strict:"+strict);
 
 		if (strict) {
+			_log.error("+++++permissionChecker.hasPermission(\n" +
+					   "\t\t\t\tgroupId, rootPortletId, resourcePermissionPrimKey, actionId):"+permissionChecker.hasPermission(
+				groupId, rootPortletId, resourcePermissionPrimKey, actionId));
+
 			return permissionChecker.hasPermission(
 				groupId, rootPortletId, resourcePermissionPrimKey, actionId);
 		}
+
+		_log.error("+++++_hasConfigurePermission(\n" +
+				   "\t\t\t\tpermissionChecker, layout, portlet, actionId):"+_hasConfigurePermission(
+			permissionChecker, layout, portlet, actionId));
+		_log.error("+++++_hasCustomizePermission(\n" +
+				   "\t\t\t\tpermissionChecker, layout, portlet, actionId):"+_hasCustomizePermission(
+			permissionChecker, layout, portlet, actionId));
 
 		if (_hasConfigurePermission(
 				permissionChecker, layout, portlet, actionId) ||
@@ -572,6 +639,9 @@ public class PortletPermissionUtil {
 
 			return true;
 		}
+		_log.error("+++++permissionChecker.hasPermission(\n" +
+				   "\t\t\tgroup, rootPortletId, resourcePermissionPrimKey, actionId):"+permissionChecker.hasPermission(
+			group, rootPortletId, resourcePermissionPrimKey, actionId));
 
 		return permissionChecker.hasPermission(
 			group, rootPortletId, resourcePermissionPrimKey, actionId);
