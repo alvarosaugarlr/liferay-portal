@@ -6,6 +6,7 @@
 package com.liferay.staging.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.dynamic.data.lists.constants.DDLPortletKeys;
 import com.liferay.dynamic.data.lists.constants.DDLRecordSetConstants;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
@@ -34,7 +35,10 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.portlet.PortletProvider;
+import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import  com.liferay.portal.kernel.portlet.PortletProvider.Action;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -115,7 +119,7 @@ public class StagingDataPortletPreferencesTest
 			Assert.assertNotNull(serviceTracker.waitForService(15000));
 		}
 		finally {
-			serviceTracker.close();
+			//serviceTracker.close();
 		}
 
 		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
@@ -163,6 +167,11 @@ public class StagingDataPortletPreferencesTest
 		_log.error("+++++++++++++++before publishLayoutWithDisplayPortlet");
 		_log.error("+++++++++++++++publishLayoutWithDisplayPortlet-portletId:"+DDLPortletKeys.DYNAMIC_DATA_LISTS_DISPLAY);
 		_log.error("+++++++++++++++publishLayoutWithDisplayPortlet-preference:"+preferenceMap);
+
+		String portletId1 = PortletProviderUtil.getPortletId(
+			"com.liferay.dynamic.data.lists.model.DDLRecord", PortletProvider.Action.ADD);
+			//DDLPortletKeys.DYNAMIC_DATA_LISTS_DISPLAY, PortletProvider.Action.ADD);
+
 		String portletId = publishLayoutWithDisplayPortlet(
 			DDLPortletKeys.DYNAMIC_DATA_LISTS_DISPLAY, preferenceMap, true);
 		_log.error("+++++++++++++++after publishLayoutWithDisplayPortlet");
@@ -331,12 +340,14 @@ public class StagingDataPortletPreferencesTest
 			_log.error("+++++++++++inside publishLayoutWithDisplayPortlet , stagingLayout:"+stagingLayout);
 
 
-			RoleTestUtil.addResourcePermission(
+	/*		RoleTestUtil.addResourcePermission(
 				RoleConstants.USER, portletId,
 				ResourceConstants.SCOPE_COMPANY,
 				String.valueOf(TestPropsValues.getCompanyId()),
 				ActionKeys.ADD_TO_PAGE);
 
+
+	 */
 			portletId = LayoutTestUtil.addPortletToLayout(
 				stagingLayout, portletId, preferenceMap);
 		}
