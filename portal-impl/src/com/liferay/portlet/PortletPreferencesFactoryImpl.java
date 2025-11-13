@@ -422,11 +422,18 @@ public class PortletPreferencesFactoryImpl
 			long companyId, long siteGroupId, long layoutGroupId, long plid,
 			String portletId)
 		throws IllegalArgumentException {
-
+_log.error("************ entra en getPortletPreferencesIds");
 		String originalPortletId = portletId;
+		_log.error("************ originalPortletId"+originalPortletId);
 
 		Portlet portlet = PortletLocalServiceUtil.getPortletById(
 			companyId, portletId);
+		_log.error("************ portlet"+portlet);
+
+		_log.error("************ portlet.isPreferencesCompanyWide()"+portlet.isPreferencesCompanyWide());
+		_log.error("************ portlet.isPreferencesOwnedByGroup() "+portlet.isPreferencesOwnedByGroup() );
+		_log.error("************ !portlet.isPreferencesUniquePerLayout()"+!portlet.isPreferencesUniquePerLayout());
+
 
 		if (portlet.isPreferencesCompanyWide() ||
 			(portlet.isPreferencesOwnedByGroup() &&
@@ -434,41 +441,62 @@ public class PortletPreferencesFactoryImpl
 
 			portletId = PortletIdCodec.decodePortletName(portletId);
 		}
+		_log.error("************ portletId"+portletId);
 
 		long ownerId = PortletKeys.PREFS_OWNER_ID_DEFAULT;
 		int ownerType = 0;
 
 		Group group = GroupLocalServiceUtil.fetchGroup(siteGroupId);
+		_log.error("************ group"+group);
+		_log.error("************ group.isLayout()"+ ((group!=null)?group.isLayout():"es null"));
 
 		if ((group != null) && group.isLayout()) {
 			plid = group.getClassPK();
 		}
+
+		_log.error("************ plid"+plid);
+		_log.error("************ PortletIdCodec.hasUserId(originalPortletId)"+PortletIdCodec.hasUserId(originalPortletId));
+
 
 		if (PortletIdCodec.hasUserId(originalPortletId)) {
 			ownerId = PortletIdCodec.decodeUserId(originalPortletId);
 			ownerType = PortletKeys.PREFS_OWNER_TYPE_USER;
 		}
 		else if (portlet.isPreferencesUniquePerLayout()) {
+			_log.error("************ portlet.isPreferencesUniquePerLayout()"+portlet.isPreferencesUniquePerLayout());
+
 			ownerType = PortletKeys.PREFS_OWNER_TYPE_LAYOUT;
 		}
 		else if (portlet.isPreferencesOwnedByGroup()) {
+			_log.error("************ portlet.isPreferencesOwnedByGroup()"+portlet.isPreferencesOwnedByGroup());
+
 			plid = PortletKeys.PREFS_PLID_SHARED;
 
 			if (siteGroupId > LayoutConstants.DEFAULT_PLID) {
+				_log.error("************ siteGroupId > LayoutConstants.DEFAULT_PLID"+(siteGroupId > LayoutConstants.DEFAULT_PLID));
+
 				ownerId = siteGroupId;
 			}
 			else {
+				_log.error("************ else");
+
 				ownerId = layoutGroupId;
 			}
 
 			ownerType = PortletKeys.PREFS_OWNER_TYPE_GROUP;
 		}
 		else if (portlet.isPreferencesCompanyWide()) {
+			_log.error("************ portlet.isPreferencesCompanyWide()"+portlet.isPreferencesCompanyWide());
+
 			plid = PortletKeys.PREFS_PLID_SHARED;
 
 			ownerId = companyId;
 			ownerType = PortletKeys.PREFS_OWNER_TYPE_COMPANY;
 		}
+		_log.error("************ ownerId"+ownerId);
+		_log.error("************ ownerType"+ownerType);
+
+		_log.error("************ ownerType"+ownerType);
 
 		if (ownerType == 0) {
 			throw new IllegalArgumentException(
@@ -477,6 +505,8 @@ public class PortletPreferencesFactoryImpl
 					" has owner type 0 because of wrong properties or wrong ",
 					"data handler settings"));
 		}
+		_log.error("************ (ownerId == 0)"+(ownerId == 0));
+		_log.error("************ (plid == 0)"+(plid == 0));
 
 		if ((ownerId == 0) && (plid == 0)) {
 			throw new IllegalArgumentException(
@@ -485,6 +515,7 @@ public class PortletPreferencesFactoryImpl
 					" has owner ID of 0 and PLID of 0 because of wrong ",
 					"properties or wrong data handler settings"));
 		}
+		_log.error("************ antes de llamar a PortletPreferencesIds");
 
 		return new PortletPreferencesIds(
 			companyId, ownerId, ownerType, plid, portletId);
@@ -540,11 +571,11 @@ public class PortletPreferencesFactoryImpl
 	public PortletPreferences getPortletSetup(
 		HttpServletRequest httpServletRequest, String portletId,
 		String defaultPreferences) {
-
+_log.error("************ entra en getPortletSetup");
 		PortletRequest portletRequest =
 			(PortletRequest)httpServletRequest.getAttribute(
 				JavaConstants.JAKARTA_PORTLET_REQUEST);
-
+_log.error("************ (portletRequest instanceof ConfigurationPortletRequest)"+(portletRequest instanceof ConfigurationPortletRequest));
 		if (portletRequest instanceof ConfigurationPortletRequest) {
 			PortletRequestWrapper portletRequestWrapper =
 				(PortletRequestWrapper)portletRequest;
@@ -555,6 +586,12 @@ public class PortletPreferencesFactoryImpl
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
+		_log.error("************ themeDisplay"+themeDisplay);
+		_log.error("************ themeDisplay.getSiteGroupId()"+themeDisplay.getSiteGroupId());
+		_log.error("************ themeDisplay.getLayout()"+themeDisplay.getLayout());
+		_log.error("************ portletId"+portletId);
+		_log.error("************ defaultPreferences"+defaultPreferences);
+
 
 		return getPortletSetup(
 			themeDisplay.getSiteGroupId(), themeDisplay.getLayout(), portletId,
@@ -787,11 +824,32 @@ public class PortletPreferencesFactoryImpl
 	protected PortletPreferences getPortletSetup(
 		long companyId, long siteGroupId, long layoutGroupId, long plid,
 		String portletId, String defaultPreferences, boolean strictMode) {
+_log.error("*************++ entra en getPortletSetup");
+		_log.error("*************++ companyId"+ companyId);
+		_log.error("*************++  siteGroupId"+ siteGroupId);
+		_log.error("*************++ layoutGroupId"+ layoutGroupId);
+		_log.error("*************++ plid"+ plid);
+		_log.error("*************++  portletId"+ portletId);
+		_log.error("*************++  defaultPreferences"+defaultPreferences );
+		_log.error("*************++  strictMode"+strictMode );
+
+
+
 
 		PortletPreferencesIds portletPreferencesIds = getPortletPreferencesIds(
 			companyId, siteGroupId, layoutGroupId, plid, portletId);
 
+		_log.error("*************++  strictMode"+strictMode );
+
+
 		if (strictMode) {
+			_log.error("*************++  entra en el if"+PortletPreferencesLocalServiceUtil.getStrictPreferences(
+				portletPreferencesIds.getCompanyId(),
+				portletPreferencesIds.getOwnerId(),
+				portletPreferencesIds.getOwnerType(),
+				portletPreferencesIds.getPlid(),
+				portletPreferencesIds.getPortletId()) );
+
 			return PortletPreferencesLocalServiceUtil.getStrictPreferences(
 				portletPreferencesIds.getCompanyId(),
 				portletPreferencesIds.getOwnerId(),
@@ -799,6 +857,13 @@ public class PortletPreferencesFactoryImpl
 				portletPreferencesIds.getPlid(),
 				portletPreferencesIds.getPortletId());
 		}
+
+		_log.error("*************++  NO entra en el if "+PortletPreferencesLocalServiceUtil.getPreferences(
+			portletPreferencesIds.getCompanyId(),
+			portletPreferencesIds.getOwnerId(),
+			portletPreferencesIds.getOwnerType(),
+			portletPreferencesIds.getPlid(),
+			portletPreferencesIds.getPortletId(), defaultPreferences) );
 
 		return PortletPreferencesLocalServiceUtil.getPreferences(
 			portletPreferencesIds.getCompanyId(),

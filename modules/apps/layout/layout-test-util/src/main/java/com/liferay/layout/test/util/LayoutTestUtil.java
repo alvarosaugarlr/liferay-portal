@@ -99,7 +99,15 @@ public class LayoutTestUtil {
 		List<String> columns = layoutTemplate.getColumns();
 
 		String columnId = columns.get(0);
-
+		_log.error("++++++++++++++++++++++++LayoutTestUtil.addPortletToLayout");
+		_log.error("layoutTypePortlet:"+layoutTypePortlet);
+		_log.error("layoutTemplate:"+layoutTemplate);
+		_log.error("userId:"+userId);
+_log.error("userId:"+userId);
+		_log.error("layout:"+layout+"::::"+layout.getLayoutId());
+		_log.error("portletId:"+portletId);
+		_log.error("columnId:"+columnId);
+		_log.error("preferenceMap:"+preferenceMap);
 		return addPortletToLayout(
 			userId, layout, portletId, columnId, preferenceMap);
 	}
@@ -108,29 +116,62 @@ public class LayoutTestUtil {
 			long userId, Layout layout, String portletId, String columnId,
 			Map<String, String[]> preferenceMap)
 		throws Exception {
+		_log.error("****++++++++++++++addPortletToLayout");
 
 		LayoutTypePortlet layoutTypePortlet =
 			(LayoutTypePortlet)layout.getLayoutType();
+		_log.error("layoutTypePortlet:"+layoutTypePortlet);
+
+		_log.error("before addPortletId");
+		_log.error("userId:"+userId);
+		_log.error("portletId:"+portletId);
+		_log.error("columnId:"+columnId);
 
 		String newPortletId = layoutTypePortlet.addPortletId(
 			userId, portletId, columnId, -1);
+		_log.error("+++++vuelta a addPortletToLayout:");
+		_log.error("after addPortletId");
+		_log.error("newPortletId:"+newPortletId);
 
+
+		_log.error("layout.getGroupId():"+layout.getGroupId());
+		_log.error("layout.isPrivateLayout():"+layout.isPrivateLayout());
+		_log.error("layout.getLayoutId():"+layout.getLayoutId());
+		_log.error("layout.getTypeSettings():"+layout.getTypeSettings());
+
+
+
+//		LayoutLocalServiceUtil.updateLayout(
 		LayoutLocalServiceUtil.updateTypeSettings(
 			layout.getGroupId(), layout.isPrivateLayout(), layout.getLayoutId(),
 			layout.getTypeSettings());
 
+		_log.error("después de LayoutLocalServiceUtil.updateLayout:");
+
+		_log.error("preferenceMap:"+preferenceMap);
+
 		if (preferenceMap == null) {
 			return newPortletId;
 		}
+		_log.error("ántes de getPortletPreferences:");
 
 		PortletPreferences portletPreferences = getPortletPreferences(
 			layout, newPortletId);
+		_log.error("después de getPortletPreferences:");
+
 
 		for (Map.Entry<String, String[]> entry : preferenceMap.entrySet()) {
 			portletPreferences.setValues(entry.getKey(), entry.getValue());
+			_log.error("entry.getKey():"+entry.getKey());
+			_log.error("entry.getValue():"+entry.getValue());
+
+
 		}
+		_log.error("antes de portletPreferences.store:");
 
 		portletPreferences.store();
+		_log.error("después de portletPreferences.store:");
+
 
 		return newPortletId;
 	}

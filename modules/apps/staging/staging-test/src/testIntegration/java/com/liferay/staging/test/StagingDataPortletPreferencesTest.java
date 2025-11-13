@@ -6,6 +6,7 @@
 package com.liferay.staging.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.dynamic.data.lists.constants.DDLPortletKeys;
 import com.liferay.dynamic.data.lists.constants.DDLRecordSetConstants;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
@@ -30,7 +31,18 @@ import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.osgi.util.ServiceTrackerFactory;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.test.util.ConfigurationTestUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.portlet.PortletProvider;
+import com.liferay.portal.kernel.portlet.PortletProviderUtil;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import  com.liferay.portal.kernel.portlet.PortletProvider.Action;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -93,6 +105,7 @@ public class StagingDataPortletPreferencesTest
 
 	@Test
 	public void testDDLDisplayPortletPreferences() throws Exception {
+		_log.error("+++++++++++++++testDDLDisplayPortletPreferences");
 		Bundle bundle = FrameworkUtil.getBundle(getClass());
 
 		ServiceTracker<Portlet, Portlet> serviceTracker =
@@ -106,7 +119,7 @@ public class StagingDataPortletPreferencesTest
 			Assert.assertNotNull(serviceTracker.waitForService(15000));
 		}
 		finally {
-			serviceTracker.close();
+			//serviceTracker.close();
 		}
 
 		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
@@ -146,8 +159,22 @@ public class StagingDataPortletPreferencesTest
 			new String[] {String.valueOf(ddlRecordSet.getRecordSetKey())}
 		).build();
 
+
+		_log.error("++++++++++cambio permisos");
+		PermissionThreadLocal.setPermissionChecker(
+			PermissionCheckerFactoryUtil.create(TestPropsValues.getUser()));
+
+		_log.error("+++++++++++++++before publishLayoutWithDisplayPortlet");
+		_log.error("+++++++++++++++publishLayoutWithDisplayPortlet-portletId:"+DDLPortletKeys.DYNAMIC_DATA_LISTS_DISPLAY);
+		_log.error("+++++++++++++++publishLayoutWithDisplayPortlet-preference:"+preferenceMap);
+
+		String portletId1 = PortletProviderUtil.getPortletId(
+			"com.liferay.dynamic.data.lists.model.DDLRecord", PortletProvider.Action.ADD);
+			//DDLPortletKeys.DYNAMIC_DATA_LISTS_DISPLAY, PortletProvider.Action.ADD);
+
 		String portletId = publishLayoutWithDisplayPortlet(
 			DDLPortletKeys.DYNAMIC_DATA_LISTS_DISPLAY, preferenceMap, true);
+		_log.error("+++++++++++++++after publishLayoutWithDisplayPortlet");
 
 		Assert.assertEquals(
 			String.valueOf(displayDDMTemplate.getTemplateId()),
@@ -309,6 +336,18 @@ public class StagingDataPortletPreferencesTest
 		throws Exception {
 
 		if (addPortlet) {
+			_log.error("+++++++++++inside publishLayoutWithDisplayPortlet , addPortlet is true");
+			_log.error("+++++++++++inside publishLayoutWithDisplayPortlet , stagingLayout:"+stagingLayout);
+
+
+	/*		RoleTestUtil.addResourcePermission(
+				RoleConstants.USER, portletId,
+				ResourceConstants.SCOPE_COMPANY,
+				String.valueOf(TestPropsValues.getCompanyId()),
+				ActionKeys.ADD_TO_PAGE);
+
+
+	 */
 			portletId = LayoutTestUtil.addPortletToLayout(
 				stagingLayout, portletId, preferenceMap);
 		}
@@ -328,6 +367,9 @@ public class StagingDataPortletPreferencesTest
 
 		return portletId;
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		StagingDataPortletPreferencesTest.class);
 
 	protected PortletPreferences livePortletPreferences;
 

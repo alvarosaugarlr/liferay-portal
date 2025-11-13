@@ -113,7 +113,7 @@ public class PortletProviderUtil {
 	private static PortletProvider _getPortletProvider(
 		String className, PortletProvider.Action action) {
 
-		PortletProvider portletProvider = _getPortletProvider(
+ 		PortletProvider portletProvider = _getPortletProvider(
 			action, _serviceTrackerMap.getService(className));
 
 		if ((portletProvider == null) && _isAssetObject(className)) {
