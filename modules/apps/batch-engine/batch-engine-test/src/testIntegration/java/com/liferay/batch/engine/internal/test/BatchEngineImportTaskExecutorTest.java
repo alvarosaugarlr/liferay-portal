@@ -28,6 +28,7 @@ import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -66,6 +67,9 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -644,7 +648,30 @@ public class BatchEngineImportTaskExecutorTest
 				BatchEngineTaskOperation.CREATE.toString(), new HashMap<>(),
 				null);
 
+		SessionFactory sessionFactory =
+			(SessionFactory)PortalBeanLocatorUtil.locate(
+				"liferayHibernateSessionFactory");
+
+		Statistics statistics = sessionFactory.getStatistics();
+
+		statistics.setStatisticsEnabled(true);
+		statistics.clear();
+
 		_batchEngineImportTaskExecutor.execute(_batchEngineImportTask);
+
+		long totalTransactions = statistics.getTransactionCount();
+		long successfulTransactions =
+			statistics.getSuccessfulTransactionCount();
+
+		System.out.println("Total transactions: " + totalTransactions);
+		System.out.println(
+			"Successful transactions: " + successfulTransactions);
+
+		// In this test there is not a rollback, so the number of both should
+		// be the same. The idea is to check if there is an unnecessary
+		// transaction.
+
+		Assert.assertEquals(totalTransactions, successfulTransactions);
 
 		Assert.assertEquals(
 			BatchEngineTaskExecuteStatus.COMPLETED.toString(),
