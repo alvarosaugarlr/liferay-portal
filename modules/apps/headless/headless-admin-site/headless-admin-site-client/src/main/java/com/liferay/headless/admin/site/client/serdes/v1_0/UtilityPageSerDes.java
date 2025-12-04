@@ -585,7 +585,7 @@ public class UtilityPageSerDes {
 			else if (Objects.equals(jsonParserFieldName, "thumbnail")) {
 				if (jsonParserFieldValue != null) {
 					utilityPage.setThumbnail(
-						ItemExternalReferenceSerDes.toDTO(
+						ThumbnailURLReferenceSerDes.toDTO(
 							(String)jsonParserFieldValue));
 				}
 			}

@@ -601,7 +601,7 @@ public class MasterPage implements Serializable {
 		description = "The master page's thumbnail."
 	)
 	@Valid
-	public ItemExternalReference getThumbnail() {
+	public ThumbnailURLReference getThumbnail() {
 		if (_thumbnailSupplier != null) {
 			thumbnail = _thumbnailSupplier.get();
 
@@ -611,7 +611,7 @@ public class MasterPage implements Serializable {
 		return thumbnail;
 	}
 
-	public void setThumbnail(ItemExternalReference thumbnail) {
+	public void setThumbnail(ThumbnailURLReference thumbnail) {
 		this.thumbnail = thumbnail;
 
 		_thumbnailSupplier = null;
@@ -619,7 +619,7 @@ public class MasterPage implements Serializable {
 
 	@JsonIgnore
 	public void setThumbnail(
-		UnsafeSupplier<ItemExternalReference, Exception>
+		UnsafeSupplier<ThumbnailURLReference, Exception>
 			thumbnailUnsafeSupplier) {
 
 		_thumbnailSupplier = () -> {
@@ -637,10 +637,10 @@ public class MasterPage implements Serializable {
 
 	@GraphQLField(description = "The master page's thumbnail.")
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected ItemExternalReference thumbnail;
+	protected ThumbnailURLReference thumbnail;
 
 	@JsonIgnore
-	private Supplier<ItemExternalReference> _thumbnailSupplier;
+	private Supplier<ThumbnailURLReference> _thumbnailSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
 		description = "A valid external identifier to reference this page."
@@ -932,7 +932,7 @@ public class MasterPage implements Serializable {
 			sb.append("]");
 		}
 
-		ItemExternalReference thumbnail = getThumbnail();
+		ThumbnailURLReference thumbnail = getThumbnail();
 
 		if (thumbnail != null) {
 			if (sb.length() > 1) {

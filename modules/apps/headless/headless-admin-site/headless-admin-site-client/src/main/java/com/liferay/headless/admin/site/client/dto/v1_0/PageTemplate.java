@@ -313,6 +313,28 @@ public abstract class PageTemplate implements Cloneable, Serializable {
 
 	protected ItemExternalReference[] taxonomyCategoryItemExternalReferences;
 
+	public ThumbnailURLReference getThumbnail() {
+		return thumbnail;
+	}
+
+	public void setThumbnail(ThumbnailURLReference thumbnail) {
+		this.thumbnail = thumbnail;
+	}
+
+	public void setThumbnail(
+		UnsafeSupplier<ThumbnailURLReference, Exception>
+			thumbnailUnsafeSupplier) {
+
+		try {
+			thumbnail = thumbnailUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected ThumbnailURLReference thumbnail;
+
 	public Type getType() {
 		return type;
 	}

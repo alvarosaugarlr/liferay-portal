@@ -29,8 +29,11 @@ import {
 import {removeFieldSettings} from '../../../../utils/fieldSettings';
 import BooleanDefaultValueSelect from '../../DefaultValueFields/BooleanDefaultValueSelect';
 import ListTypeDefaultValueSelect from '../../DefaultValueFields/ListTypeDefaultValueSelect';
+import RichTextDefaultValue from '../../DefaultValueFields/RichTextDefaultValue';
+import TextDefaultValueInput from '../../DefaultValueFields/TextDefaultValueInput';
 import {ObjectFieldErrors} from '../../ObjectFieldFormBase';
 interface DefaultValueContainerProps {
+	ckEditor5Config?: object;
 	creationLanguageId: Liferay.Language.Locale;
 	errors: ObjectFieldErrors;
 	learnResources: ILearnResourceContext;
@@ -42,9 +45,11 @@ interface DefaultValueContainerProps {
 }
 
 export interface InputAsValueFieldComponentProps {
+	ckEditor5Config?: object;
 	creationLanguageId: Liferay.Language.Locale;
 	defaultValue?: ObjectFieldSettingValue;
 	error?: string;
+	id?: string;
 	label: string;
 	onSubmit?: (values?: Partial<ObjectField>) => void;
 	placeholder?: string;
@@ -60,11 +65,15 @@ type InputAsValueFieldComponents = {
 const InputAsValueFieldComponents: Partial<InputAsValueFieldComponents> = {
 	...(Liferay.FeatureFlags['LPD-46451'] && {
 		Boolean: BooleanDefaultValueSelect,
+		LongText: TextDefaultValueInput,
+		RichText: RichTextDefaultValue,
+		Text: TextDefaultValueInput,
 	}),
 	Picklist: ListTypeDefaultValueSelect,
 };
 
 export function DefaultValueContainer({
+	ckEditor5Config,
 	creationLanguageId,
 	errors,
 	learnResources,
@@ -212,11 +221,13 @@ export function DefaultValueContainer({
 				defaultValueTypeSelection === 'inputAsValue' &&
 				InputAsValueFieldComponent && (
 					<InputAsValueFieldComponent
+						ckEditor5Config={ckEditor5Config}
 						creationLanguageId={creationLanguageId}
 						defaultValue={
 							defaultValueType === 'inputAsValue' && defaultValue
 						}
 						error={errors.defaultValue}
+						id="default_value_container_input"
 						label={
 							!values.state
 								? Liferay.Language.get('default-value')

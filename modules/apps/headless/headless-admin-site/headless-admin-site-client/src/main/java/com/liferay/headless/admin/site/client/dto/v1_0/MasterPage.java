@@ -288,16 +288,16 @@ public class MasterPage implements Cloneable, Serializable {
 
 	protected ItemExternalReference[] taxonomyCategoryItemExternalReferences;
 
-	public ItemExternalReference getThumbnail() {
+	public ThumbnailURLReference getThumbnail() {
 		return thumbnail;
 	}
 
-	public void setThumbnail(ItemExternalReference thumbnail) {
+	public void setThumbnail(ThumbnailURLReference thumbnail) {
 		this.thumbnail = thumbnail;
 	}
 
 	public void setThumbnail(
-		UnsafeSupplier<ItemExternalReference, Exception>
+		UnsafeSupplier<ThumbnailURLReference, Exception>
 			thumbnailUnsafeSupplier) {
 
 		try {
@@ -308,7 +308,7 @@ public class MasterPage implements Cloneable, Serializable {
 		}
 	}
 
-	protected ItemExternalReference thumbnail;
+	protected ThumbnailURLReference thumbnail;
 
 	public String getUuid() {
 		return uuid;

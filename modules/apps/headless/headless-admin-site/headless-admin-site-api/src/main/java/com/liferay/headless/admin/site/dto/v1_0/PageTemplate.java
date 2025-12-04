@@ -659,6 +659,51 @@ public abstract class PageTemplate implements Serializable {
 		_taxonomyCategoryItemExternalReferencesSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
+		description = "The display page template's thumbnail."
+	)
+	@Valid
+	public ThumbnailURLReference getThumbnail() {
+		if (_thumbnailSupplier != null) {
+			thumbnail = _thumbnailSupplier.get();
+
+			_thumbnailSupplier = null;
+		}
+
+		return thumbnail;
+	}
+
+	public void setThumbnail(ThumbnailURLReference thumbnail) {
+		this.thumbnail = thumbnail;
+
+		_thumbnailSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setThumbnail(
+		UnsafeSupplier<ThumbnailURLReference, Exception>
+			thumbnailUnsafeSupplier) {
+
+		_thumbnailSupplier = () -> {
+			try {
+				return thumbnailUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(description = "The display page template's thumbnail.")
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected ThumbnailURLReference thumbnail;
+
+	@JsonIgnore
+	private Supplier<ThumbnailURLReference> _thumbnailSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema(
 		description = "The type of the page template."
 	)
 	@JsonGetter("type")
@@ -1012,6 +1057,18 @@ public abstract class PageTemplate implements Serializable {
 			}
 
 			sb.append("]");
+		}
+
+		ThumbnailURLReference thumbnail = getThumbnail();
+
+		if (thumbnail != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"thumbnail\": ");
+
+			sb.append(String.valueOf(thumbnail));
 		}
 
 		Type type = getType();

@@ -8,8 +8,8 @@ package com.liferay.headless.admin.site.resource.v1_0.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.headless.admin.site.client.dto.v1_0.ContentPageSpecification;
 import com.liferay.headless.admin.site.client.dto.v1_0.FriendlyUrlHistory;
-import com.liferay.headless.admin.site.client.dto.v1_0.ItemExternalReference;
 import com.liferay.headless.admin.site.client.dto.v1_0.PageSpecification;
+import com.liferay.headless.admin.site.client.dto.v1_0.ThumbnailURLReference;
 import com.liferay.headless.admin.site.client.dto.v1_0.UtilityPage;
 import com.liferay.headless.admin.site.client.dto.v1_0.UtilityPageSEOSettings;
 import com.liferay.headless.admin.site.client.dto.v1_0.UtilityPageSettings;
@@ -50,6 +50,9 @@ import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
+
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import java.util.HashMap;
 import java.util.List;
@@ -180,7 +183,8 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 	public void testGetSiteUtilityPagesPage() throws Exception {
 		super.testGetSiteUtilityPagesPage();
 
-		_testGetSiteUtilityPagesPageWithNestedFields();
+		_testGetSiteUtilityPagesPageWithPageSpecificationsAsNestedFields();
+		_testGetSiteUtilityPagesPageWithThumbnailAsNestedField();
 	}
 
 	@Ignore
@@ -236,48 +240,15 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 
 		ContentLayoutTestUtil.publishLayout(layout.fetchDraftLayout(), layout);
 
-		Repository repository = _portletFileRepository.addPortletRepository(
-			testGroup.getGroupId(), RandomTestUtil.randomString(),
-			ServiceContextTestUtil.getServiceContext(
-				testGroup, TestPropsValues.getUserId()));
-
-		utilityPage.setThumbnail(
-			() -> new ItemExternalReference() {
-				{
-					setClassName(() -> FileEntry.class.getName());
-					setExternalReferenceCode(
-						() -> {
-							FileEntry fileEntry = _addPortletFileEntry(
-								repository.getDlFolderId());
-
-							return fileEntry.getExternalReferenceCode();
-						});
-				}
-			});
-
 		_testPatchSiteUtilityPage(
 			Boolean.TRUE, utilityPage,
 			new UtilityPage() {
 				{
 					setMarkedAsDefault(Boolean.TRUE);
-					setThumbnail(utilityPage::getThumbnail);
 				}
 			});
 
 		utilityPage.setName(RandomTestUtil::randomString);
-		utilityPage.setThumbnail(
-			() -> new ItemExternalReference() {
-				{
-					setClassName(() -> FileEntry.class.getName());
-					setExternalReferenceCode(
-						() -> {
-							FileEntry fileEntry = _addPortletFileEntry(
-								repository.getDlFolderId());
-
-							return fileEntry.getExternalReferenceCode();
-						});
-				}
-			});
 		utilityPage.setUtilityPageSettings(
 			() -> new UtilityPageSettings() {
 				{
@@ -304,12 +275,12 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 			new UtilityPage() {
 				{
 					setName(utilityPage::getName);
-					setThumbnail(utilityPage::getThumbnail);
 					setUtilityPageSettings(utilityPage::getUtilityPageSettings);
 				}
 			});
 
 		_testPatchSiteUtilityPageWithPageSpecifications();
+		_testPatchSiteUtilityPageWithThumbnail();
 
 		_assertProblemException(
 			"NOT_FOUND",
@@ -331,29 +302,55 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 			ServiceContextTestUtil.getServiceContext(
 				testGroup, TestPropsValues.getUserId()));
 
-		ItemExternalReference itemExternalReference =
-			new ItemExternalReference() {
-				{
-					setClassName(() -> FileEntry.class.getName());
-					setExternalReferenceCode(
-						() -> {
-							FileEntry fileEntry = _addPortletFileEntry(
-								repository.getDlFolderId());
+		FileEntry fileEntry = _addPortletFileEntry(repository.getDlFolderId());
 
-							return fileEntry.getExternalReferenceCode();
-						});
+		ThumbnailURLReference thumbnailURLReference =
+			new ThumbnailURLReference() {
+				{
+					setExternalReferenceCode(
+						fileEntry.getExternalReferenceCode());
+					setUrl(RandomTestUtil.randomString());
 				}
 			};
 
-		utilityPage.setThumbnail(itemExternalReference);
+		utilityPage.setThumbnail(thumbnailURLReference);
 
 		UtilityPage postUtilityPage = testPostSiteUtilityPage_addUtilityPage(
 			utilityPage);
 
 		assertEquals(utilityPage, postUtilityPage);
 		assertValid(postUtilityPage);
-		Assert.assertEquals(
-			itemExternalReference, postUtilityPage.getThumbnail());
+
+		_assertThumbnailFileEntryId(
+			false, fileEntry.getExternalReferenceCode(),
+			postUtilityPage.getExternalReferenceCode());
+
+		UtilityPage utilityPageError = randomUtilityPage();
+
+		thumbnailURLReference = new ThumbnailURLReference() {
+			{
+				setExternalReferenceCode(RandomTestUtil.randomString());
+				setUrl(
+					() ->
+						"http://localhost:8080/" +
+							RandomTestUtil.randomString());
+			}
+		};
+
+		utilityPageError.setThumbnail(thumbnailURLReference);
+
+		try {
+			testPostSiteUtilityPage_addUtilityPage(utilityPageError);
+		}
+		catch (Problem.ProblemException problemException) {
+			Problem problem = problemException.getProblem();
+
+			Assert.assertEquals("BAD_REQUEST", problem.getStatus());
+			Assert.assertEquals(
+				"Unable to download file from " +
+					thumbnailURLReference.getUrl(),
+				problem.getTitle());
+		}
 
 		_testPostSiteUtilityPageWithPageSpecifications();
 	}
@@ -435,6 +432,7 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 				null, null, layoutUtilityPageEntry.getExternalReferenceCode()));
 
 		_testPutSiteUtilityPageWithPageSpecifications();
+		_testPutSiteUtilityPageWithThumbnail();
 	}
 
 	@Override
@@ -604,6 +602,31 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 		}
 	}
 
+	private void _assertThumbnailFileEntryId(
+			Boolean defaultValue, String thumbnailExternalReferenceCode,
+			String utilityPageExternalReferenceCode)
+		throws Exception {
+
+		LayoutUtilityPageEntry layoutUtilityPageEntry =
+			_layoutUtilityPageEntryLocalService.
+				getLayoutUtilityPageEntryByExternalReferenceCode(
+					utilityPageExternalReferenceCode, testGroup.getGroupId());
+
+		long fileEntryId = 0;
+
+		if (!defaultValue) {
+			FileEntry fileEntry =
+				_portletFileRepository.
+					getPortletFileEntryByExternalReferenceCode(
+						thumbnailExternalReferenceCode, testGroup.getGroupId());
+
+			fileEntryId = fileEntry.getFileEntryId();
+		}
+
+		Assert.assertEquals(
+			layoutUtilityPageEntry.getPreviewFileEntryId(), fileEntryId);
+	}
+
 	private UtilityPage _getUtilityPage(
 			FileEntry fileEntry, Boolean markedAsDefault,
 			String utilityPageExternalReferenceCode)
@@ -616,11 +639,11 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 
 		if (fileEntry != null) {
 			utilityPage.setThumbnail(
-				() -> new ItemExternalReference() {
+				() -> new ThumbnailURLReference() {
 					{
-						setClassName(() -> FileEntry.class.getName());
 						setExternalReferenceCode(
 							fileEntry::getExternalReferenceCode);
+						setUrl(RandomTestUtil.randomString());
 					}
 				});
 		}
@@ -654,11 +677,11 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 		).locale(
 			LocaleUtil.getDefault()
 		).parameters(
-			"nestedFields", "friendlyUrlHistory,pageSpecifications"
+			"nestedFields", "friendlyUrlHistory,pageSpecifications,thumbnail"
 		).build();
 	}
 
-	private void _testGetSiteUtilityPagesPageWithNestedFields()
+	private void _testGetSiteUtilityPagesPageWithPageSpecificationsAsNestedFields()
 		throws Exception {
 
 		Page<UtilityPage> page = utilityPageResource.getSiteUtilityPagesPage(
@@ -709,6 +732,61 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 			_getUtilityPage(
 				utilityPage.getExternalReferenceCode(),
 				(List<UtilityPage>)page.getItems()));
+	}
+
+	private void _testGetSiteUtilityPagesPageWithThumbnailAsNestedField()
+		throws Exception {
+
+		UtilityPage randomUtilityPage = randomUtilityPage();
+
+		Repository repository = _portletFileRepository.addPortletRepository(
+			testGroup.getGroupId(), RandomTestUtil.randomString(),
+			ServiceContextTestUtil.getServiceContext(
+				testGroup, TestPropsValues.getUserId()));
+
+		FileEntry fileEntry = _addPortletFileEntry(repository.getDlFolderId());
+
+		randomUtilityPage.setThumbnail(
+			() -> new ThumbnailURLReference() {
+				{
+					setExternalReferenceCode(
+						fileEntry.getExternalReferenceCode());
+					setUrl(RandomTestUtil.randomString());
+				}
+			});
+
+		UtilityPage postUtilityPage = testPostSiteUtilityPage_addUtilityPage(
+			randomUtilityPage);
+
+		UtilityPageResource utilityPageResource = _getUtilityPageResource();
+
+		Page<UtilityPage> page = utilityPageResource.getSiteUtilityPagesPage(
+			testGroup.getExternalReferenceCode(), null, null, null, null, null);
+
+		for (UtilityPage utilityPage : page.getItems()) {
+			if (StringUtil.equals(
+					postUtilityPage.getExternalReferenceCode(),
+					utilityPage.getExternalReferenceCode())) {
+
+				ThumbnailURLReference thumbnail = utilityPage.getThumbnail();
+
+				_assertThumbnailFileEntryId(
+					false, thumbnail.getExternalReferenceCode(),
+					postUtilityPage.getExternalReferenceCode());
+
+				URL url = new URL(thumbnail.getUrl());
+
+				HttpURLConnection httpURLConnection =
+					(HttpURLConnection)url.openConnection();
+
+				Assert.assertEquals(
+					HttpURLConnection.HTTP_OK,
+					httpURLConnection.getResponseCode());
+			}
+			else {
+				Assert.assertNull(utilityPage.getThumbnail());
+			}
+		}
 	}
 
 	private void _testPatchSiteUtilityPage(
@@ -836,6 +914,89 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 			draftContentPageSpecification, publishedContentPageSpecification);
 	}
 
+	private void _testPatchSiteUtilityPageWithThumbnail() throws Exception {
+		UtilityPage utilityPage = randomUtilityPage();
+
+		Repository repository = _portletFileRepository.addPortletRepository(
+			testGroup.getGroupId(), RandomTestUtil.randomString(),
+			ServiceContextTestUtil.getServiceContext(
+				testGroup, TestPropsValues.getUserId()));
+
+		FileEntry fileEntry = _addPortletFileEntry(repository.getDlFolderId());
+
+		utilityPage.setThumbnail(
+			() -> new ThumbnailURLReference() {
+				{
+					setExternalReferenceCode(
+						fileEntry.getExternalReferenceCode());
+					setUrl(RandomTestUtil.randomString());
+				}
+			});
+
+		UtilityPageResource utilityPageResource = _getUtilityPageResource();
+
+		UtilityPage postUtilityPage = utilityPageResource.postSiteUtilityPage(
+			testGroup.getExternalReferenceCode(), utilityPage);
+
+		Assert.assertEquals(
+			utilityPage.getExternalReferenceCode(),
+			postUtilityPage.getExternalReferenceCode());
+
+		_assertThumbnailFileEntryId(
+			false, fileEntry.getExternalReferenceCode(),
+			utilityPage.getExternalReferenceCode());
+
+		FileEntry newFileEntry = _addPortletFileEntry(
+			repository.getDlFolderId());
+
+		utilityPage.setThumbnail(
+			() -> new ThumbnailURLReference() {
+				{
+					setExternalReferenceCode(
+						newFileEntry.getExternalReferenceCode());
+					setUrl(RandomTestUtil.randomString());
+				}
+			});
+
+		utilityPageResource.patchSiteUtilityPage(
+			testGroup.getExternalReferenceCode(),
+			utilityPage.getExternalReferenceCode(), utilityPage);
+
+		_assertThumbnailFileEntryId(
+			false, newFileEntry.getExternalReferenceCode(),
+			utilityPage.getExternalReferenceCode());
+
+		UtilityPage utilityPageError = randomUtilityPage();
+
+		ThumbnailURLReference thumbnailURLReference =
+			new ThumbnailURLReference() {
+				{
+					setExternalReferenceCode(RandomTestUtil.randomString());
+					setUrl(
+						() ->
+							"http://localhost:8080/" +
+								RandomTestUtil.randomString());
+				}
+			};
+
+		utilityPageError.setThumbnail(thumbnailURLReference);
+
+		try {
+			utilityPageResource.patchSiteUtilityPage(
+				testGroup.getExternalReferenceCode(),
+				utilityPage.getExternalReferenceCode(), utilityPageError);
+		}
+		catch (Problem.ProblemException problemException) {
+			Problem problem = problemException.getProblem();
+
+			Assert.assertEquals("BAD_REQUEST", problem.getStatus());
+			Assert.assertEquals(
+				"Unable to download file from " +
+					thumbnailURLReference.getUrl(),
+				problem.getTitle());
+		}
+	}
+
 	private void _testPostSiteUtilityPageWithPageSpecifications()
 		throws Exception {
 
@@ -911,8 +1072,6 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 
 		Assert.assertEquals(
 			markedAsDefault, putUtilityPage.getMarkedAsDefault());
-		Assert.assertEquals(
-			utilityPage.getThumbnail(), putUtilityPage.getThumbnail());
 	}
 
 	private void _testPutSiteUtilityPageWithPageSpecifications()
@@ -1003,6 +1162,96 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 				testGroup.getExternalReferenceCode(),
 				utilityPage.getExternalReferenceCode(), utilityPage),
 			draftContentPageSpecification, publishedContentPageSpecification);
+	}
+
+	private void _testPutSiteUtilityPageWithThumbnail() throws Exception {
+		UtilityPage utilityPage = randomUtilityPage();
+
+		utilityPage.setExternalReferenceCode(RandomTestUtil.randomString());
+
+		Repository repository = _portletFileRepository.addPortletRepository(
+			testGroup.getGroupId(), RandomTestUtil.randomString(),
+			ServiceContextTestUtil.getServiceContext(
+				testGroup, TestPropsValues.getUserId()));
+
+		FileEntry fileEntry1 = _addPortletFileEntry(repository.getDlFolderId());
+
+		String thumbnailURL = RandomTestUtil.randomString();
+
+		utilityPage.setThumbnail(
+			() -> new ThumbnailURLReference() {
+				{
+					setExternalReferenceCode(
+						fileEntry1.getExternalReferenceCode());
+					setUrl(thumbnailURL);
+				}
+			});
+
+		UtilityPage putUtilityPage = utilityPageResource.putSiteUtilityPage(
+			testGroup.getExternalReferenceCode(),
+			utilityPage.getExternalReferenceCode(), utilityPage);
+
+		_assertThumbnailFileEntryId(
+			false, fileEntry1.getExternalReferenceCode(),
+			putUtilityPage.getExternalReferenceCode());
+
+		FileEntry fileEntry2 = _addPortletFileEntry(repository.getDlFolderId());
+
+		putUtilityPage.setThumbnail(
+			() -> new ThumbnailURLReference() {
+				{
+					setExternalReferenceCode(
+						fileEntry2.getExternalReferenceCode());
+					setUrl(thumbnailURL);
+				}
+			});
+
+		putUtilityPage = utilityPageResource.putSiteUtilityPage(
+			testGroup.getExternalReferenceCode(),
+			putUtilityPage.getExternalReferenceCode(), putUtilityPage);
+
+		_assertThumbnailFileEntryId(
+			false, fileEntry2.getExternalReferenceCode(),
+			putUtilityPage.getExternalReferenceCode());
+
+		putUtilityPage.setThumbnail(() -> null);
+
+		putUtilityPage = utilityPageResource.putSiteUtilityPage(
+			testGroup.getExternalReferenceCode(),
+			putUtilityPage.getExternalReferenceCode(), putUtilityPage);
+
+		_assertThumbnailFileEntryId(
+			true, null, putUtilityPage.getExternalReferenceCode());
+
+		UtilityPage utilityPageError = randomUtilityPage();
+
+		ThumbnailURLReference thumbnailURLReference =
+			new ThumbnailURLReference() {
+				{
+					setExternalReferenceCode(RandomTestUtil.randomString());
+					setUrl(
+						() ->
+							"http://localhost:8080/" +
+								RandomTestUtil.randomString());
+				}
+			};
+
+		utilityPageError.setThumbnail(thumbnailURLReference);
+
+		try {
+			utilityPageResource.putSiteUtilityPage(
+				testGroup.getExternalReferenceCode(),
+				putUtilityPage.getExternalReferenceCode(), utilityPageError);
+		}
+		catch (Problem.ProblemException problemException) {
+			Problem problem = problemException.getProblem();
+
+			Assert.assertEquals("BAD_REQUEST", problem.getStatus());
+			Assert.assertEquals(
+				"Unable to download file from " +
+					thumbnailURLReference.getUrl(),
+				problem.getTitle());
+		}
 	}
 
 	@Inject

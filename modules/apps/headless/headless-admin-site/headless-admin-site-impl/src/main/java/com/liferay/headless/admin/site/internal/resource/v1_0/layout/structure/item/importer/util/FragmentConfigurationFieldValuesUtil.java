@@ -9,7 +9,6 @@ import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.asset.kernel.service.AssetCategoryLocalServiceUtil;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalServiceUtil;
-import com.liferay.fragment.entry.processor.constants.FragmentEntryProcessorConstants;
 import com.liferay.fragment.util.configuration.FragmentConfigurationField;
 import com.liferay.fragment.util.configuration.FragmentEntryConfigurationParserUtil;
 import com.liferay.headless.admin.site.dto.v1_0.CategoryFragmentConfigurationFieldValue;
@@ -73,23 +72,6 @@ import java.util.Objects;
  */
 public class FragmentConfigurationFieldValuesUtil {
 
-	public static JSONObject
-			getFragmentConfigurationFieldValuesEditableValuesJSONObject(
-				String configuration,
-				Map<String, FragmentConfigurationFieldValue>
-					fragmentConfigurationFieldValuesMap,
-				LayoutStructureItemImporterContext
-					layoutStructureItemImporterContext)
-		throws Exception {
-
-		return JSONUtil.put(
-			FragmentEntryProcessorConstants.
-				KEY_FREEMARKER_FRAGMENT_ENTRY_PROCESSOR,
-			getFreeMarkerFragmentEntryProcessorJSONObject(
-				configuration, fragmentConfigurationFieldValuesMap,
-				layoutStructureItemImporterContext));
-	}
-
 	public static JSONObject getFreeMarkerFragmentEntryProcessorJSONObject(
 			String configuration,
 			Map<String, FragmentConfigurationFieldValue>
@@ -98,11 +80,11 @@ public class FragmentConfigurationFieldValuesUtil {
 				layoutStructureItemImporterContext)
 		throws Exception {
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
-
 		if (fragmentConfigurationFieldValuesMap == null) {
-			return jsonObject;
+			return null;
 		}
+
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
 		JSONObject configurationJSONObject = JSONFactoryUtil.createJSONObject(
 			configuration);
@@ -132,6 +114,10 @@ public class FragmentConfigurationFieldValuesUtil {
 				_fromFragmentConfigurationFieldValue(
 					fragmentConfigurationFieldValue, fragmentConfigurationField,
 					layoutStructureItemImporterContext));
+		}
+
+		if (jsonObject.length() == 0) {
+			return null;
 		}
 
 		return jsonObject;

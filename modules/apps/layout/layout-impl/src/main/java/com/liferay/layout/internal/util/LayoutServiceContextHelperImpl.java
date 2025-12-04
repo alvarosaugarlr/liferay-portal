@@ -409,7 +409,7 @@ public class LayoutServiceContextHelperImpl
 			themeDisplay.setPermissionChecker(permissionChecker);
 			themeDisplay.setPortalDomain(company.getVirtualHostname());
 
-			boolean secure = _isHttpsEnabled();
+			boolean secure = _isSecure();
 
 			int portalServerPort = _portal.getPortalServerPort(secure);
 
@@ -428,7 +428,7 @@ public class LayoutServiceContextHelperImpl
 			return themeDisplay;
 		}
 
-		private boolean _isHttpsEnabled() {
+		private boolean _isSecure() {
 			if (Objects.equals(
 					Http.HTTPS,
 					PropsUtil.get(PropsKeys.PORTAL_INSTANCE_PROTOCOL)) ||

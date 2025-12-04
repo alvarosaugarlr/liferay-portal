@@ -682,7 +682,7 @@ public class DisplayPageTemplateSerDes {
 			else if (Objects.equals(jsonParserFieldName, "thumbnail")) {
 				if (jsonParserFieldValue != null) {
 					displayPageTemplate.setThumbnail(
-						ItemExternalReferenceSerDes.toDTO(
+						ThumbnailURLReferenceSerDes.toDTO(
 							(String)jsonParserFieldValue));
 				}
 			}
