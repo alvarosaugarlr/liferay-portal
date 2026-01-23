@@ -1425,6 +1425,16 @@ public abstract class BasePageTemplateResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals(
+					"thumbnailURLReference", additionalAssertFieldName)) {
+
+				if (pageTemplate.getThumbnailURLReference() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("type", additionalAssertFieldName)) {
 				if (pageTemplate.getType() == null) {
 					valid = false;
@@ -1819,6 +1829,19 @@ public abstract class BasePageTemplateResourceTestCase {
 							getTaxonomyCategoryItemExternalReferences(),
 						pageTemplate2.
 							getTaxonomyCategoryItemExternalReferences())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"thumbnailURLReference", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						pageTemplate1.getThumbnailURLReference(),
+						pageTemplate2.getThumbnailURLReference())) {
 
 					return false;
 				}
@@ -2350,6 +2373,11 @@ public abstract class BasePageTemplateResourceTestCase {
 		}
 
 		if (entityFieldName.equals("taxonomyCategoryItemExternalReferences")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("thumbnailURLReference")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
 		}
