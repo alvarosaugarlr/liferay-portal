@@ -53,6 +53,13 @@ public interface OAuthClientASLocalMetadataLocalService
 	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.oauth.client.persistence.service.impl.OAuthClientASLocalMetadataLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the o auth client as local metadata local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link OAuthClientASLocalMetadataLocalServiceUtil} if injection and service tracking are not available.
 	 */
 	public OAuthClientASLocalMetadata addOAuthClientASLocalMetadata(
+			long userId, String authorizationEndpoint, boolean enabled,
+			String issuer, String jwksUri, String[] supportedGrantTypes,
+			String[] supportedScopes, String[] supportedSubjectTypes,
+			String tokenEndpointString, String userinfoEndpoint)
+		throws PortalException;
+
+	public OAuthClientASLocalMetadata addOAuthClientASLocalMetadata(
 			long userId, String metadataJSON, String wellKnownURISuffix)
 		throws PortalException;
 
@@ -207,6 +214,15 @@ public interface OAuthClientASLocalMetadataLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public OAuthClientASLocalMetadata fetchOAuthClientASLocalMetadata(
+		long companyId, boolean enabled,
+		OrderByComparator<OAuthClientASLocalMetadata> orderByComparator);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public OAuthClientASLocalMetadata fetchOAuthClientASLocalMetadata(
+		long companyId, String issuer);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public OAuthClientASLocalMetadata fetchOAuthClientASLocalMetadata(
 		String localWellKnownURI);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -264,6 +280,9 @@ public interface OAuthClientASLocalMetadataLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getOAuthClientASLocalMetadatasCount();
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getOAuthClientASLocalMetadatasCount(long companyId);
+
 	/**
 	 * Returns the OSGi service identifier.
 	 *
@@ -286,6 +305,14 @@ public interface OAuthClientASLocalMetadataLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<OAuthClientASLocalMetadata> getUserOAuthClientASLocalMetadata(
 		long userId, int start, int end);
+
+	public OAuthClientASLocalMetadata updateOAuthClientASLocalMetadata(
+			long oAuthClientASLocalMetadataId, String authorizationEndpoint,
+			boolean enabled, String issuer, String jwksUri,
+			String[] supportedGrantTypes, String[] supportedScopes,
+			String[] supportedSubjectTypes, String tokenEndpointString,
+			String userinfoEndpoint)
+		throws PortalException;
 
 	public OAuthClientASLocalMetadata updateOAuthClientASLocalMetadata(
 			long oAuthClientASLocalMetadataId, String metadataJSON,

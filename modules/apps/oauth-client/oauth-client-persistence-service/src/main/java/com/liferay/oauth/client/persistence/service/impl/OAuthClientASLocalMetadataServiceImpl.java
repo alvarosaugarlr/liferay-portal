@@ -14,6 +14,7 @@ import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionUtil;
+import com.liferay.portal.kernel.util.OrderByComparator;
 
 import java.util.List;
 
@@ -35,8 +36,33 @@ public class OAuthClientASLocalMetadataServiceImpl
 
 	@Override
 	public OAuthClientASLocalMetadata addOAuthClientASLocalMetadata(
-			long userId, String metadataJSON, String wellKnownURISuffix)
+			String authorizationEndpoint, boolean enabled, String issuerString,
+			String jwksUri, String[] supportedGrantTypes,
+			String[] supportedScopes, String[] supportedSubjectTypes,
+			String tokenEndpointString, String userinfoEndpoint)
 		throws PortalException {
+
+		long userId = getUserId();
+
+		ModelResourcePermissionUtil.check(
+			_oAuthClientASLocalMetadataModelResourcePermission,
+			getPermissionChecker(), GroupConstants.DEFAULT_LIVE_GROUP_ID, 0,
+			OAuthClientPersistenceActionKeys.
+				ACTION_ADD_OAUTH_CLIENT_AS_LOCAL_METADATA);
+
+		return oAuthClientASLocalMetadataLocalService.
+			addOAuthClientASLocalMetadata(
+				userId, authorizationEndpoint, enabled, issuerString, jwksUri,
+				supportedGrantTypes, supportedScopes, supportedSubjectTypes,
+				tokenEndpointString, userinfoEndpoint);
+	}
+
+	@Override
+	public OAuthClientASLocalMetadata addOAuthClientASLocalMetadata(
+			String metadataJSON, String wellKnownURISuffix)
+		throws PortalException {
+
+		long userId = getUserId();
 
 		ModelResourcePermissionUtil.check(
 			_oAuthClientASLocalMetadataModelResourcePermission,
@@ -84,6 +110,41 @@ public class OAuthClientASLocalMetadataServiceImpl
 	}
 
 	@Override
+	public OAuthClientASLocalMetadata fetchOAuthClientASLocalMetadata(
+			long oAuthClientASLocalMetadataId)
+		throws PortalException {
+
+		OAuthClientASLocalMetadata oAuthClientASLocalMetadata =
+			oAuthClientASLocalMetadataPersistence.fetchByPrimaryKey(
+				oAuthClientASLocalMetadataId);
+
+		if (oAuthClientASLocalMetadata != null) {
+			_oAuthClientASLocalMetadataModelResourcePermission.check(
+				getPermissionChecker(), oAuthClientASLocalMetadata,
+				ActionKeys.VIEW);
+		}
+
+		return oAuthClientASLocalMetadata;
+	}
+
+	@Override
+	public OAuthClientASLocalMetadata fetchOAuthClientASLocalMetadata(
+			long companyId, String issuer)
+		throws PortalException {
+
+		OAuthClientASLocalMetadata oAuthClientASLocalMetadata =
+			oAuthClientASLocalMetadataPersistence.fetchByC_I(companyId, issuer);
+
+		if (oAuthClientASLocalMetadata != null) {
+			_oAuthClientASLocalMetadataModelResourcePermission.check(
+				getPermissionChecker(), oAuthClientASLocalMetadata,
+				ActionKeys.VIEW);
+		}
+
+		return oAuthClientASLocalMetadata;
+	}
+
+	@Override
 	public List<OAuthClientASLocalMetadata>
 		getCompanyOAuthClientASLocalMetadata(long companyId) {
 
@@ -102,12 +163,44 @@ public class OAuthClientASLocalMetadataServiceImpl
 
 	@Override
 	public OAuthClientASLocalMetadata getOAuthClientASLocalMetadata(
+			long companyId, boolean enabled,
+			OrderByComparator<OAuthClientASLocalMetadata> orderByComparator)
+		throws PortalException {
+
+		OAuthClientASLocalMetadata oAuthClientASLocalMetadata =
+			oAuthClientASLocalMetadataPersistence.findByC_L_First(
+				companyId, enabled, orderByComparator);
+
+		_oAuthClientASLocalMetadataModelResourcePermission.check(
+			getPermissionChecker(), oAuthClientASLocalMetadata,
+			ActionKeys.VIEW);
+
+		return oAuthClientASLocalMetadata;
+	}
+
+	@Override
+	public OAuthClientASLocalMetadata getOAuthClientASLocalMetadata(
+			long companyId, String issuer)
+		throws PortalException {
+
+		OAuthClientASLocalMetadata oAuthClientASLocalMetadata =
+			oAuthClientASLocalMetadataPersistence.findByC_I(companyId, issuer);
+
+		_oAuthClientASLocalMetadataModelResourcePermission.check(
+			getPermissionChecker(), oAuthClientASLocalMetadata,
+			ActionKeys.VIEW);
+
+		return oAuthClientASLocalMetadata;
+	}
+
+	@Override
+	public OAuthClientASLocalMetadata getOAuthClientASLocalMetadata(
 			String localWellKnownURI)
 		throws PortalException {
 
 		OAuthClientASLocalMetadata oAuthClientASLocalMetadata =
-			oAuthClientASLocalMetadataLocalService.
-				getOAuthClientASLocalMetadata(localWellKnownURI);
+			oAuthClientASLocalMetadataPersistence.findByLocalWellKnownURI(
+				localWellKnownURI);
 
 		_oAuthClientASLocalMetadataModelResourcePermission.check(
 			getPermissionChecker(), oAuthClientASLocalMetadata,
@@ -133,14 +226,36 @@ public class OAuthClientASLocalMetadataServiceImpl
 
 	@Override
 	public OAuthClientASLocalMetadata updateOAuthClientASLocalMetadata(
+			long oAuthClientASLocalMetadataId, String authorizationEndpoint,
+			boolean enabled, String issuerString, String jwksUri,
+			String[] supportedGrantTypes, String[] supportedScopes,
+			String[] supportedSubjectTypes, String tokenEndpointString,
+			String userinfoEndpoint)
+		throws PortalException {
+
+		_oAuthClientASLocalMetadataModelResourcePermission.check(
+			getPermissionChecker(),
+			oAuthClientASLocalMetadataPersistence.findByPrimaryKey(
+				oAuthClientASLocalMetadataId),
+			ActionKeys.UPDATE);
+
+		return oAuthClientASLocalMetadataLocalService.
+			updateOAuthClientASLocalMetadata(
+				oAuthClientASLocalMetadataId, authorizationEndpoint, enabled,
+				issuerString, jwksUri, supportedGrantTypes, supportedScopes,
+				supportedSubjectTypes, tokenEndpointString, userinfoEndpoint);
+	}
+
+	@Override
+	public OAuthClientASLocalMetadata updateOAuthClientASLocalMetadata(
 			long oAuthClientASLocalMetadataId, String metadataJSON,
 			String wellKnownURISuffix)
 		throws PortalException {
 
 		_oAuthClientASLocalMetadataModelResourcePermission.check(
 			getPermissionChecker(),
-			oAuthClientASLocalMetadataLocalService.
-				getOAuthClientASLocalMetadata(oAuthClientASLocalMetadataId),
+			oAuthClientASLocalMetadataPersistence.findByPrimaryKey(
+				oAuthClientASLocalMetadataId),
 			ActionKeys.UPDATE);
 
 		return oAuthClientASLocalMetadataLocalService.

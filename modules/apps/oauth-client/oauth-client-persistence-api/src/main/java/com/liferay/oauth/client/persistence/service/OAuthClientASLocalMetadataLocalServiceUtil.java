@@ -37,6 +37,19 @@ public class OAuthClientASLocalMetadataLocalServiceUtil {
 	 * Never modify this class directly. Add custom service methods to <code>com.liferay.oauth.client.persistence.service.impl.OAuthClientASLocalMetadataLocalServiceImpl</code> and rerun ServiceBuilder to regenerate this class.
 	 */
 	public static OAuthClientASLocalMetadata addOAuthClientASLocalMetadata(
+			long userId, String authorizationEndpoint, boolean enabled,
+			String issuer, String jwksUri, String[] supportedGrantTypes,
+			String[] supportedScopes, String[] supportedSubjectTypes,
+			String tokenEndpointString, String userinfoEndpoint)
+		throws PortalException {
+
+		return getService().addOAuthClientASLocalMetadata(
+			userId, authorizationEndpoint, enabled, issuer, jwksUri,
+			supportedGrantTypes, supportedScopes, supportedSubjectTypes,
+			tokenEndpointString, userinfoEndpoint);
+	}
+
+	public static OAuthClientASLocalMetadata addOAuthClientASLocalMetadata(
 			long userId, String metadataJSON, String wellKnownURISuffix)
 		throws PortalException {
 
@@ -232,6 +245,20 @@ public class OAuthClientASLocalMetadataLocalServiceUtil {
 	}
 
 	public static OAuthClientASLocalMetadata fetchOAuthClientASLocalMetadata(
+		long companyId, boolean enabled,
+		OrderByComparator<OAuthClientASLocalMetadata> orderByComparator) {
+
+		return getService().fetchOAuthClientASLocalMetadata(
+			companyId, enabled, orderByComparator);
+	}
+
+	public static OAuthClientASLocalMetadata fetchOAuthClientASLocalMetadata(
+		long companyId, String issuer) {
+
+		return getService().fetchOAuthClientASLocalMetadata(companyId, issuer);
+	}
+
+	public static OAuthClientASLocalMetadata fetchOAuthClientASLocalMetadata(
 		String localWellKnownURI) {
 
 		return getService().fetchOAuthClientASLocalMetadata(localWellKnownURI);
@@ -312,6 +339,10 @@ public class OAuthClientASLocalMetadataLocalServiceUtil {
 		return getService().getOAuthClientASLocalMetadatasCount();
 	}
 
+	public static int getOAuthClientASLocalMetadatasCount(long companyId) {
+		return getService().getOAuthClientASLocalMetadatasCount(companyId);
+	}
+
 	/**
 	 * Returns the OSGi service identifier.
 	 *
@@ -341,6 +372,20 @@ public class OAuthClientASLocalMetadataLocalServiceUtil {
 
 		return getService().getUserOAuthClientASLocalMetadata(
 			userId, start, end);
+	}
+
+	public static OAuthClientASLocalMetadata updateOAuthClientASLocalMetadata(
+			long oAuthClientASLocalMetadataId, String authorizationEndpoint,
+			boolean enabled, String issuer, String jwksUri,
+			String[] supportedGrantTypes, String[] supportedScopes,
+			String[] supportedSubjectTypes, String tokenEndpointString,
+			String userinfoEndpoint)
+		throws PortalException {
+
+		return getService().updateOAuthClientASLocalMetadata(
+			oAuthClientASLocalMetadataId, authorizationEndpoint, enabled,
+			issuer, jwksUri, supportedGrantTypes, supportedScopes,
+			supportedSubjectTypes, tokenEndpointString, userinfoEndpoint);
 	}
 
 	public static OAuthClientASLocalMetadata updateOAuthClientASLocalMetadata(
