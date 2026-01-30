@@ -14,12 +14,9 @@ import com.liferay.portal.kernel.model.UserNotificationEvent;
 import com.liferay.portal.kernel.notifications.BaseUserNotificationHandler;
 import com.liferay.portal.kernel.notifications.UserNotificationHandler;
 import com.liferay.portal.kernel.service.ServiceContext;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-//import jakarta.portlet.PortletRequest;
-
-//import java.util.Locale;
 
 /**
  * @author Alvaro Saugar
