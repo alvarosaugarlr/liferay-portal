@@ -500,10 +500,28 @@ public class DLFileEntryLocalServiceImpl
 		// File
 
 		try {
-			DLStoreUtil.copyFileVersion(
+			InputStream inputStream = DLStoreUtil.getFileAsStream(
 				user.getCompanyId(), dlFileEntry.getDataRepositoryId(),
-				dlFileEntry.getName(), oldStoreFileName,
-				latestDLFileVersion.getStoreFileName());
+				dlFileEntry.getName(), oldStoreFileName);
+
+			DLStoreUtil.addFile(
+				DLStoreRequest.builder(
+					user.getCompanyId(), dlFileEntry.getDataRepositoryId(),
+					dlFileEntry.getName()
+				).className(
+					dlFileEntry.getModelClassName()
+				).classPK(
+					dlFileEntry.getFileEntryId()
+				).fileExtension(
+					dlFileEntry.getExtension()
+				).sourceFileName(
+					dlFileEntry.getFileName()
+				).validateFileExtension(
+					false
+				).versionLabel(
+					latestDLFileVersion.getStoreFileName()
+				).build(),
+				inputStream);
 
 			_registerPWCDeletionCallback(dlFileEntry, oldStoreFileName);
 		}
