@@ -15,7 +15,10 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.document.library.kernel.antivirus.AntivirusScanner;
 import com.liferay.document.library.kernel.antivirus.AntivirusScannerException;
 import com.liferay.document.library.kernel.antivirus.AntivirusVirusFoundException;
+import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFolder;
+import com.liferay.document.library.kernel.service.DLAppService;
+import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.document.library.test.util.DLTestUtil;
 import com.liferay.petra.concurrent.NoticeableThreadPoolExecutor;
 import com.liferay.petra.concurrent.ThreadPoolHandlerAdapter;
@@ -28,7 +31,8 @@ import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
-import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.DataGuard;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -40,6 +44,7 @@ import com.liferay.portal.test.log.LogEntry;
 import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 
 import java.io.File;
 import java.io.InputStream;
@@ -77,13 +82,16 @@ import org.osgi.framework.ServiceRegistration;
 /**
  * @author Raymond Augé
  */
+@DataGuard(scope = DataGuard.Scope.NONE)
 @RunWith(Arquillian.class)
 public class AsyncAntivirusDLStoreTest {
 
 	@ClassRule
 	@Rule
-	public static final LiferayIntegrationTestRule liferayIntegrationTestRule =
-		new LiferayIntegrationTestRule();
+	public static final AggregateTestRule aggregateTestRule =
+		new AggregateTestRule(
+			new LiferayIntegrationTestRule(),
+			PermissionCheckerMethodTestRule.INSTANCE);
 
 	@BeforeClass
 	public static void setUpClass() {
@@ -104,6 +112,15 @@ public class AsyncAntivirusDLStoreTest {
 				_serviceRegistrations) {
 
 			serviceRegistration.unregister();
+		}
+
+		if (_group != null) {
+			try {
+				GroupTestUtil.deleteGroup(_group);
+			}
+			catch (Exception exception) {
+				exception.printStackTrace();
+			}
 		}
 	}
 
@@ -316,11 +333,15 @@ public class AsyncAntivirusDLStoreTest {
 			() -> {
 				DLFolder dlFolder = DLTestUtil.addDLFolder(_group.getGroupId());
 
-				DLTestUtil.addDLFileEntry(dlFolder.getFolderId());
+				DLFileEntry dlFileEntry = DLTestUtil.addDLFileEntry(
+					dlFolder.getFolderId());
 
 				Assert.assertTrue(calledScan.get());
 				Assert.assertTrue(firedEventPrepare.get());
 				Assert.assertTrue(firedEventVirusFound.get());
+				Assert.assertNull(
+					_dlFileEntryLocalService.fetchDLFileEntry(
+						dlFileEntry.getFileEntryId()));
 			});
 	}
 
@@ -578,7 +599,12 @@ public class AsyncAntivirusDLStoreTest {
 
 	private static BundleContext _bundleContext;
 
-	@DeleteAfterTestRun
+	@Inject
+	private DLAppService _dlAppService;
+
+	@Inject
+	private DLFileEntryLocalService _dlFileEntryLocalService;
+
 	private Group _group;
 
 	@Inject
