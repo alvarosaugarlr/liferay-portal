@@ -3887,6 +3887,10 @@ public class DLFileEntryLocalServiceImpl
 				DLStoreRequest dlStoreRequest = DLStoreRequest.builder(
 					user.getCompanyId(), dlFileEntry.getDataRepositoryId(),
 					dlFileEntry.getName()
+				).className(
+					dlFileEntry.getModelClassName()
+				).classPK(
+					dlFileEntry.getFileEntryId()
 				).fileExtension(
 					dlFileEntry.getExtension()
 				).sourceFileName(
