@@ -17,9 +17,9 @@ import com.liferay.document.library.kernel.antivirus.AntivirusScannerException;
 import com.liferay.document.library.kernel.antivirus.AntivirusVirusFoundException;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFolder;
+import com.liferay.document.library.kernel.model.DLVersionNumberIncrease;
 import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
-import com.liferay.document.library.kernel.service.DLFileVersionLocalService;
 import com.liferay.document.library.kernel.store.Store;
 import com.liferay.document.library.test.util.DLTestUtil;
 import com.liferay.petra.concurrent.NoticeableThreadPoolExecutor;
@@ -33,10 +33,12 @@ import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.constants.TestDataConstants;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
@@ -53,6 +55,7 @@ import java.io.File;
 import java.io.InputStream;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
@@ -332,6 +335,7 @@ public class AsyncAntivirusDLStoreTest {
 				Assert.assertTrue(calledScan.get());
 				Assert.assertTrue(firedEventPrepare.get());
 				Assert.assertTrue(firedEventVirusFound.get());
+
 				Assert.assertNull(
 					_dlFileEntryLocalService.fetchDLFileEntry(
 						dlFileEntry.getFileEntryId()));
@@ -529,6 +533,86 @@ public class AsyncAntivirusDLStoreTest {
 			});
 	}
 
+	@Test
+	public void testWhenFileUpdatedWithVirusThenVersionDeleted()
+		throws Exception {
+
+		AtomicInteger scanCount = new AtomicInteger(0);
+
+		AtomicBoolean firedEventPrepare = new AtomicBoolean();
+		AtomicBoolean firedEventSuccess = new AtomicBoolean();
+		AtomicBoolean firedEventVirusFound = new AtomicBoolean();
+
+		_registerService(
+			AntivirusAsyncEventListener.class,
+			_create(
+				HashMapBuilder.<AntivirusAsyncEvent, Runnable>put(
+					AntivirusAsyncEvent.PREPARE,
+					() -> firedEventPrepare.set(true)
+				).put(
+					AntivirusAsyncEvent.SUCCESS,
+					() -> firedEventSuccess.set(true)
+				).put(
+					AntivirusAsyncEvent.VIRUS_FOUND,
+					() -> firedEventVirusFound.set(true)
+				).build()),
+			null);
+
+		_registerService(
+			AntivirusScanner.class,
+			new MockAntivirusScanner(
+				() -> {
+					int currentScan = scanCount.getAndIncrement();
+
+					if (currentScan > 0) {
+						throw new AntivirusVirusFoundException(
+							RandomTestUtil.randomString(),
+							RandomTestUtil.randomString());
+					}
+				}),
+			null);
+
+		_withAsyncAntivirusConfiguration(
+			"0 0/1 * * * ?", 1, true,
+			() -> {
+				DLFolder dlFolder = DLTestUtil.addDLFolder(_group.getGroupId());
+
+				DLFileEntry dlFileEntry = DLTestUtil.addDLFileEntry(
+					dlFolder.getFolderId());
+
+				Assert.assertTrue(firedEventSuccess.get());
+				Assert.assertFalse(firedEventVirusFound.get());
+
+				byte[] bytes = TestDataConstants.TEST_BYTE_ARRAY;
+
+				_dlAppService.updateFileEntry(
+					dlFileEntry.getFileEntryId(), dlFileEntry.getFileName(),
+					dlFileEntry.getMimeType(), dlFileEntry.getTitle(),
+					dlFileEntry.getTitle(), dlFileEntry.getDescription(), null,
+					DLVersionNumberIncrease.AUTOMATIC, bytes, new Date(), null,
+					null,
+					ServiceContextTestUtil.getServiceContext(
+						dlFolder.getGroupId()));
+
+				Assert.assertTrue(firedEventVirusFound.get());
+
+				DLFileEntry updatedFileEntry =
+					_dlFileEntryLocalService.fetchDLFileEntry(
+						dlFileEntry.getFileEntryId());
+
+				Assert.assertNotNull(updatedFileEntry);
+
+				Assert.assertEquals("1.0", updatedFileEntry.getVersion());
+
+				Assert.assertFalse(
+					ArrayUtil.isEmpty(
+						_store.getFileVersions(
+							dlFileEntry.getCompanyId(),
+							dlFileEntry.getDataRepositoryId(),
+							dlFileEntry.getName())));
+			});
+	}
+
 	private AntivirusAsyncEventListener _create(
 		Map<AntivirusAsyncEvent, Runnable> runnables) {
 
@@ -604,9 +688,6 @@ public class AsyncAntivirusDLStoreTest {
 
 	@Inject
 	private DLFileEntryLocalService _dlFileEntryLocalService;
-
-	@Inject
-	private DLFileVersionLocalService _dlFileVersionLocalService;
 
 	@DeleteAfterTestRun
 	private Group _group;
