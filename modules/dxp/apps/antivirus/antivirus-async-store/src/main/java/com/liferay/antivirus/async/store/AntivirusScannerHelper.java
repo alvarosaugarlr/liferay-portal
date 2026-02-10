@@ -12,7 +12,9 @@ import com.liferay.document.library.kernel.antivirus.AntivirusScanner;
 import com.liferay.document.library.kernel.antivirus.AntivirusScannerException;
 import com.liferay.document.library.kernel.antivirus.AntivirusVirusFoundException;
 import com.liferay.document.library.kernel.model.DLFileEntry;
+import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
+import com.liferay.document.library.kernel.service.DLFileVersionLocalService;
 import com.liferay.document.library.kernel.store.Store;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -29,9 +31,11 @@ import com.liferay.portal.kernel.model.UserNotificationDeliveryConstants;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.UserNotificationEventLocalService;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.security.audit.event.generators.constants.EventTypes;
 
 import java.io.InputStream;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -76,6 +80,44 @@ public class AntivirusScannerHelper {
 				return;
 			}
 
+			/*
+			import DLAppService;
+
+			try {
+            // 1. Obtener la entrada del archivo
+            FileEntry fileEntry = _dlAppService.getFileEntry(fileEntryId);
+
+            // 2. Obtener todas las versiones de ese fichero para contarlas
+            // Usamos QueryUtil.ALL_POS para traer todas
+            List<FileVersion> fileVersions = _dlAppService.getFileVersions(
+                fileEntry.getRepositoryId(),
+                fileEntry.getFileEntryId(),
+                -1, -1 // equivalentes a QueryUtil.ALL_POS
+            );
+
+            // 3. Lógica de borrado
+            if (fileVersions.size() <= 1) {
+                // CASO A: Solo existe una versión (la que queremos borrar es la única)
+                // Borramos el fichero completo (FileEntry)
+                _dlAppService.deleteFileEntry(fileEntry.getFileEntryId());
+                _log.info("Se ha borrado el FileEntry completo ID: " + fileEntryId);
+
+            } else {
+                // CASO B: Hay más versiones
+                // Borramos solo la versión específica
+                _dlAppService.deleteFileVersion(fileEntry.getFileEntryId(), versionLabel);
+                _log.info("Se ha borrado la versión " + versionLabel + " del FileEntry ID: " + fileEntryId);
+            }
+
+        } catch (PortalException e) {
+            _log.error("Error al intentar borrar la versión/fichero: " + e.getMessage(), e);
+        }
+
+        @Reference
+    private DLAppService _dlAppService;
+
+    private static final Log _log = LogFactoryUtil.getLog(MyCustomService.class);
+			 */
 			try {
 				InputStream inputStream = _store.getFileAsStream(
 					companyId, repositoryId, fileName, versionLabel);
@@ -137,8 +179,28 @@ public class AntivirusScannerHelper {
 									sourceFileName, "from upload message"));
 						}
 
+						int fileVersionsCount =
+							_dlFileVersionLocalService.getFileVersionsCount(
+								classPK, WorkflowConstants.STATUS_ANY);
+
 						DLFileEntry dlFileEntry =
-							_dlFileEntryLocalService.deleteDLFileEntry(classPK);
+							_dlFileEntryLocalService.getDLFileEntry(classPK);
+
+						String version = _getVersion(versionLabel);
+
+						if (fileVersionsCount <= 1) {
+
+							// dlFileEntry =
+
+							//	_dlFileEntryLocalService.deleteDLFileEntry(classPK);
+							_dlAppService.deleteFileEntry(classPK);
+						}
+						else {
+							_dlAppService.deleteFileVersion(
+								classPK, version);
+							//		dlFileEntry = _dlFileEntryLocalService.getDLFileEntry(classPK);
+
+						}
 
 						_store.deleteFile(
 							companyId, repositoryId, fileName, versionLabel);
@@ -186,7 +248,7 @@ public class AntivirusScannerHelper {
 						).put(
 							"repositoryId", repositoryId
 						).put(
-							"versionLabel", versionLabel
+							"version", version
 						).put(
 							"virusName",
 							antivirusVirusFoundException.getVirusName()
@@ -195,6 +257,7 @@ public class AntivirusScannerHelper {
 						ServiceContext serviceContext = new ServiceContext();
 
 						serviceContext.setCompanyId(companyId);
+
 						serviceContext.setUuid(dlFileEntry.getUuid());
 
 						_userNotificationEventLocalService.
@@ -229,6 +292,18 @@ public class AntivirusScannerHelper {
 		}
 	}
 
+	private String _getVersion(String versionLabel) {
+		String[] versionParts = StringUtil.split(versionLabel, "~");
+
+		String version = "";
+
+		if (versionParts.length > 0) {
+			version = versionParts[0];
+		}
+
+		return version;
+	}
+
 	private long _getRepositoryId(
 		long companyId, long repositoryId, String fileName,
 		String versionLabel) {
@@ -261,7 +336,13 @@ public class AntivirusScannerHelper {
 	private AuditRouter _auditRouter;
 
 	@Reference
+	private DLAppService _dlAppService;
+
+	@Reference
 	private DLFileEntryLocalService _dlFileEntryLocalService;
+
+	@Reference
+	private DLFileVersionLocalService _dlFileVersionLocalService;
 
 	@Reference
 	private JSONFactory _jsonFactory;

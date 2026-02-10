@@ -54,9 +54,10 @@ public class AntivirusAsyncUserNotificationHandler
 
 		return _language.format(
 			serviceContext.getLocale(),
-			"async-antivirus-notification-file-x-deleted-virus-y-detected",
+			"async-antivirus-notification-file-x-version-y-deleted-virus-z-detected",
 			new Object[] {
 				jsonObject.getString("fileName"),
+				jsonObject.getString("version"),
 				jsonObject.getString("virusName")
 			},
 			false);

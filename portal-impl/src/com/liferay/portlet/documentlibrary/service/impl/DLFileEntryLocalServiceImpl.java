@@ -500,6 +500,7 @@ public class DLFileEntryLocalServiceImpl
 		// File
 
 		try {
+			/*
 			InputStream inputStream = DLStoreUtil.getFileAsStream(
 				user.getCompanyId(), dlFileEntry.getDataRepositoryId(),
 				dlFileEntry.getName(), oldStoreFileName);
@@ -522,6 +523,12 @@ public class DLFileEntryLocalServiceImpl
 					latestDLFileVersion.getStoreFileName()
 				).build(),
 				inputStream);
+
+			 */
+			DLStoreUtil.copyFileVersion(
+				user.getCompanyId(), dlFileEntry.getDataRepositoryId(),
+				dlFileEntry.getName(), oldStoreFileName,
+				latestDLFileVersion.getStoreFileName());
 
 			_registerPWCDeletionCallback(dlFileEntry, oldStoreFileName);
 		}
@@ -3928,6 +3935,10 @@ public class DLFileEntryLocalServiceImpl
 				DLStoreRequest dlStoreRequest = DLStoreRequest.builder(
 					user.getCompanyId(), dlFileEntry.getDataRepositoryId(),
 					dlFileEntry.getName()
+				).className(
+					dlFileEntry.getModelClassName()
+				).classPK(
+					dlFileEntry.getFileEntryId()
 				).fileExtension(
 					dlFileEntry.getExtension()
 				).sourceFileName(
