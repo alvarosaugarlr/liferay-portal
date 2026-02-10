@@ -15,6 +15,7 @@ import com.liferay.document.library.kernel.antivirus.AntivirusVirusFoundExceptio
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
+import com.liferay.document.library.kernel.service.DLFileVersionLocalService;
 import com.liferay.document.library.kernel.store.Store;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -29,6 +30,8 @@ import com.liferay.portal.kernel.model.UserNotificationDeliveryConstants;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.UserNotificationEventLocalService;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.security.audit.event.generators.constants.EventTypes;
 
 import java.io.InputStream;
@@ -137,10 +140,21 @@ public class AntivirusScannerHelper {
 								antivirusScannerException);
 						}
 
+						int fileVersionsCount =
+							_dlFileVersionLocalService.getFileVersionsCount(
+								classPK, WorkflowConstants.STATUS_ANY);
+
 						DLFileEntry dlFileEntry =
 							_dlFileEntryLocalService.getDLFileEntry(classPK);
 
-						_dlAppService.deleteFileEntry(classPK);
+						String version = _getVersion(versionLabel);
+
+						if (fileVersionsCount <= 1) {
+							_dlAppService.deleteFileEntry(classPK);
+						}
+						else {
+							_dlAppService.deleteFileVersion(classPK, version);
+						}
 
 						_store.deleteFile(
 							companyId, repositoryId, fileName, versionLabel);
@@ -179,6 +193,7 @@ public class AntivirusScannerHelper {
 						ServiceContext serviceContext = new ServiceContext();
 
 						serviceContext.setCompanyId(companyId);
+
 						serviceContext.setUuid(dlFileEntry.getUuid());
 
 						_userNotificationEventLocalService.
@@ -195,6 +210,8 @@ public class AntivirusScannerHelper {
 									"fileName", sourceFileName
 								).put(
 									"repositoryId", repositoryId
+								).put(
+									"version", version
 								).put(
 									"versionLabel", versionLabel
 								).put(
@@ -243,6 +260,18 @@ public class AntivirusScannerHelper {
 		return repositoryId;
 	}
 
+	private String _getVersion(String versionLabel) {
+		String[] versionParts = StringUtil.split(versionLabel, "~");
+
+		String version = "";
+
+		if (versionParts.length > 0) {
+			version = versionParts[0];
+		}
+
+		return version;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		AntivirusScannerHelper.class);
 
@@ -261,6 +290,9 @@ public class AntivirusScannerHelper {
 
 	@Reference
 	private DLFileEntryLocalService _dlFileEntryLocalService;
+
+	@Reference
+	private DLFileVersionLocalService _dlFileVersionLocalService;
 
 	@Reference(target = "(default=true)")
 	private Store _store;
