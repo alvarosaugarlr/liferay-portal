@@ -73,7 +73,12 @@ public class ConsentManagementPlatformTopHeadDynamicInclude
 
 		PrintWriter printWriter = httpServletResponse.getWriter();
 
+		printWriter.println(consentManagementPlatformConfiguration.script());
+
 		printWriter.println(consentManagementPlatformConfiguration.scriptTag());
+
+
+
 	}
 
 	@Override
