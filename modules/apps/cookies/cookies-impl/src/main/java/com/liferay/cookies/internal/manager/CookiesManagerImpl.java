@@ -19,6 +19,9 @@ import com.liferay.portal.kernel.cookies.CookiesManagerUtil;
 import com.liferay.portal.kernel.cookies.UnsupportedCookieException;
 import com.liferay.portal.kernel.cookies.constants.CookiesConstants;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONException;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -34,6 +37,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -137,6 +141,10 @@ public class CookiesManagerImpl implements CookiesManager {
 		HttpServletResponse httpServletResponse, boolean secure) {
 
 		if (!_SESSION_ENABLE_PERSISTENT_COOKIES) {
+			return false;
+		}
+
+		if (!_hasConsent(httpServletRequest, consentType)) {
 			return false;
 		}
 
@@ -389,6 +397,78 @@ public class CookiesManagerImpl implements CookiesManager {
 				_getCookiesPreferenceHandlingConfiguration(httpServletRequest);
 
 		return !cookiesPreferenceHandlingConfiguration.explicitConsentMode();
+	}
+
+
+	private String mapLiferayIntToJsonKey(int liferayConsentType) {
+		if (liferayConsentType == CookiesConstants.CONSENT_TYPE_FUNCTIONAL) return "functional";
+		if (liferayConsentType == CookiesConstants.CONSENT_TYPE_PERFORMANCE) return "performance";
+		if (liferayConsentType == CookiesConstants.CONSENT_TYPE_PERSONALIZATION) return "personalization";
+		return "necessary";
+	}
+
+	private boolean _hasConsent(HttpServletRequest request, int consentType)
+	 {
+		String cookieValue = getCookieValue( "dxp_consent_state", request);
+		if (cookieValue != null) {
+			String decoded = null;
+			try {
+				decoded = java.net.URLDecoder.decode(cookieValue, "UTF-8");
+				JSONObject consentData = JSONFactoryUtil.createJSONObject(decoded);
+
+				String jsonKey = mapLiferayIntToJsonKey(consentType);
+				return consentData.getBoolean(jsonKey, false);
+		    } catch (UnsupportedEncodingException e) {
+				throw new RuntimeException(e);
+			}
+			catch (JSONException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return false;
+
+
+
+		/*
+		if ("essential".equalsIgnoreCase(category)) {
+			return true;
+		}
+
+		if (category == CookiesConstants.NAME_CONSENT_TYPE_FUNCTIONAL) {
+			category = category + CookiesConstants.NAME_CONSENT_TYPE_PERFORMANCE;
+		}
+
+
+		String cookieValue = _getTermlyCookieValue(request);
+
+		if (Validator.isNull(cookieValue)) {
+			return false;
+		}
+
+		try {
+			String decodedJson = URLDecoder.decode(cookieValue, StandardCharsets.UTF_8.name());
+
+			JSONObject consentData = JSONFactoryUtil.createJSONObject(decodedJson);
+
+			JSONArray categories = consentData.getJSONArray("categories");
+
+			if (categories != null) {
+				for (int i = 0; i < categories.length(); i++) {
+					String consentedCategory = categories.getString(i).toUpperCase();
+
+					if (category.contains(consentedCategory)) {
+						return true;
+					}
+				}
+			}
+		} catch (Exception e) {
+			// in case the json is not correct (wrong build in case is done by users or manipulated)
+			return false;
+		}
+
+		return false;
+
+		 */
 	}
 
 	@Override
