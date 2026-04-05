@@ -38,4 +38,10 @@ public interface ConsentManagementPlatformConfiguration {
 	)
 	public String scriptTag();
 
+	@Meta.AD(
+		description = "consent-management-platform-script-tag-name-help",
+		name = "consent-management-platform-script-tag-name", required = false
+	)
+	public String script();
+
 }
