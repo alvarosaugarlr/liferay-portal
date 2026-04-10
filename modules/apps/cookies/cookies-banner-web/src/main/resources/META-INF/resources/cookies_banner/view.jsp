@@ -9,9 +9,10 @@
 
 <%
 CookiesBannerDisplayContext cookiesBannerDisplayContext = (CookiesBannerDisplayContext)request.getAttribute(CookiesBannerWebKeys.COOKIES_BANNER_DISPLAY_CONTEXT);
+boolean enabledFloatingIcon = GetterUtil.getBoolean(request.getAttribute(CookiesBannerWebKeys.FLOATING_ICON_ENABLED));
 %>
 
-<c:if test="<%= (boolean)request.getAttribute(CookiesBannerWebKeys.FLOATING_ICON_ENABLED) %>">
+<c:if test="<%= enabledFloatingIcon %>">
 	<clay:button
 		cssClass="align-items-center d-none floating-icon-button justify-content-center ml-3 rounded-circle text-white"
 		displayType="unstyled"
