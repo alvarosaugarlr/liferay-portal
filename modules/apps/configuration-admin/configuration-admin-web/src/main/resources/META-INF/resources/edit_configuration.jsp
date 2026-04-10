@@ -185,13 +185,13 @@ renderResponse.setTitle(categoryDisplayName);
 							<strong><%= configurationModelDescription %></strong>
 						</p>
 					</c:if>
-
+before custom render
 					<%
 					ConfigurationFormRenderer configurationFormRenderer = (ConfigurationFormRenderer)request.getAttribute(ConfigurationAdminWebKeys.CONFIGURATION_FORM_RENDERER);
 
 					configurationFormRenderer.render(request, PipingServletResponseFactory.createPipingServletResponse(pageContext));
 					%>
-
+after custom render
 					<liferay-util:dynamic-include key='<%= "com.liferay.configuration.admin.web#/edit_configuration.jsp#" + configurationModel.getFactoryPid() + "#post" %>' />
 
 					<c:if test="<%= !configurationModel.isReadOnly() %>">
