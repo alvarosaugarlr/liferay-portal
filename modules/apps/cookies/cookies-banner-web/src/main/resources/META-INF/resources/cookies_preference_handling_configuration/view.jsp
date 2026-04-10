@@ -11,8 +11,19 @@
 CookiesPreferenceHandlingConfigurationDisplayContext cookiesPreferenceHandlingConfigurationDisplayContext = (CookiesPreferenceHandlingConfigurationDisplayContext)request.getAttribute(CookiesBannerWebKeys.COOKIES_PREFERENCE_HANDLING_CONFIGURATION_DISPLAY_CONTEXT);
 %>
 
-<aui:link hashedFile="<%= true %>" href="cookies-banner-web/cookies_preference_handling_configuration/css/main.css" rel="stylesheet" type="text/css" />
 
+
+<liferay-portlet:renderURL
+    portletName="<%= CookiesBannerPortletKeys.COOKIES_BANNER %>"
+    var="previewBannerURL"
+    windowState="<%= LiferayWindowState.POP_UP.toString() %>">
+
+    <portlet:param name="mvcRenderCommandName" value="/cookies_banner/preview" />
+</liferay-portlet:renderURL>
+
+
+<aui:link hashedFile="<%= true %>" href="cookies-banner-web/cookies_preference_handling_configuration/css/main.css" rel="stylesheet" type="text/css" />
+cookies-banner-web module
 <div class="c-mt-5 row">
 	<div class="col-sm-12 form-group">
 		<div class="form-group__inner">
@@ -29,7 +40,7 @@ CookiesPreferenceHandlingConfigurationDisplayContext cookiesPreferenceHandlingCo
 		</div>
 	</div>
 </div>
-
+I am in the middle of the jsp in the cookies-banner-web module
 <div class="row">
 	<div class="col-sm-12 form-group">
 		<div class="form-group__inner">
@@ -73,7 +84,7 @@ CookiesPreferenceHandlingConfigurationDisplayContext cookiesPreferenceHandlingCo
 </div>
 
 <aui:input name="modifiedDate" type="hidden" />
-
+I am before fo FF in the cookies-banner-web module
 <c:if test='<%= FeatureFlagManagerUtil.isEnabled("LPD-75032") %>'>
 	<div class="row">
 		<div class="col-sm-12 form-group">
@@ -159,8 +170,37 @@ CookiesPreferenceHandlingConfigurationDisplayContext cookiesPreferenceHandlingCo
 	module="{ConfigurationFormEventHandler} from cookies-banner-web"
 />
 
+<div class="alert alert-info mt-4">
+    <liferay-ui:message key="please-save-configuration-before-preview" />
+</div>
+
+<div style="display: flex; justify-content: flex-end;">
+	<aui:button data-qa-id="previewConfiguration" id="previewBtn" name="preview" type="button" value="preview" />
+</div>
+
 <aui:script>
 	var form = document.<portlet:namespace />fm;
+
+	var previewBtn = document.getElementById('<portlet:namespace />previewBtn');
+
+    if (previewBtn) {
+        previewBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            Liferay.Util.openWindow({
+                dialog: {
+                    centered: true,
+                    destroyOnHide: true,
+                    modal: true,
+                    width: 1000,
+                    height: 250
+                },
+                id: '<portlet:namespace />previewDialog',
+                title: '<liferay-ui:message key="preview" />',
+                uri: '<%= previewBannerURL %>'
+            });
+        });
+    }
 
 	if (form) {
 		form.addEventListener('submit', (event) => {
@@ -215,4 +255,6 @@ CookiesPreferenceHandlingConfigurationDisplayContext cookiesPreferenceHandlingCo
 			}
 		});
 	}
+
+
 </aui:script>
