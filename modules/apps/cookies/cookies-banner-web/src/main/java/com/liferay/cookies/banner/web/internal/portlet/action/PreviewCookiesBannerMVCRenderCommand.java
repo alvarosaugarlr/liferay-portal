@@ -23,19 +23,6 @@ public class PreviewCookiesBannerMVCRenderCommand implements MVCRenderCommand {
 
 	@Override
 	public String render(RenderRequest renderRequest, RenderResponse renderResponse) {
-
-	/*	CookiesBannerDisplayContext cookiesBannerDisplayContext =
-			new CookiesBannerDisplayContext(
-				_cookiesConfigurationProvider,
-				_layoutUtilityPageEntryLayoutProvider, renderRequest);
-
-		renderRequest.setAttribute(
-			CookiesBannerWebKeys.COOKIES_BANNER_DISPLAY_CONTEXT,
-			cookiesBannerDisplayContext);
-
-
-	 */
-
 		renderRequest.setAttribute("isPreviewMode", true);
 
 		return "/cookies_banner/view.jsp";
