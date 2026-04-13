@@ -24,6 +24,12 @@ CookiesPreferenceHandlingConfigurationDisplayContext cookiesPreferenceHandlingCo
 
 <aui:link hashedFile="<%= true %>" href="cookies-banner-web/cookies_preference_handling_configuration/css/main.css" rel="stylesheet" type="text/css" />
 cookies-banner-web module
+
+<liferay-ui:tabs
+    names="general,renewal-periods,display"
+    refresh="<%= false %>"
+>
+<liferay-ui:section>
 <div class="c-mt-5 row">
 	<div class="col-sm-12 form-group">
 		<div class="form-group__inner">
@@ -60,7 +66,11 @@ I am in the middle of the jsp in the cookies-banner-web module
 		</div>
 	</div>
 </div>
+</liferay-ui:section>
 
+
+
+<liferay-ui:section>
 <div class="row">
 	<div class="col-sm-12 form-group">
 		<div class="form-group__inner">
@@ -74,7 +84,10 @@ I am in the middle of the jsp in the cookies-banner-web module
 		</div>
 	</div>
 </div>
+</liferay-ui:section>
 
+
+<liferay-ui:section>
 <div class="row">
 	<div class="col-sm-12 form-group">
 		<div class="form-group__inner">
@@ -165,6 +178,8 @@ I am before fo FF in the cookies-banner-web module
 		</clay:col>
 	</clay:row>
 </c:if>
+</liferay-ui:section>
+</liferay-ui:tabs>
 
 <liferay-frontend:component
 	module="{ConfigurationFormEventHandler} from cookies-banner-web"
