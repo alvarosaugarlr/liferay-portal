@@ -120,6 +120,8 @@ CookiesPreferenceHandlingConfigurationDisplayContext cookiesPreferenceHandlingCo
 	</div>
 </div>
 
+<aui:input name="actived" type="hidden" value="<%= cookiesPreferenceHandlingConfigurationDisplayContext.getCookiesPreferenceHandlingActived() %>" />
+
 <aui:input name="modifiedDate" type="hidden" />
 
 <div class="row">
@@ -247,6 +249,14 @@ CookiesPreferenceHandlingConfigurationDisplayContext cookiesPreferenceHandlingCo
 	</clay:col>
 </clay:row>
 
+<div class="row">
+	<div class="col-sm-12 d-flex justify-content-end">
+		<button class="btn <%= cookiesPreferenceHandlingConfigurationDisplayContext.getCookiesPreferenceHandlingActived() ? "btn-secondary" : "btn-primary" %> <%= !cookiesPreferenceHandlingConfigurationDisplayContext.getCookiesPreferenceHandlingEnabled() ? "disabled" : "" %>" id="<portlet:namespace />toggleActivedButton" type="button">
+			<liferay-ui:message key='<%= cookiesPreferenceHandlingConfigurationDisplayContext.getCookiesPreferenceHandlingActived() ? "deactivate" : "activate" %>' />
+		</button>
+	</div>
+</div>
+
 <liferay-frontend:component
 	module="{ConfigurationFormEventHandler} from cookies-banner-web"
 />
@@ -353,6 +363,26 @@ CookiesPreferenceHandlingConfigurationDisplayContext cookiesPreferenceHandlingCo
 			});
 		}
 
+		var activedInput = document.getElementById(
+			'<portlet:namespace />actived'
+		);
+		var toggleActivedButton = document.getElementById(
+			'<portlet:namespace />toggleActivedButton'
+		);
+
+		if (activedInput && toggleActivedButton) {
+			toggleActivedButton.addEventListener('click', function (event) {
+				form.reset();
+
+				activedInput.value =
+					activedInput.value === 'true' ? 'false' : 'true';
+
+				form.dataset.skipActivedWarning = 'true';
+
+				form.submit();
+			});
+		}
+
 		form.addEventListener('submit', (event) => {
 			var consentRenewalPeriod = document.getElementById(
 				'<portlet:namespace />consentRenewalPeriod'
@@ -397,6 +427,29 @@ CookiesPreferenceHandlingConfigurationDisplayContext cookiesPreferenceHandlingCo
 					onConfirm: (isConfirmed) => {
 						if (isConfirmed) {
 							modifiedDate.value = new Date().getTime();
+
+							form.submit();
+						}
+					},
+				});
+
+				return;
+			}
+
+			if (
+				form.dataset.skipActivedWarning !== 'true' &&
+				enabled.checked &&
+				<%= cookiesPreferenceHandlingConfigurationDisplayContext.getCookiesPreferenceHandlingActived() %>
+			) {
+				event.preventDefault();
+				event.stopImmediatePropagation();
+
+				Liferay.Util.openConfirmModal({
+					message:
+						'<liferay-ui:message key="these-changes-will-take-effect-immediately-do-you-want-to-continue" />',
+					onConfirm: (isConfirmed) => {
+						if (isConfirmed) {
+							form.dataset.skipActivedWarning = 'true';
 
 							form.submit();
 						}

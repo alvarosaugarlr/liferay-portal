@@ -5,16 +5,16 @@
 
 package com.liferay.cookies.banner.web.internal.servlet.taglib;
 
-import com.liferay.cookies.banner.web.internal.constants.CookiesBannerWebKeys;
+import com.liferay.configuration.admin.constants.ConfigurationAdminPortletKeys;
 import com.liferay.cookies.configuration.CookiesConfigurationProvider;
-import com.liferay.cookies.configuration.CookiesPreferenceHandlingConfiguration;
+import com.liferay.cookies.configuration.consent.CookiesConsentConfiguration;
+import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.servlet.taglib.BaseJSPDynamicInclude;
 import com.liferay.portal.kernel.servlet.taglib.DynamicInclude;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import jakarta.servlet.ServletContext;
@@ -27,10 +27,10 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * @author Eduardo García
+ * @author Alvaro Saugar
  */
 @Component(service = DynamicInclude.class)
-public class CookiesBannerBottomJSPDynamicInclude
+public class CookiesConsentConfirmJSPDynamicInclude
 	extends BaseJSPDynamicInclude {
 
 	@Override
@@ -44,45 +44,34 @@ public class CookiesBannerBottomJSPDynamicInclude
 			HttpServletResponse httpServletResponse, String key)
 		throws IOException {
 
-		if (LiferayWindowState.isPopUp(httpServletRequest)) {
-			return;
-		}
-
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-		Group group = themeDisplay.getScopeGroup();
+		String portletId = _portal.getPortletId(httpServletRequest);
 
-		if (group.isStagingGroup()) {
+		ExtendedObjectClassDefinition.Scope scope;
+		long scopePK;
+
+		if (ConfigurationAdminPortletKeys.INSTANCE_SETTINGS.equals(portletId)) {
+			scope = ExtendedObjectClassDefinition.Scope.COMPANY;
+			scopePK = themeDisplay.getCompanyId();
+		}
+		else if (ConfigurationAdminPortletKeys.SITE_SETTINGS.equals(
+					portletId)) {
+
+			scope = ExtendedObjectClassDefinition.Scope.GROUP;
+			scopePK = themeDisplay.getScopeGroupId();
+		}
+		else {
+			scope = ExtendedObjectClassDefinition.Scope.SYSTEM;
+			scopePK = 0L;
+		}
+
+		if (!_cookiesConfigurationProvider.isCookiesPreferenceHandlingActived(
+				scope, scopePK)) {
+
 			return;
-		}
-
-		try {
-			CookiesPreferenceHandlingConfiguration
-				cookiesPreferenceHandlingConfiguration =
-					_cookiesConfigurationProvider.
-						getCookiesPreferenceHandlingConfiguration(themeDisplay);
-
-			if (!cookiesPreferenceHandlingConfiguration.enabled() ||
-				!cookiesPreferenceHandlingConfiguration.actived()) {
-
-				return;
-			}
-
-			httpServletRequest.setAttribute(
-				CookiesBannerWebKeys.CUSTOM_FLOATING_ICON_IMAGE_ID,
-				cookiesPreferenceHandlingConfiguration.
-					customFloatingIconImageId());
-			httpServletRequest.setAttribute(
-				CookiesBannerWebKeys.FLOATING_ICON,
-				cookiesPreferenceHandlingConfiguration.floatingIcon());
-			httpServletRequest.setAttribute(
-				CookiesBannerWebKeys.FLOATING_ICON_ENABLED,
-				cookiesPreferenceHandlingConfiguration.floatingIconEnabled());
-		}
-		catch (Exception exception) {
-			_log.error(exception);
 		}
 
 		super.include(httpServletRequest, httpServletResponse, key);
@@ -90,12 +79,14 @@ public class CookiesBannerBottomJSPDynamicInclude
 
 	@Override
 	public void register(DynamicIncludeRegistry dynamicIncludeRegistry) {
-		dynamicIncludeRegistry.register("/html/common/themes/bottom.jsp#post");
+		dynamicIncludeRegistry.register(
+			"com.liferay.configuration.admin.web#/edit_configuration.jsp#" +
+				CookiesConsentConfiguration.class.getName() + "#post");
 	}
 
 	@Override
 	protected String getJspPath() {
-		return "/dynamic_include/view.jsp";
+		return "/dynamic_include/edit_configuration.jsp";
 	}
 
 	@Override
@@ -104,10 +95,13 @@ public class CookiesBannerBottomJSPDynamicInclude
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
-		CookiesBannerBottomJSPDynamicInclude.class);
+		CookiesConsentConfirmJSPDynamicInclude.class);
 
 	@Reference
 	private CookiesConfigurationProvider _cookiesConfigurationProvider;
+
+	@Reference
+	private Portal _portal;
 
 	@Reference(
 		target = "(osgi.web.symbolicname=com.liferay.cookies.banner.web)"
