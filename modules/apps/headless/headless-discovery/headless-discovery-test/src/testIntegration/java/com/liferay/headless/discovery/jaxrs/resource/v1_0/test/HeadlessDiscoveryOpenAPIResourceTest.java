@@ -12,12 +12,15 @@ import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.test.util.ObjectDefinitionTestUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.DataGuard;
 import com.liferay.portal.kernel.test.util.HTTPTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.test.rule.Inject;
@@ -91,6 +94,50 @@ public class HeadlessDiscoveryOpenAPIResourceTest {
 		Assert.assertTrue(globalOpenAPIPaths.isEmpty());
 	}
 
+	@Test
+	public void testGetOpenAPIIsAllowedForCompanyAdmin() throws Exception {
+		Assert.assertEquals(
+			200,
+			HTTPTestUtil.invokeToHttpCode(
+				null, "openapi", Http.Method.GET));
+		Assert.assertEquals(
+			200,
+			HTTPTestUtil.invokeToHttpCode(
+				null, "openapi/openapi.json", Http.Method.GET));
+		Assert.assertEquals(
+			200,
+			HTTPTestUtil.invokeToHttpCode(
+				null, "headless-delivery/v1.0/openapi.json", Http.Method.GET));
+	}
+
+	@Test
+	public void testGetOpenAPIIsForbiddenForNonAdmin() throws Exception {
+		User user = UserTestUtil.addUser();
+
+		_userLocalService.updatePassword(
+			user.getUserId(), "test", "test", false, true);
+
+		HTTPTestUtil.customize(
+		).withCredentials(
+			user.getEmailAddress(), "test"
+		).apply(
+			() -> {
+				Assert.assertEquals(
+					403,
+					HTTPTestUtil.invokeToHttpCode(
+						null, "openapi", Http.Method.GET));
+				Assert.assertEquals(
+					403,
+					HTTPTestUtil.invokeToHttpCode(
+						null, "openapi/openapi.json", Http.Method.GET));
+				Assert.assertEquals(
+					403,
+					HTTPTestUtil.invokeToHttpCode(
+						null, "headless-delivery/v1.0/openapi.json",
+						Http.Method.GET));
+			});
+	}
+
 	private String _getOpenAPISubpath(String openAPIPath) {
 		String openAPISubpath = StringUtil.removeFirst(
 			openAPIPath, "http://localhost:8080/o/");
@@ -135,5 +182,8 @@ public class HeadlessDiscoveryOpenAPIResourceTest {
 
 	@Inject
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;
+
+	@Inject
+	private UserLocalService _userLocalService;
 
 }
