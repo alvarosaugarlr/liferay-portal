@@ -27,6 +27,10 @@ import java.util.List;
  */
 public class OAuth2AuthorizationImpl extends OAuth2AuthorizationBaseImpl {
 
+	public List<String> getAudiencesList() {
+		return StringUtil.split(getAudiences(), CharPool.NEW_LINE);
+	}
+
 	@Override
 	public List<String> getAudiencesList() {
 		return StringUtil.split(getAudiences(), CharPool.NEW_LINE);
@@ -42,6 +46,10 @@ public class OAuth2AuthorizationImpl extends OAuth2AuthorizationBaseImpl {
 		else {
 			setAccessTokenContentHash(0);
 		}
+	}
+
+	public void setAudiencesList(List<String> audiencesList) {
+		setAudiences(StringUtil.merge(audiencesList, StringPool.NEW_LINE));
 	}
 
 	@Override
