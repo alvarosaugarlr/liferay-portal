@@ -14,6 +14,8 @@ import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.util.CamelCaseUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -71,6 +73,7 @@ import io.swagger.v3.oas.models.tags.Tag;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
@@ -117,6 +120,8 @@ public class OpenAPIResourceImpl implements OpenAPIResource {
 			Set<Class<?>> resourceClasses, String type, UriInfo uriInfo)
 		throws Exception {
 
+		_checkOpenAPIAccess();
+
 		return _getOpenAPI(
 			httpServletRequest, null, null, resourceClasses, type, uriInfo);
 	}
@@ -127,6 +132,8 @@ public class OpenAPIResourceImpl implements OpenAPIResource {
 			OpenAPISchemaFilter openAPISchemaFilter,
 			Set<Class<?>> resourceClasses, String type, UriInfo uriInfo)
 		throws Exception {
+
+		_checkOpenAPIAccess();
 
 		return _getOpenAPI(
 			null, openAPIContributor, openAPISchemaFilter, resourceClasses,
@@ -528,6 +535,17 @@ public class OpenAPIResourceImpl implements OpenAPIResource {
 
 		schema.set$ref(
 			_getUpdatedSchemaReference(schema.get$ref(), schemaPrefix));
+	}
+
+	private void _checkOpenAPIAccess() {
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		if ((permissionChecker == null) ||
+			!permissionChecker.isCompanyAdmin()) {
+
+			throw new ForbiddenException();
+		}
 	}
 
 	private String _getBasePath(

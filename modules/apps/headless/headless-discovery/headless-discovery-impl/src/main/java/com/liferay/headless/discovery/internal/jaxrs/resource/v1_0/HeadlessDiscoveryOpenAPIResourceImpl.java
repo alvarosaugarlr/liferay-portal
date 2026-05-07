@@ -17,6 +17,8 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.module.service.Snapshot;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -27,6 +29,7 @@ import com.liferay.portal.vulcan.util.UriInfoUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Path;
@@ -85,6 +88,8 @@ public class HeadlessDiscoveryOpenAPIResourceImpl {
 	public Response getGlobalOpenAPI(@PathParam("type") String type)
 		throws Exception {
 
+		_checkOpenAPIAccess();
+
 		Map<OpenAPIContext, Response> responses = new HashMap<>();
 
 		Map<String, List<String>> openAPIMap = _getOpenAPIMap(null);
@@ -142,6 +147,8 @@ public class HeadlessDiscoveryOpenAPIResourceImpl {
 	@Produces({"application/json", "application/xml"})
 	public Map<String, List<String>> openAPI(
 		@HeaderParam("Accept") String accept) {
+
+		_checkOpenAPIAccess();
 
 		return _getOpenAPIMap(accept);
 	}
@@ -209,6 +216,17 @@ public class HeadlessDiscoveryOpenAPIResourceImpl {
 
 				paths.add(serverURL + basePath + openAPIPath);
 			}
+		}
+	}
+
+	private void _checkOpenAPIAccess() {
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		if ((permissionChecker == null) ||
+			!permissionChecker.isCompanyAdmin()) {
+
+			throw new ForbiddenException();
 		}
 	}
 
