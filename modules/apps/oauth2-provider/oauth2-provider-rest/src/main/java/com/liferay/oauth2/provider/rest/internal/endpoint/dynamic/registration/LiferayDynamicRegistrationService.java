@@ -159,6 +159,8 @@ public class LiferayDynamicRegistrationService
 
 		_validate(client, clientRegistration);
 
+		_promotePublicClientAuthorizationCode(client);
+
 		client.setApplicationName(clientRegistration.getClientName());
 
 		clientRegistration.setApplicationType(
@@ -247,7 +249,7 @@ public class LiferayDynamicRegistrationService
 		}
 
 		liferayClientRegistrationResponse.setGrantTypes(
-			client.getAllowedGrantTypes());
+			_toWireGrantTypes(client.getAllowedGrantTypes()));
 		liferayClientRegistrationResponse.setLogoUri(
 			client.getApplicationLogoUri());
 		liferayClientRegistrationResponse.setRedirectUris(
@@ -369,6 +371,60 @@ public class LiferayDynamicRegistrationService
 
 		return OAuth2ProviderRESTEndpointConstants.
 			PROPERTY_VALUE_DYNAMIC_REGISTRATION_MODE_ANONYMOUS.equals(mode);
+	}
+
+	private void _promotePublicClientAuthorizationCode(Client client) {
+		if (!OAuthConstants.TOKEN_ENDPOINT_AUTH_NONE.equals(
+				client.getTokenEndpointAuthMethod())) {
+
+			return;
+		}
+
+		List<String> allowedGrantTypes = client.getAllowedGrantTypes();
+
+		if (allowedGrantTypes == null) {
+			return;
+		}
+
+		int index = allowedGrantTypes.indexOf(
+			OAuthConstants.AUTHORIZATION_CODE_GRANT);
+
+		if (index < 0) {
+			return;
+		}
+
+		List<String> promotedAllowedGrantTypes = new ArrayList<>(
+			allowedGrantTypes);
+
+		promotedAllowedGrantTypes.set(
+			index,
+			OAuth2ProviderRESTEndpointConstants.AUTHORIZATION_CODE_PKCE_GRANT);
+
+		client.setAllowedGrantTypes(promotedAllowedGrantTypes);
+	}
+
+	private List<String> _toWireGrantTypes(List<String> allowedGrantTypes) {
+		if (allowedGrantTypes == null) {
+			return null;
+		}
+
+		List<String> wireGrantTypes = new ArrayList<>(allowedGrantTypes.size());
+
+		for (String allowedGrantType : allowedGrantTypes) {
+			String wireGrantType = allowedGrantType;
+
+			if (OAuth2ProviderRESTEndpointConstants.
+					AUTHORIZATION_CODE_PKCE_GRANT.equals(allowedGrantType)) {
+
+				wireGrantType = OAuthConstants.AUTHORIZATION_CODE_GRANT;
+			}
+
+			if (!wireGrantTypes.contains(wireGrantType)) {
+				wireGrantTypes.add(wireGrantType);
+			}
+		}
+
+		return wireGrantTypes;
 	}
 
 	private void _validate(
