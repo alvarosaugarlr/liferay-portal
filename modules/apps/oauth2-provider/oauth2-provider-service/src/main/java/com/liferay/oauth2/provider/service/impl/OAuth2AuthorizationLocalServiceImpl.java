@@ -39,12 +39,35 @@ import org.osgi.service.component.annotations.Modified;
 public class OAuth2AuthorizationLocalServiceImpl
 	extends OAuth2AuthorizationLocalServiceBaseImpl {
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #addOAuth2Authorization(long, long, String, long, long,
+	 *             String, Date, Date, String, String, String, Date, Date,
+	 *             List)}
+	 */
+	@Deprecated
 	@Override
 	public OAuth2Authorization addOAuth2Authorization(
 		long companyId, long userId, String userName, long oAuth2ApplicationId,
 		long oAuth2ApplicationScopeAliasesId, String accessTokenContent,
 		Date accessTokenCreateDate, Date accessTokenExpirationDate,
-		List<String> audiencesList, String remoteHostInfo, String remoteIPInfo,
+		String remoteIPInfo, String refreshTokenContent,
+		Date refreshTokenCreateDate, Date refreshTokenExpirationDate) {
+
+		return addOAuth2Authorization(
+			companyId, userId, userName, oAuth2ApplicationId,
+			oAuth2ApplicationScopeAliasesId, accessTokenContent,
+			accessTokenCreateDate, accessTokenExpirationDate, null, null,
+			remoteIPInfo, refreshTokenContent, refreshTokenCreateDate,
+			refreshTokenExpirationDate);
+	}
+
+	@Override
+	public OAuth2Authorization addOAuth2Authorization(
+		long companyId, long userId, String userName, long oAuth2ApplicationId,
+		long oAuth2ApplicationScopeAliasesId, String accessTokenContent,
+		Date accessTokenCreateDate, Date accessTokenExpirationDate,
+		List<String> audiences, String remoteHostInfo, String remoteIPInfo,
 		String refreshTokenContent, Date refreshTokenCreateDate,
 		Date refreshTokenExpirationDate) {
 
@@ -65,7 +88,11 @@ public class OAuth2AuthorizationLocalServiceImpl
 		oAuth2Authorization.setAccessTokenCreateDate(accessTokenCreateDate);
 		oAuth2Authorization.setAccessTokenExpirationDate(
 			accessTokenExpirationDate);
-		oAuth2Authorization.setAudiencesList(audiencesList);
+
+		if (audiences != null) {
+			oAuth2Authorization.setAudiencesList(audiences);
+		}
+
 		oAuth2Authorization.setRemoteHostInfo(remoteHostInfo);
 		oAuth2Authorization.setRemoteIPInfo(remoteIPInfo);
 		oAuth2Authorization.setRefreshTokenContent(refreshTokenContent);
