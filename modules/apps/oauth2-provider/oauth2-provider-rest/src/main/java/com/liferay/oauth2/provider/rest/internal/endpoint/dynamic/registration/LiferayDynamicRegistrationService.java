@@ -728,6 +728,47 @@ public class LiferayDynamicRegistrationService
 		}
 	}
 
+	private void _validateAnonymousGrantTypes(
+		ClientRegistration clientRegistration, String[] allowedGrantTypes) {
+
+		Set<String> normalizedAllowedGrantTypes = new HashSet<>();
+
+		for (String allowedGrantType : allowedGrantTypes) {
+			if (Validator.isBlank(allowedGrantType)) {
+				continue;
+			}
+
+			for (String line : allowedGrantType.split("\\s+")) {
+				if (Validator.isBlank(line)) {
+					continue;
+				}
+
+				normalizedAllowedGrantTypes.add(line);
+			}
+		}
+
+		if (normalizedAllowedGrantTypes.isEmpty()) {
+			OAuth2ErrorUtil.reportInvalidRequestError(
+				"Anonymous registration does not permit any grant type",
+				"invalid_client_metadata", Response.Status.BAD_REQUEST);
+		}
+
+		List<String> requestedGrantTypes = clientRegistration.getGrantTypes();
+
+		if (ListUtil.isEmpty(requestedGrantTypes)) {
+			return;
+		}
+
+		for (String requestedGrantType : requestedGrantTypes) {
+			if (!normalizedAllowedGrantTypes.contains(requestedGrantType)) {
+				OAuth2ErrorUtil.reportInvalidRequestError(
+					"Grant type " + requestedGrantType +
+						" is not permitted for anonymous registration",
+					"invalid_client_metadata", Response.Status.BAD_REQUEST);
+			}
+		}
+	}
+
 	private void _validateAnonymousPolicy(
 		ClientRegistration clientRegistration) {
 
@@ -751,6 +792,10 @@ public class LiferayDynamicRegistrationService
 
 			return;
 		}
+
+		_validateAnonymousGrantTypes(
+			clientRegistration,
+			dynamicRegistrationConfiguration.anonymousAllowedGrantTypes());
 
 		_validateAnonymousScopes(
 			clientRegistration,
