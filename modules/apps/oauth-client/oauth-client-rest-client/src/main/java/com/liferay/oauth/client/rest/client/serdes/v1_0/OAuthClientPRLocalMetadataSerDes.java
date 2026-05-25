@@ -456,4 +456,4 @@ public class OAuthClientPRLocalMetadataSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1352484749
+// LIFERAY-REST-BUILDER-HASH:-702762551
