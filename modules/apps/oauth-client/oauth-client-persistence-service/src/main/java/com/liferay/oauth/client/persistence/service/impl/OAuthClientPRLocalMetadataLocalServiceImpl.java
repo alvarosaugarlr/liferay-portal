@@ -75,6 +75,10 @@ public class OAuthClientPRLocalMetadataLocalServiceImpl
 			String[] scopesSupported)
 		throws PortalException {
 
+		if (Validator.isNull(resource)) {
+			throw new OAuthClientPRLocalMetadataResourceException();
+		}
+
 		User user = _userLocalService.getUser(userId);
 
 		String localWellKnownURI = _generateLocalWellKnownURI(resource);
@@ -254,6 +258,10 @@ public class OAuthClientPRLocalMetadataLocalServiceImpl
 			String[] bearerMethodsSupported, boolean localWellKnownEnabled,
 			String resource, String resourceName, String[] scopesSupported)
 		throws PortalException {
+
+		if (Validator.isNull(resource)) {
+			throw new OAuthClientPRLocalMetadataResourceException();
+		}
 
 		OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata =
 			oAuthClientPRLocalMetadataLocalService.
