@@ -83,15 +83,15 @@ public class OAuth2WellKnownProtectedResourceServletTest {
 
 		String authorizationServer =
 			Http.HTTPS_WITH_SLASH + RandomTestUtil.randomString() + ".com";
+
 		String resource = authorizationServer + "/o/mcp";
 
 		OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata =
 			_oAuthClientPRLocalMetadataLocalService.
 				addOAuthClientPRLocalMetadata(
 					null, TestPropsValues.getUserId(),
-					new String[] {authorizationServer},
-					new String[] {"header"}, false, resource, "MCP Server",
-					new String[] {"mcp.read"});
+					new String[] {authorizationServer}, new String[] {"header"},
+					false, resource, "MCP Server", new String[] {"mcp.read"});
 
 		HttpURLConnection disabledHttpURLConnection = _openConnection(
 			hostRootURL, "GET");
@@ -112,8 +112,7 @@ public class OAuth2WellKnownProtectedResourceServletTest {
 			hostRootURL, "GET");
 
 		Assert.assertEquals(
-			HttpServletResponse.SC_OK,
-			getHttpURLConnection.getResponseCode());
+			HttpServletResponse.SC_OK, getHttpURLConnection.getResponseCode());
 		Assert.assertEquals(
 			"*",
 			getHttpURLConnection.getHeaderField("Access-Control-Allow-Origin"));
@@ -128,9 +127,8 @@ public class OAuth2WellKnownProtectedResourceServletTest {
 		Assert.assertEquals(
 			_oAuthClientPRLocalMetadataLocalService.
 				getOAuthClientPRLocalMetadata(
-					oAuthClientPRLocalMetadata.
-						getOAuthClientPRLocalMetadataId()).
-							getMetadataJSON(),
+					oAuthClientPRLocalMetadata.getOAuthClientPRLocalMetadataId()
+				).getMetadataJSON(),
 			getResponseBody);
 
 		HttpURLConnection optionsHttpURLConnection = _openConnection(
@@ -157,8 +155,7 @@ public class OAuth2WellKnownProtectedResourceServletTest {
 			HttpServletResponse.SC_METHOD_NOT_ALLOWED,
 			postHttpURLConnection.getResponseCode());
 		Assert.assertEquals(
-			"GET, OPTIONS",
-			postHttpURLConnection.getHeaderField("Allow"));
+			"GET, OPTIONS", postHttpURLConnection.getHeaderField("Allow"));
 
 		postHttpURLConnection.disconnect();
 	}
@@ -166,8 +163,10 @@ public class OAuth2WellKnownProtectedResourceServletTest {
 	private HttpURLConnection _openConnection(String urlString, String method)
 		throws Exception {
 
-		HttpURLConnection httpURLConnection =
-			(HttpURLConnection)URI.create(urlString).toURL().openConnection();
+		HttpURLConnection httpURLConnection = (HttpURLConnection)URI.create(
+			urlString
+		).toURL(
+		).openConnection();
 
 		httpURLConnection.setInstanceFollowRedirects(false);
 		httpURLConnection.setRequestMethod(method);
