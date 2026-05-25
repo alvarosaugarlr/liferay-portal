@@ -275,4 +275,4 @@ public class OAuthClientASLocalMetadata implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-996786330
+// LIFERAY-REST-BUILDER-HASH:1122266084

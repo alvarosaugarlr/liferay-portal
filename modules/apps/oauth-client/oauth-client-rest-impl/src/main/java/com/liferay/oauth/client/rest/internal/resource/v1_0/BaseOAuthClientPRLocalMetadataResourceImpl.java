@@ -1083,4 +1083,4 @@ public abstract class BaseOAuthClientPRLocalMetadataResourceImpl
 		LogFactoryUtil.getLog(BaseOAuthClientPRLocalMetadataResourceImpl.class);
 
 }
-// LIFERAY-REST-BUILDER-HASH:2095469541
+// LIFERAY-REST-BUILDER-HASH:228502491
