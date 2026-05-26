@@ -36,7 +36,7 @@ public class OAuth2AuthorizationLocalServiceWrapper
 			long oAuth2ApplicationId, long oAuth2ApplicationScopeAliasesId,
 			String accessTokenContent, java.util.Date accessTokenCreateDate,
 			java.util.Date accessTokenExpirationDate,
-			java.util.List<String> audiencesList, String remoteHostInfo,
+			java.util.List<String> audiences, String remoteHostInfo,
 			String remoteIPInfo, String refreshTokenContent,
 			java.util.Date refreshTokenCreateDate,
 			java.util.Date refreshTokenExpirationDate) {
@@ -44,9 +44,34 @@ public class OAuth2AuthorizationLocalServiceWrapper
 		return _oAuth2AuthorizationLocalService.addOAuth2Authorization(
 			companyId, userId, userName, oAuth2ApplicationId,
 			oAuth2ApplicationScopeAliasesId, accessTokenContent,
-			accessTokenCreateDate, accessTokenExpirationDate, audiencesList,
+			accessTokenCreateDate, accessTokenExpirationDate, audiences,
 			remoteHostInfo, remoteIPInfo, refreshTokenContent,
 			refreshTokenCreateDate, refreshTokenExpirationDate);
+	}
+
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 #addOAuth2Authorization(long, long, String, long, long,
+	 String, Date, Date, String, String, String, Date, Date,
+	 List)}
+	 */
+	@Deprecated
+	@Override
+	public com.liferay.oauth2.provider.model.OAuth2Authorization
+		addOAuth2Authorization(
+			long companyId, long userId, String userName,
+			long oAuth2ApplicationId, long oAuth2ApplicationScopeAliasesId,
+			String accessTokenContent, java.util.Date accessTokenCreateDate,
+			java.util.Date accessTokenExpirationDate, String remoteIPInfo,
+			String refreshTokenContent, java.util.Date refreshTokenCreateDate,
+			java.util.Date refreshTokenExpirationDate) {
+
+		return _oAuth2AuthorizationLocalService.addOAuth2Authorization(
+			companyId, userId, userName, oAuth2ApplicationId,
+			oAuth2ApplicationScopeAliasesId, accessTokenContent,
+			accessTokenCreateDate, accessTokenExpirationDate, remoteIPInfo,
+			refreshTokenContent, refreshTokenCreateDate,
+			refreshTokenExpirationDate);
 	}
 
 	/**
@@ -657,4 +682,4 @@ public class OAuth2AuthorizationLocalServiceWrapper
 	private OAuth2AuthorizationLocalService _oAuth2AuthorizationLocalService;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:558783372
+// LIFERAY-SERVICE-BUILDER-HASH:65684863
