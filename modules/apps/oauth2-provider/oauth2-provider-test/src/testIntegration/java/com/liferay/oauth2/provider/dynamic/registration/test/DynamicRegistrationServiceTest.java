@@ -274,6 +274,8 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 						"com.liferay.oauth2.provider.rest.internal." +
 							"configuration.DynamicRegistrationConfiguration",
 						HashMapDictionaryBuilder.<String, Object>put(
+							_PROPERTY_ANONYMOUS_TRUST_PROXY_HEADERS, true
+						).put(
 							"dynamic.registration.anonymous.allowed.grant." +
 								"types",
 							new String[] {"*"}
@@ -336,6 +338,8 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 						"com.liferay.oauth2.provider.rest.internal." +
 							"configuration.DynamicRegistrationConfiguration",
 						HashMapDictionaryBuilder.<String, Object>put(
+							_PROPERTY_ANONYMOUS_TRUST_PROXY_HEADERS, true
+						).put(
 							"dynamic.registration.anonymous.allowed.grant." +
 								"types",
 							new String[] {"*"}
@@ -401,6 +405,8 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 						"com.liferay.oauth2.provider.rest.internal." +
 							"configuration.DynamicRegistrationConfiguration",
 						HashMapDictionaryBuilder.<String, Object>put(
+							_PROPERTY_ANONYMOUS_TRUST_PROXY_HEADERS, true
+						).put(
 							"dynamic.registration.anonymous.allowed.grant." +
 								"types",
 							new String[] {"*"}
@@ -521,6 +527,8 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 						"com.liferay.oauth2.provider.rest.internal." +
 							"configuration.DynamicRegistrationConfiguration",
 						HashMapDictionaryBuilder.<String, Object>put(
+							_PROPERTY_ANONYMOUS_TRUST_PROXY_HEADERS, true
+						).put(
 							"dynamic.registration.anonymous.allowed.grant." +
 								"types",
 							new String[] {"*"}
@@ -895,6 +903,9 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 				"dynamic.registration.require.initial.access.token", false
 			).build());
 	}
+
+	private static final String _PROPERTY_ANONYMOUS_TRUST_PROXY_HEADERS =
+		"dynamic.registration.anonymous.trust.proxy.headers";
 
 	@Inject
 	private OAuth2ApplicationLocalService _oAuth2ApplicationLocalService;
