@@ -111,7 +111,7 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 			"post",
 			Entity.json(
 				JSONUtil.put(
-					"client_name", RandomTestUtil.randomString()
+					_FIELD_CLIENT_NAME, RandomTestUtil.randomString()
 				).toString()));
 
 		Assert.assertEquals(401, response.getStatus());
@@ -119,18 +119,18 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 		String clientName = RandomTestUtil.randomString();
 
 		JSONObject jsonObject = JSONUtil.put(
-			"client_name", clientName
+			_FIELD_CLIENT_NAME, clientName
 		).put(
-			"grant_types",
+			_FIELD_GRANT_TYPES,
 			new String[] {OAuthConstants.CLIENT_CREDENTIALS_GRANT}
 		).put(
-			"logo_uri", RandomTestUtil.randomString()
-		).put(
-			"redirect_uris",
+			_FIELD_REDIRECT_URIS,
 			new String[] {
 				"https://client.example.org/callback",
 				"https://client.example.org/callback2"
 			}
+		).put(
+			"logo_uri", RandomTestUtil.randomString()
 		).put(
 			"scope", "Liferay.Headless.Admin.Site.everything"
 		);
@@ -154,13 +154,13 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 		JSONObject responseJSONObject = parseJSONObject(response);
 
 		Assert.assertEquals(
-			clientName, responseJSONObject.getString("client_name"));
+			clientName, responseJSONObject.getString(_FIELD_CLIENT_NAME));
 
 		String clientId = responseJSONObject.getString(
 			OAuthConstants.CLIENT_ID);
 
 		jsonObject.put(
-			"response_types",
+			_FIELD_RESPONSE_TYPES,
 			Collections.singletonList(OAuthConstants.CODE_RESPONSE_TYPE));
 
 		response = invocationBuilder.method(
@@ -184,7 +184,7 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 		responseJSONObject = parseJSONObject(response);
 
 		Assert.assertEquals(
-			clientName, responseJSONObject.getString("client_name"));
+			clientName, responseJSONObject.getString(_FIELD_CLIENT_NAME));
 
 		Assert.assertNull(
 			response.getHeaderString("Access-Control-Allow-Origin"));
@@ -202,15 +202,16 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 		String clientName = RandomTestUtil.randomString();
 
 		String body = JSONUtil.put(
-			"client_name", clientName
+			_FIELD_CLIENT_NAME, clientName
 		).put(
-			"grant_types",
+			_FIELD_GRANT_TYPES,
 			new String[] {OAuthConstants.AUTHORIZATION_CODE_GRANT}
 		).put(
-			"redirect_uris",
+			_FIELD_REDIRECT_URIS,
 			new String[] {"https://client.example.org/callback"}
 		).put(
-			"response_types", new String[] {OAuthConstants.CODE_RESPONSE_TYPE}
+			_FIELD_RESPONSE_TYPES,
+			new String[] {OAuthConstants.CODE_RESPONSE_TYPE}
 		).toString();
 
 		try (CompanyConfigurationTemporarySwapper
@@ -225,7 +226,7 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 			JSONObject responseJSONObject = parseJSONObject(response);
 
 			Assert.assertEquals(
-				clientName, responseJSONObject.getString("client_name"));
+				clientName, responseJSONObject.getString(_FIELD_CLIENT_NAME));
 
 			String clientId = responseJSONObject.getString(
 				OAuthConstants.CLIENT_ID);
@@ -256,15 +257,16 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 		WebTarget registerWebTarget = getRegisterWebTarget();
 
 		String body = JSONUtil.put(
-			"client_name", RandomTestUtil.randomString()
+			_FIELD_CLIENT_NAME, RandomTestUtil.randomString()
 		).put(
-			"grant_types",
+			_FIELD_GRANT_TYPES,
 			new String[] {OAuthConstants.AUTHORIZATION_CODE_GRANT}
 		).put(
-			"redirect_uris",
+			_FIELD_REDIRECT_URIS,
 			new String[] {"https://client.example.org/callback"}
 		).put(
-			"response_types", new String[] {OAuthConstants.CODE_RESPONSE_TYPE}
+			_FIELD_RESPONSE_TYPES,
+			new String[] {OAuthConstants.CODE_RESPONSE_TYPE}
 		).toString();
 
 		try (CompanyConfigurationTemporarySwapper
@@ -274,28 +276,23 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 						"com.liferay.oauth2.provider.rest.internal." +
 							"configuration.DynamicRegistrationConfiguration",
 						HashMapDictionaryBuilder.<String, Object>put(
-							_PROPERTY_ANONYMOUS_TRUST_PROXY_HEADERS, true
-						).put(
-							"dynamic.registration.anonymous.allowed.grant." +
-								"types",
+							_PROPERTY_ANONYMOUS_ALLOWED_GRANT_TYPES,
 							new String[] {"*"}
 						).put(
-							"dynamic.registration.anonymous.allowed.hosts",
+							_PROPERTY_ANONYMOUS_ALLOWED_HOSTS,
 							new String[] {clientHost}
 						).put(
-							"dynamic.registration.anonymous.allowed.redirect." +
-								"uri.patterns",
+							_PROPERTY_ANONYMOUS_ALLOWED_REDIRECT_URI_PATTERNS,
 							new String[] {"*"}
 						).put(
-							"dynamic.registration.anonymous.allowed.scopes",
+							_PROPERTY_ANONYMOUS_ALLOWED_SCOPES,
 							new String[] {"*"}
 						).put(
-							"dynamic.registration.anonymous.registrations." +
-								"per.hour",
-							0
+							_PROPERTY_ANONYMOUS_REGISTRATIONS_PER_HOUR, 0
 						).put(
-							"dynamic.registration.require.initial.access.token",
-							false
+							_PROPERTY_ANONYMOUS_TRUST_PROXY_HEADERS, true
+						).put(
+							_PROPERTY_REQUIRE_INITIAL_ACCESS_TOKEN, false
 						).build())) {
 
 			Invocation.Builder invocationBuilder = registerWebTarget.request();
@@ -320,15 +317,16 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 		WebTarget registerWebTarget = getRegisterWebTarget();
 
 		String body = JSONUtil.put(
-			"client_name", RandomTestUtil.randomString()
+			_FIELD_CLIENT_NAME, RandomTestUtil.randomString()
 		).put(
-			"grant_types",
+			_FIELD_GRANT_TYPES,
 			new String[] {OAuthConstants.AUTHORIZATION_CODE_GRANT}
 		).put(
-			"redirect_uris",
+			_FIELD_REDIRECT_URIS,
 			new String[] {"https://client.example.org/callback"}
 		).put(
-			"response_types", new String[] {OAuthConstants.CODE_RESPONSE_TYPE}
+			_FIELD_RESPONSE_TYPES,
+			new String[] {OAuthConstants.CODE_RESPONSE_TYPE}
 		).toString();
 
 		try (CompanyConfigurationTemporarySwapper
@@ -338,28 +336,23 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 						"com.liferay.oauth2.provider.rest.internal." +
 							"configuration.DynamicRegistrationConfiguration",
 						HashMapDictionaryBuilder.<String, Object>put(
+							_PROPERTY_ANONYMOUS_ALLOWED_GRANT_TYPES,
+							new String[] {"*"}
+						).put(
+							_PROPERTY_ANONYMOUS_ALLOWED_HOSTS,
+							new String[] {"*"}
+						).put(
+							_PROPERTY_ANONYMOUS_ALLOWED_REDIRECT_URI_PATTERNS,
+							new String[] {"*"}
+						).put(
+							_PROPERTY_ANONYMOUS_ALLOWED_SCOPES,
+							new String[] {"*"}
+						).put(
+							_PROPERTY_ANONYMOUS_REGISTRATIONS_PER_HOUR, 0
+						).put(
 							_PROPERTY_ANONYMOUS_TRUST_PROXY_HEADERS, true
 						).put(
-							"dynamic.registration.anonymous.allowed.grant." +
-								"types",
-							new String[] {"*"}
-						).put(
-							"dynamic.registration.anonymous.allowed.hosts",
-							new String[] {"*"}
-						).put(
-							"dynamic.registration.anonymous.allowed.redirect." +
-								"uri.patterns",
-							new String[] {"*"}
-						).put(
-							"dynamic.registration.anonymous.allowed.scopes",
-							new String[] {"*"}
-						).put(
-							"dynamic.registration.anonymous.registrations." +
-								"per.hour",
-							0
-						).put(
-							"dynamic.registration.require.initial.access.token",
-							false
+							_PROPERTY_REQUIRE_INITIAL_ACCESS_TOKEN, false
 						).build())) {
 
 			for (int i = 0; i < 15; i++) {
@@ -387,15 +380,16 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 		WebTarget registerWebTarget = getRegisterWebTarget();
 
 		String body = JSONUtil.put(
-			"client_name", RandomTestUtil.randomString()
+			_FIELD_CLIENT_NAME, RandomTestUtil.randomString()
 		).put(
-			"grant_types",
+			_FIELD_GRANT_TYPES,
 			new String[] {OAuthConstants.AUTHORIZATION_CODE_GRANT}
 		).put(
-			"redirect_uris",
+			_FIELD_REDIRECT_URIS,
 			new String[] {"https://client.example.org/callback"}
 		).put(
-			"response_types", new String[] {OAuthConstants.CODE_RESPONSE_TYPE}
+			_FIELD_RESPONSE_TYPES,
+			new String[] {OAuthConstants.CODE_RESPONSE_TYPE}
 		).toString();
 
 		try (CompanyConfigurationTemporarySwapper
@@ -405,28 +399,23 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 						"com.liferay.oauth2.provider.rest.internal." +
 							"configuration.DynamicRegistrationConfiguration",
 						HashMapDictionaryBuilder.<String, Object>put(
+							_PROPERTY_ANONYMOUS_ALLOWED_GRANT_TYPES,
+							new String[] {"*"}
+						).put(
+							_PROPERTY_ANONYMOUS_ALLOWED_HOSTS,
+							new String[] {"*"}
+						).put(
+							_PROPERTY_ANONYMOUS_ALLOWED_REDIRECT_URI_PATTERNS,
+							new String[] {"*"}
+						).put(
+							_PROPERTY_ANONYMOUS_ALLOWED_SCOPES,
+							new String[] {"*"}
+						).put(
+							_PROPERTY_ANONYMOUS_REGISTRATIONS_PER_HOUR, 3
+						).put(
 							_PROPERTY_ANONYMOUS_TRUST_PROXY_HEADERS, true
 						).put(
-							"dynamic.registration.anonymous.allowed.grant." +
-								"types",
-							new String[] {"*"}
-						).put(
-							"dynamic.registration.anonymous.allowed.hosts",
-							new String[] {"*"}
-						).put(
-							"dynamic.registration.anonymous.allowed.redirect." +
-								"uri.patterns",
-							new String[] {"*"}
-						).put(
-							"dynamic.registration.anonymous.allowed.scopes",
-							new String[] {"*"}
-						).put(
-							"dynamic.registration.anonymous.registrations." +
-								"per.hour",
-							3
-						).put(
-							"dynamic.registration.require.initial.access.token",
-							false
+							_PROPERTY_REQUIRE_INITIAL_ACCESS_TOKEN, false
 						).build())) {
 
 			for (int i = 0; i < 3; i++) {
@@ -468,22 +457,16 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 						"com.liferay.oauth2.provider.rest.internal." +
 							"configuration.DynamicRegistrationConfiguration",
 						HashMapDictionaryBuilder.<String, Object>put(
-							"dynamic.registration.anonymous.allowed.hosts",
+							_PROPERTY_ANONYMOUS_ALLOWED_HOSTS, new String[0]
+						).put(
+							_PROPERTY_ANONYMOUS_ALLOWED_REDIRECT_URI_PATTERNS,
 							new String[0]
 						).put(
-							"dynamic.registration.anonymous.allowed.redirect." +
-								"uri.patterns",
-							new String[0]
+							_PROPERTY_ANONYMOUS_ALLOWED_SCOPES, new String[0]
 						).put(
-							"dynamic.registration.anonymous.allowed.scopes",
-							new String[0]
+							_PROPERTY_ANONYMOUS_REGISTRATIONS_PER_HOUR, 0
 						).put(
-							"dynamic.registration.anonymous.registrations." +
-								"per.hour",
-							0
-						).put(
-							"dynamic.registration.require.initial.access.token",
-							true
+							_PROPERTY_REQUIRE_INITIAL_ACCESS_TOKEN, true
 						).build())) {
 
 			Invocation.Builder invocationBuilder = registerWebTarget.request();
@@ -492,7 +475,7 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 				"post",
 				Entity.json(
 					JSONUtil.put(
-						"client_name", RandomTestUtil.randomString()
+						_FIELD_CLIENT_NAME, RandomTestUtil.randomString()
 					).toString()));
 
 			Assert.assertEquals(401, response.getStatus());
@@ -509,15 +492,16 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 		WebTarget registerWebTarget = getRegisterWebTarget();
 
 		String body = JSONUtil.put(
-			"client_name", RandomTestUtil.randomString()
+			_FIELD_CLIENT_NAME, RandomTestUtil.randomString()
 		).put(
-			"grant_types",
+			_FIELD_GRANT_TYPES,
 			new String[] {OAuthConstants.AUTHORIZATION_CODE_GRANT}
 		).put(
-			"redirect_uris",
+			_FIELD_REDIRECT_URIS,
 			new String[] {"https://client.example.org/callback"}
 		).put(
-			"response_types", new String[] {OAuthConstants.CODE_RESPONSE_TYPE}
+			_FIELD_RESPONSE_TYPES,
+			new String[] {OAuthConstants.CODE_RESPONSE_TYPE}
 		).toString();
 
 		try (CompanyConfigurationTemporarySwapper
@@ -527,30 +511,25 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 						"com.liferay.oauth2.provider.rest.internal." +
 							"configuration.DynamicRegistrationConfiguration",
 						HashMapDictionaryBuilder.<String, Object>put(
-							_PROPERTY_ANONYMOUS_TRUST_PROXY_HEADERS, true
-						).put(
-							"dynamic.registration.anonymous.allowed.grant." +
-								"types",
+							_PROPERTY_ANONYMOUS_ALLOWED_GRANT_TYPES,
 							new String[] {"*"}
 						).put(
-							"dynamic.registration.anonymous.allowed.hosts",
+							_PROPERTY_ANONYMOUS_ALLOWED_HOSTS,
 							new String[] {
 								"test-allowed-" + RandomTestUtil.randomString()
 							}
 						).put(
-							"dynamic.registration.anonymous.allowed.redirect." +
-								"uri.patterns",
+							_PROPERTY_ANONYMOUS_ALLOWED_REDIRECT_URI_PATTERNS,
 							new String[] {"*"}
 						).put(
-							"dynamic.registration.anonymous.allowed.scopes",
+							_PROPERTY_ANONYMOUS_ALLOWED_SCOPES,
 							new String[] {"*"}
 						).put(
-							"dynamic.registration.anonymous.registrations." +
-								"per.hour",
-							0
+							_PROPERTY_ANONYMOUS_REGISTRATIONS_PER_HOUR, 0
 						).put(
-							"dynamic.registration.require.initial.access.token",
-							false
+							_PROPERTY_ANONYMOUS_TRUST_PROXY_HEADERS, true
+						).put(
+							_PROPERTY_REQUIRE_INITIAL_ACCESS_TOKEN, false
 						).build())) {
 
 			Invocation.Builder invocationBuilder = registerWebTarget.request();
@@ -575,14 +554,16 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 		WebTarget registerWebTarget = getRegisterWebTarget();
 
 		String body = JSONUtil.put(
-			"client_name", RandomTestUtil.randomString()
+			_FIELD_CLIENT_NAME, RandomTestUtil.randomString()
 		).put(
-			"grant_types",
+			_FIELD_GRANT_TYPES,
 			new String[] {OAuthConstants.AUTHORIZATION_CODE_GRANT}
 		).put(
-			"redirect_uris", new String[] {"https://attacker.test/callback"}
+			_FIELD_REDIRECT_URIS,
+			new String[] {"https://attacker.test/callback"}
 		).put(
-			"response_types", new String[] {OAuthConstants.CODE_RESPONSE_TYPE}
+			_FIELD_RESPONSE_TYPES,
+			new String[] {OAuthConstants.CODE_RESPONSE_TYPE}
 		).toString();
 
 		try (CompanyConfigurationTemporarySwapper
@@ -592,26 +573,75 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 						"com.liferay.oauth2.provider.rest.internal." +
 							"configuration.DynamicRegistrationConfiguration",
 						HashMapDictionaryBuilder.<String, Object>put(
-							"dynamic.registration.anonymous.allowed.grant." +
-								"types",
+							_PROPERTY_ANONYMOUS_ALLOWED_GRANT_TYPES,
 							new String[] {"*"}
 						).put(
-							"dynamic.registration.anonymous.allowed.hosts",
+							_PROPERTY_ANONYMOUS_ALLOWED_HOSTS,
 							new String[] {"*"}
 						).put(
-							"dynamic.registration.anonymous.allowed.redirect." +
-								"uri.patterns",
+							_PROPERTY_ANONYMOUS_ALLOWED_REDIRECT_URI_PATTERNS,
 							new String[] {"https://*.example.org/*"}
 						).put(
-							"dynamic.registration.anonymous.allowed.scopes",
+							_PROPERTY_ANONYMOUS_ALLOWED_SCOPES,
 							new String[] {"*"}
 						).put(
-							"dynamic.registration.anonymous.registrations." +
-								"per.hour",
-							0
+							_PROPERTY_ANONYMOUS_REGISTRATIONS_PER_HOUR, 0
 						).put(
-							"dynamic.registration.require.initial.access.token",
-							false
+							_PROPERTY_REQUIRE_INITIAL_ACCESS_TOKEN, false
+						).build())) {
+
+			Invocation.Builder invocationBuilder = registerWebTarget.request();
+
+			Response response = invocationBuilder.method(
+				"post", Entity.json(body));
+
+			Assert.assertEquals(400, response.getStatus());
+			Assert.assertEquals("invalid_redirect_uri", parseError(response));
+		}
+	}
+
+	@FeatureFlag("LPD-63416")
+	@Test
+	public void testPostAnonymousRejectsRedirectURICrossingPathBoundary()
+		throws Exception {
+
+		long companyId = TestPropsValues.getCompanyId();
+
+		WebTarget registerWebTarget = getRegisterWebTarget();
+
+		String body = JSONUtil.put(
+			_FIELD_CLIENT_NAME, RandomTestUtil.randomString()
+		).put(
+			_FIELD_GRANT_TYPES,
+			new String[] {OAuthConstants.AUTHORIZATION_CODE_GRANT}
+		).put(
+			_FIELD_REDIRECT_URIS,
+			new String[] {"https://attacker.test/foo.example.org/callback"}
+		).put(
+			_FIELD_RESPONSE_TYPES,
+			new String[] {OAuthConstants.CODE_RESPONSE_TYPE}
+		).toString();
+
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						companyId,
+						"com.liferay.oauth2.provider.rest.internal." +
+							"configuration.DynamicRegistrationConfiguration",
+						HashMapDictionaryBuilder.<String, Object>put(
+							_PROPERTY_ANONYMOUS_ALLOWED_GRANT_TYPES,
+							new String[] {"*"}
+						).put(
+							_PROPERTY_ANONYMOUS_ALLOWED_HOSTS, new String[] {"*"}
+						).put(
+							_PROPERTY_ANONYMOUS_ALLOWED_REDIRECT_URI_PATTERNS,
+							new String[] {"https://*.example.org/*"}
+						).put(
+							_PROPERTY_ANONYMOUS_ALLOWED_SCOPES, new String[] {"*"}
+						).put(
+							_PROPERTY_ANONYMOUS_REGISTRATIONS_PER_HOUR, 0
+						).put(
+							_PROPERTY_REQUIRE_INITIAL_ACCESS_TOKEN, false
 						).build())) {
 
 			Invocation.Builder invocationBuilder = registerWebTarget.request();
@@ -632,9 +662,9 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 		WebTarget registerWebTarget = getRegisterWebTarget();
 
 		String body = JSONUtil.put(
-			"client_name", RandomTestUtil.randomString()
+			_FIELD_CLIENT_NAME, RandomTestUtil.randomString()
 		).put(
-			"grant_types",
+			_FIELD_GRANT_TYPES,
 			new String[] {OAuthConstants.CLIENT_CREDENTIALS_GRANT}
 		).put(
 			"scope", "Liferay.Headless.Admin.Site.everything"
@@ -647,28 +677,23 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 						"com.liferay.oauth2.provider.rest.internal." +
 							"configuration.DynamicRegistrationConfiguration",
 						HashMapDictionaryBuilder.<String, Object>put(
-							"dynamic.registration.anonymous.allowed.grant." +
-								"types",
+							_PROPERTY_ANONYMOUS_ALLOWED_GRANT_TYPES,
 							new String[] {"*"}
 						).put(
-							"dynamic.registration.anonymous.allowed.hosts",
+							_PROPERTY_ANONYMOUS_ALLOWED_HOSTS,
 							new String[] {"*"}
 						).put(
-							"dynamic.registration.anonymous.allowed.redirect." +
-								"uri.patterns",
+							_PROPERTY_ANONYMOUS_ALLOWED_REDIRECT_URI_PATTERNS,
 							new String[] {"*"}
 						).put(
-							"dynamic.registration.anonymous.allowed.scopes",
+							_PROPERTY_ANONYMOUS_ALLOWED_SCOPES,
 							new String[] {
 								"Liferay.Headless.Delivery.everything"
 							}
 						).put(
-							"dynamic.registration.anonymous.registrations." +
-								"per.hour",
-							0
+							_PROPERTY_ANONYMOUS_REGISTRATIONS_PER_HOUR, 0
 						).put(
-							"dynamic.registration.require.initial.access.token",
-							false
+							_PROPERTY_REQUIRE_INITIAL_ACCESS_TOKEN, false
 						).build())) {
 
 			Invocation.Builder invocationBuilder = registerWebTarget.request();
@@ -692,15 +717,16 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 		String clientName = RandomTestUtil.randomString();
 
 		String body = JSONUtil.put(
-			"client_name", clientName
+			_FIELD_CLIENT_NAME, clientName
 		).put(
-			"grant_types",
+			_FIELD_GRANT_TYPES,
 			new String[] {OAuthConstants.AUTHORIZATION_CODE_GRANT}
 		).put(
-			"redirect_uris",
+			_FIELD_REDIRECT_URIS,
 			new String[] {"https://client.example.org/callback"}
 		).put(
-			"response_types", new String[] {OAuthConstants.CODE_RESPONSE_TYPE}
+			_FIELD_RESPONSE_TYPES,
+			new String[] {OAuthConstants.CODE_RESPONSE_TYPE}
 		).put(
 			"token_endpoint_auth_method",
 			OAuthConstants.TOKEN_ENDPOINT_AUTH_NONE
@@ -720,7 +746,7 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 			JSONObject responseJSONObject = parseJSONObject(response);
 
 			JSONArray grantTypesJSONArray = responseJSONObject.getJSONArray(
-				"grant_types");
+				_FIELD_GRANT_TYPES);
 
 			Assert.assertEquals(1, grantTypesJSONArray.length());
 			Assert.assertEquals(
@@ -760,12 +786,12 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 				"post",
 				Entity.json(
 					JSONUtil.put(
-						"client_name", RandomTestUtil.randomString()
+						_FIELD_CLIENT_NAME, RandomTestUtil.randomString()
 					).put(
-						"grant_types",
+						_FIELD_GRANT_TYPES,
 						new String[] {OAuthConstants.CLIENT_CREDENTIALS_GRANT}
 					).put(
-						"redirect_uris",
+						_FIELD_REDIRECT_URIS,
 						new String[] {"https://client.example.org/callback"}
 					).toString()));
 
@@ -793,18 +819,18 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 			"put",
 			Entity.json(
 				JSONUtil.put(
-					"client_name", clientName
+					_FIELD_CLIENT_NAME, clientName
 				).put(
-					"grant_types",
+					_FIELD_GRANT_TYPES,
 					new String[] {OAuthConstants.CLIENT_CREDENTIALS_GRANT}
 				).put(
-					"logo_uri", RandomTestUtil.randomString()
-				).put(
-					"redirect_uris",
+					_FIELD_REDIRECT_URIS,
 					new String[] {
 						"https://client.example.org/callback",
 						"https://client.example.org/callback2"
 					}
+				).put(
+					"logo_uri", RandomTestUtil.randomString()
 				).put(
 					"scope", "Liferay.Headless.Admin.Site.everything"
 				).toString()));
@@ -813,7 +839,8 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 
 		JSONObject jsonObject = parseJSONObject(response);
 
-		Assert.assertEquals(clientName, jsonObject.getString("client_name"));
+		Assert.assertEquals(
+			clientName, jsonObject.getString(_FIELD_CLIENT_NAME));
 	}
 
 	protected static WebTarget getRegisterWebTarget() {
@@ -886,26 +913,50 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 			"com.liferay.oauth2.provider.rest.internal.configuration." +
 				"DynamicRegistrationConfiguration",
 			HashMapDictionaryBuilder.<String, Object>put(
-				"dynamic.registration.anonymous.allowed.grant.types",
+				_PROPERTY_ANONYMOUS_ALLOWED_GRANT_TYPES, new String[] {"*"}
+			).put(
+				_PROPERTY_ANONYMOUS_ALLOWED_HOSTS, new String[] {"*"}
+			).put(
+				_PROPERTY_ANONYMOUS_ALLOWED_REDIRECT_URI_PATTERNS,
 				new String[] {"*"}
 			).put(
-				"dynamic.registration.anonymous.allowed.hosts",
-				new String[] {"*"}
+				_PROPERTY_ANONYMOUS_ALLOWED_SCOPES, new String[] {"*"}
 			).put(
-				"dynamic.registration.anonymous.allowed.redirect.uri.patterns",
-				new String[] {"*"}
+				_PROPERTY_ANONYMOUS_REGISTRATIONS_PER_HOUR, 0
 			).put(
-				"dynamic.registration.anonymous.allowed.scopes",
-				new String[] {"*"}
-			).put(
-				"dynamic.registration.anonymous.registrations.per.hour", 0
-			).put(
-				"dynamic.registration.require.initial.access.token", false
+				_PROPERTY_REQUIRE_INITIAL_ACCESS_TOKEN, false
 			).build());
 	}
 
+	private static final String _FIELD_CLIENT_NAME = "client_name";
+
+	private static final String _FIELD_GRANT_TYPES = "grant_types";
+
+	private static final String _FIELD_REDIRECT_URIS = "redirect_uris";
+
+	private static final String _FIELD_RESPONSE_TYPES = "response_types";
+
+	private static final String _PROPERTY_ANONYMOUS_ALLOWED_GRANT_TYPES =
+		"dynamic.registration.anonymous.allowed.grant.types";
+
+	private static final String _PROPERTY_ANONYMOUS_ALLOWED_HOSTS =
+		"dynamic.registration.anonymous.allowed.hosts";
+
+	private static final String
+		_PROPERTY_ANONYMOUS_ALLOWED_REDIRECT_URI_PATTERNS =
+			"dynamic.registration.anonymous.allowed.redirect.uri.patterns";
+
+	private static final String _PROPERTY_ANONYMOUS_ALLOWED_SCOPES =
+		"dynamic.registration.anonymous.allowed.scopes";
+
+	private static final String _PROPERTY_ANONYMOUS_REGISTRATIONS_PER_HOUR =
+		"dynamic.registration.anonymous.registrations.per.hour";
+
 	private static final String _PROPERTY_ANONYMOUS_TRUST_PROXY_HEADERS =
 		"dynamic.registration.anonymous.trust.proxy.headers";
+
+	private static final String _PROPERTY_REQUIRE_INITIAL_ACCESS_TOKEN =
+		"dynamic.registration.require.initial.access.token";
 
 	@Inject
 	private OAuth2ApplicationLocalService _oAuth2ApplicationLocalService;
