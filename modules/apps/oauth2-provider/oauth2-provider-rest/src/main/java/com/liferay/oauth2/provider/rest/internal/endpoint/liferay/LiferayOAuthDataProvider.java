@@ -1771,16 +1771,6 @@ public class LiferayOAuthDataProvider
 				serverAccessToken.getAudiences(), remoteHost, remoteAddr, null,
 				null, null);
 
-		List<String> audiences = serverAccessToken.getAudiences();
-
-		if (ListUtil.isNotEmpty(audiences)) {
-			oAuth2Authorization.setAudiencesList(audiences);
-
-			oAuth2Authorization =
-				_oAuth2AuthorizationLocalService.updateOAuth2Authorization(
-					oAuth2Authorization);
-		}
-
 		List<String> scopeAliasesList =
 			OAuthUtils.convertPermissionsToScopeList(
 				serverAccessToken.getScopes());
