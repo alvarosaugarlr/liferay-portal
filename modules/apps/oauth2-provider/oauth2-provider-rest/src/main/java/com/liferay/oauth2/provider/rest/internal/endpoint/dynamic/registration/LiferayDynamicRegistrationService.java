@@ -54,6 +54,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -172,11 +173,12 @@ public class LiferayDynamicRegistrationService
 
 		MessageContext messageContext = getMessageContext();
 
-		Object anonymous = messageContext.getHttpServletRequest(
-		).getAttribute(
+		HttpServletRequest httpServletRequest =
+			messageContext.getHttpServletRequest();
+
+		Object anonymous = httpServletRequest.getAttribute(
 			DynamicRegistrationServiceContainerRequestFilter.
-				REQUEST_PROPERTY_ANONYMOUS_REGISTRATION
-		);
+				REQUEST_PROPERTY_ANONYMOUS_REGISTRATION);
 
 		if (Boolean.TRUE.equals(anonymous)) {
 			Map<String, String> clientProperties = client.getProperties();
@@ -391,7 +393,7 @@ public class LiferayDynamicRegistrationService
 
 			AuditMessage auditMessage = new AuditMessage(
 				0, _getCompanyId(), 0, StringPool.BLANK, null,
-				_baseAuditInfo(
+				_getBaseAuditInfoJSONObject(
 				).put(
 					"error", error
 				).put(
@@ -449,7 +451,7 @@ public class LiferayDynamicRegistrationService
 
 			AuditMessage auditMessage = new AuditMessage(
 				0, _getCompanyId(), 0, StringPool.BLANK, null,
-				_baseAuditInfo(
+				_getBaseAuditInfoJSONObject(
 				).put(
 					"clientId", liferayClientRegistrationResponse.getClientId()
 				).put(
@@ -480,7 +482,47 @@ public class LiferayDynamicRegistrationService
 		}
 	}
 
-	private JSONObject _baseAuditInfo() {
+	private Pattern _compileGlobToPattern(String glob) {
+		StringBuilder sb = new StringBuilder("^");
+
+		for (int i = 0; i < glob.length(); i++) {
+			char c = glob.charAt(i);
+
+			if (c == '*') {
+				if (((i + 1) < glob.length()) && (glob.charAt(i + 1) == '*')) {
+					sb.append(".*");
+
+					i++;
+				}
+				else {
+					sb.append("[^/]*");
+				}
+			}
+			else if ("\\.+?()[]{}^$|".indexOf(c) >= 0) {
+				sb.append('\\');
+				sb.append(c);
+			}
+			else {
+				sb.append(c);
+			}
+		}
+
+		sb.append('$');
+
+		return Pattern.compile(sb.toString());
+	}
+
+	private String _getApplicationType(ClientRegistration clientRegistration) {
+		String applicationType = clientRegistration.getApplicationType();
+
+		if (applicationType == null) {
+			applicationType = "web";
+		}
+
+		return applicationType;
+	}
+
+	private JSONObject _getBaseAuditInfoJSONObject() {
 		MessageContext messageContext = getMessageContext();
 
 		HttpServletRequest httpServletRequest = null;
@@ -523,16 +565,6 @@ public class LiferayDynamicRegistrationService
 		);
 	}
 
-	private String _getApplicationType(ClientRegistration clientRegistration) {
-		String applicationType = clientRegistration.getApplicationType();
-
-		if (applicationType == null) {
-			applicationType = "web";
-		}
-
-		return applicationType;
-	}
-
 	private long _getCompanyId() {
 		MessageContext messageContext = getMessageContext();
 
@@ -540,7 +572,14 @@ public class LiferayDynamicRegistrationService
 			return 0;
 		}
 
-		return _portal.getCompanyId(messageContext.getHttpServletRequest());
+		HttpServletRequest httpServletRequest =
+			messageContext.getHttpServletRequest();
+
+		if (httpServletRequest == null) {
+			return 0;
+		}
+
+		return _portal.getCompanyId(httpServletRequest);
 	}
 
 	private DynamicRegistrationConfiguration
@@ -554,33 +593,8 @@ public class LiferayDynamicRegistrationService
 	}
 
 	private Pattern _globToPattern(String glob) {
-		StringBuilder sb = new StringBuilder("^");
-
-		for (int i = 0; i < glob.length(); i++) {
-			char c = glob.charAt(i);
-
-			if (c == '*') {
-				if (((i + 1) < glob.length()) && (glob.charAt(i + 1) == '*')) {
-					sb.append(".*");
-
-					i++;
-				}
-				else {
-					sb.append("[^/]*");
-				}
-			}
-			else if ("\\.+?()[]{}^$|".indexOf(c) >= 0) {
-				sb.append('\\');
-				sb.append(c);
-			}
-			else {
-				sb.append(c);
-			}
-		}
-
-		sb.append('$');
-
-		return Pattern.compile(sb.toString());
+		return _compiledGlobPatterns.computeIfAbsent(
+			glob, this::_compileGlobToPattern);
 	}
 
 	private boolean _isAnonymousRegistration(Client client) {
@@ -747,14 +761,14 @@ public class LiferayDynamicRegistrationService
 		}
 
 		if (_isAnonymousRegistration(client)) {
-			_validateAnonymousPolicy(clientRegistration);
+			_validateAnonymousPolicy(client, clientRegistration);
 		}
 	}
 
 	private void _validateAnonymousGrantTypes(
-		ClientRegistration clientRegistration, String[] allowedGrantTypes) {
+		Client client, String[] allowedGrantTypes) {
 
-		List<String> requestedGrantTypes = clientRegistration.getGrantTypes();
+		List<String> requestedGrantTypes = client.getAllowedGrantTypes();
 
 		if (ListUtil.isEmpty(requestedGrantTypes)) {
 			return;
@@ -783,12 +797,9 @@ public class LiferayDynamicRegistrationService
 	}
 
 	private void _validateAnonymousPolicy(
-		ClientRegistration clientRegistration) {
+		Client client, ClientRegistration clientRegistration) {
 
-		MessageContext messageContext = getMessageContext();
-
-		long companyId = _portal.getCompanyId(
-			messageContext.getHttpServletRequest());
+		long companyId = _getCompanyId();
 
 		DynamicRegistrationConfiguration dynamicRegistrationConfiguration;
 
@@ -807,11 +818,11 @@ public class LiferayDynamicRegistrationService
 		}
 
 		_validateAnonymousGrantTypes(
-			clientRegistration,
+			client,
 			dynamicRegistrationConfiguration.anonymousAllowedGrantTypes());
 
 		_validateAnonymousScopes(
-			clientRegistration,
+			client, clientRegistration,
 			dynamicRegistrationConfiguration.anonymousAllowedScopes());
 
 		_validateAnonymousRedirectURIs(
@@ -871,13 +882,8 @@ public class LiferayDynamicRegistrationService
 	}
 
 	private void _validateAnonymousScopes(
-		ClientRegistration clientRegistration, String[] allowedScopes) {
-
-		String scope = clientRegistration.getScope();
-
-		if (Validator.isBlank(scope)) {
-			return;
-		}
+		Client client, ClientRegistration clientRegistration,
+		String[] allowedScopes) {
 
 		Set<String> normalizedAllowedScopes = _normalize(allowedScopes);
 
@@ -889,6 +895,23 @@ public class LiferayDynamicRegistrationService
 			OAuth2ErrorUtil.reportInvalidRequestError(
 				"Anonymous registration does not permit any scope",
 				OAuthConstants.INVALID_SCOPE, Response.Status.BAD_REQUEST);
+
+			return;
+		}
+
+		String scope = clientRegistration.getScope();
+
+		if (Validator.isBlank(scope)) {
+
+			// A blank scope leaves the client with no registered scopes,
+			// which the OAuth2 provider treats as unrestricted. Pin the
+			// registered scopes to the allowlist so an anonymous client
+			// cannot later request a scope outside it.
+
+			client.setRegisteredScopes(
+				new ArrayList<>(normalizedAllowedScopes));
+
+			return;
 		}
 
 		List<String> requestedScopes = OAuthUtils.parseScope(scope);
@@ -919,6 +942,8 @@ public class LiferayDynamicRegistrationService
 		new Snapshot<>(
 			LiferayDynamicRegistrationService.class, AuditRouter.class, null,
 			true);
+	private static final Map<String, Pattern> _compiledGlobPatterns =
+		new ConcurrentHashMap<>();
 
 	private ConfigurationProvider _configurationProvider;
 	private Portal _portal;
