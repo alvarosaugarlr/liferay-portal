@@ -50,6 +50,7 @@ import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -772,7 +773,8 @@ public class LiferayDynamicRegistrationService
 		List<String> requestedGrantTypes = client.getAllowedGrantTypes();
 
 		if (ListUtil.isEmpty(requestedGrantTypes)) {
-			return;
+			requestedGrantTypes = Collections.singletonList(
+				OAuthConstants.AUTHORIZATION_CODE_GRANT);
 		}
 
 		Set<String> normalizedAllowedGrantTypes = _normalize(allowedGrantTypes);
