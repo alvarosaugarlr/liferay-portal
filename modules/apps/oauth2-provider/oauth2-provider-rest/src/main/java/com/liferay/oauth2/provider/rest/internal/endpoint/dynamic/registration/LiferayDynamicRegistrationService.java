@@ -352,6 +352,36 @@ public class LiferayDynamicRegistrationService
 		return OAuth2SecureRandomGenerator.generateClientSecret();
 	}
 
+	private static Pattern _compileGlobToPattern(String glob) {
+		StringBuilder sb = new StringBuilder("^");
+
+		for (int i = 0; i < glob.length(); i++) {
+			char c = glob.charAt(i);
+
+			if (c == '*') {
+				if (((i + 1) < glob.length()) && (glob.charAt(i + 1) == '*')) {
+					sb.append(".*");
+
+					i++;
+				}
+				else {
+					sb.append("[^/]*");
+				}
+			}
+			else if ("\\.+?()[]{}^$|".indexOf(c) >= 0) {
+				sb.append('\\');
+				sb.append(c);
+			}
+			else {
+				sb.append(c);
+			}
+		}
+
+		sb.append('$');
+
+		return Pattern.compile(sb.toString());
+	}
+
 	private void _auditRegistrationFailure(
 		LiferayClientRegistration liferayClientRegistration,
 		Throwable throwable) {
@@ -494,36 +524,6 @@ public class LiferayDynamicRegistrationService
 		}
 	}
 
-	private Pattern _compileGlobToPattern(String glob) {
-		StringBuilder sb = new StringBuilder("^");
-
-		for (int i = 0; i < glob.length(); i++) {
-			char c = glob.charAt(i);
-
-			if (c == '*') {
-				if (((i + 1) < glob.length()) && (glob.charAt(i + 1) == '*')) {
-					sb.append(".*");
-
-					i++;
-				}
-				else {
-					sb.append("[^/]*");
-				}
-			}
-			else if ("\\.+?()[]{}^$|".indexOf(c) >= 0) {
-				sb.append('\\');
-				sb.append(c);
-			}
-			else {
-				sb.append(c);
-			}
-		}
-
-		sb.append('$');
-
-		return Pattern.compile(sb.toString());
-	}
-
 	private String _getApplicationType(ClientRegistration clientRegistration) {
 		String applicationType = clientRegistration.getApplicationType();
 
@@ -606,7 +606,7 @@ public class LiferayDynamicRegistrationService
 
 	private Pattern _globToPattern(String glob) {
 		return _compiledGlobPatterns.computeIfAbsent(
-			glob, this::_compileGlobToPattern);
+			glob, LiferayDynamicRegistrationService::_compileGlobToPattern);
 	}
 
 	private boolean _isAnonymousRegistration(Client client) {
