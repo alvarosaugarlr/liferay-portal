@@ -823,7 +823,7 @@ public class LiferayDynamicRegistrationService
 			dynamicRegistrationConfiguration.anonymousAllowedGrantTypes());
 
 		_validateAnonymousScopes(
-			client, clientRegistration,
+			clientRegistration,
 			dynamicRegistrationConfiguration.anonymousAllowedScopes());
 
 		_validateAnonymousRedirectURIs(
@@ -883,8 +883,7 @@ public class LiferayDynamicRegistrationService
 	}
 
 	private void _validateAnonymousScopes(
-		Client client, ClientRegistration clientRegistration,
-		String[] allowedScopes) {
+		ClientRegistration clientRegistration, String[] allowedScopes) {
 
 		Set<String> normalizedAllowedScopes = _normalize(allowedScopes);
 
@@ -903,8 +902,9 @@ public class LiferayDynamicRegistrationService
 		String scope = clientRegistration.getScope();
 
 		if (Validator.isBlank(scope)) {
-			client.setRegisteredScopes(
-				new ArrayList<>(normalizedAllowedScopes));
+			OAuth2ErrorUtil.reportInvalidRequestError(
+				"Anonymous registration requires an explicit scope",
+				"invalid_client_metadata", Response.Status.BAD_REQUEST);
 
 			return;
 		}
