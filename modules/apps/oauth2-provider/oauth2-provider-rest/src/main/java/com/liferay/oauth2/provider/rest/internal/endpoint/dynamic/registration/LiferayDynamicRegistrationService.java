@@ -127,6 +127,12 @@ public class LiferayDynamicRegistrationService
 
 			throw webApplicationException;
 		}
+		catch (RuntimeException runtimeException) {
+			_auditRegistrationFailure(
+				liferayClientRegistration, runtimeException);
+
+			throw runtimeException;
+		}
 	}
 
 	public void setConfigurationProvider(
@@ -348,7 +354,7 @@ public class LiferayDynamicRegistrationService
 
 	private void _auditRegistrationFailure(
 		LiferayClientRegistration liferayClientRegistration,
-		WebApplicationException webApplicationException) {
+		Throwable throwable) {
 
 		AuditRouter auditRouter = _auditRouterSnapshot.get();
 
@@ -358,23 +364,28 @@ public class LiferayDynamicRegistrationService
 
 		try {
 			String error = "server_error";
-			String errorDescription = webApplicationException.getMessage();
+			String errorDescription = throwable.getMessage();
 
-			Response response = webApplicationException.getResponse();
+			if (throwable instanceof WebApplicationException) {
+				WebApplicationException webApplicationException =
+					(WebApplicationException)throwable;
 
-			Object entity = null;
+				Response response = webApplicationException.getResponse();
 
-			if (response != null) {
-				entity = response.getEntity();
-			}
+				Object entity = null;
 
-			if (entity instanceof OAuthError) {
-				OAuthError oAuthError = (OAuthError)entity;
+				if (response != null) {
+					entity = response.getEntity();
+				}
 
-				error = GetterUtil.getString(oAuthError.getError(), error);
+				if (entity instanceof OAuthError) {
+					OAuthError oAuthError = (OAuthError)entity;
 
-				if (Validator.isNotNull(oAuthError.getErrorDescription())) {
-					errorDescription = oAuthError.getErrorDescription();
+					error = GetterUtil.getString(oAuthError.getError(), error);
+
+					if (Validator.isNotNull(oAuthError.getErrorDescription())) {
+						errorDescription = oAuthError.getErrorDescription();
+					}
 				}
 			}
 
