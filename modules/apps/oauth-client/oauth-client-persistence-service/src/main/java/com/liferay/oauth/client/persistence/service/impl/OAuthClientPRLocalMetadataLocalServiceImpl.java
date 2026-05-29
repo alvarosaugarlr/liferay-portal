@@ -81,6 +81,8 @@ public class OAuthClientPRLocalMetadataLocalServiceImpl
 
 		User user = _userLocalService.getUser(userId);
 
+		_validateURL(resource);
+
 		String localWellKnownURI = _generateLocalWellKnownURI(resource);
 
 		_validate(
@@ -269,6 +271,8 @@ public class OAuthClientPRLocalMetadataLocalServiceImpl
 
 		String localWellKnownURI =
 			oAuthClientPRLocalMetadata.getLocalWellKnownURI();
+
+		_validateURL(resource);
 
 		if (!resource.equals(oAuthClientPRLocalMetadata.getResource())) {
 			localWellKnownURI = _generateLocalWellKnownURI(resource);
