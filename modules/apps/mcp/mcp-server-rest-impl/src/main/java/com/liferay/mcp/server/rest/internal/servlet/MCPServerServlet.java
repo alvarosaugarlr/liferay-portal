@@ -129,7 +129,9 @@ public class MCPServerServlet extends HttpServlet {
 			return;
 		}
 
-		if (!_authenticate(httpServletRequest, httpServletResponse)) {
+		if (!_authenticate(
+				companyId, httpServletRequest, httpServletResponse)) {
+
 			return;
 		}
 
@@ -149,7 +151,7 @@ public class MCPServerServlet extends HttpServlet {
 	}
 
 	private boolean _authenticate(
-			HttpServletRequest httpServletRequest,
+			long companyId, HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse)
 		throws IOException {
 
@@ -184,8 +186,7 @@ public class MCPServerServlet extends HttpServlet {
 				fetchOAuth2AuthorizationByAccessTokenContent(accessToken);
 
 		if ((oAuth2Authorization == null) ||
-			(oAuth2Authorization.getCompanyId() != _portal.getCompanyId(
-				httpServletRequest)) ||
+			(oAuth2Authorization.getCompanyId() != companyId) ||
 			OAuth2AuthorizationConstants.ACCESS_TOKEN_CONTENT_EXPIRED_TOKEN.
 				equals(oAuth2Authorization.getAccessTokenContent())) {
 
