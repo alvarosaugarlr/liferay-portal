@@ -90,8 +90,9 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 	public static final String FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION =
 		FINDER_CLASS_NAME_ENTITY + ".List2";
 
-	private FilterCollectionPersistenceFinder<OAuthClientPRLocalMetadata>
-		_collectionPersistenceFinderByUuid;
+	private FilterCollectionPersistenceFinder
+		<OAuthClientPRLocalMetadata, NoSuchOAuthClientPRLocalMetadataException>
+			_collectionPersistenceFinderByUuid;
 
 	/**
 	 * Returns an ordered range of all the o auth client pr local metadatas where uuid = &#63;.
@@ -132,16 +133,8 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 			OrderByComparator<OAuthClientPRLocalMetadata> orderByComparator)
 		throws NoSuchOAuthClientPRLocalMetadataException {
 
-		OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata =
-			fetchByUuid_First(uuid, orderByComparator);
-
-		if (oAuthClientPRLocalMetadata != null) {
-			return oAuthClientPRLocalMetadata;
-		}
-
-		throw new NoSuchOAuthClientPRLocalMetadataException(
-			_collectionPersistenceFinderByUuid.buildNoSuchKeyMessage(
-				_NO_SUCH_ENTITY_WITH_KEY, new Object[] {uuid}));
+		return _collectionPersistenceFinderByUuid.findFirst(
+			finderCache, new Object[] {uuid}, orderByComparator);
 	}
 
 	/**
@@ -217,8 +210,9 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 			finderCache, new Object[] {uuid});
 	}
 
-	private FilterCollectionPersistenceFinder<OAuthClientPRLocalMetadata>
-		_collectionPersistenceFinderByUuid_C;
+	private FilterCollectionPersistenceFinder
+		<OAuthClientPRLocalMetadata, NoSuchOAuthClientPRLocalMetadataException>
+			_collectionPersistenceFinderByUuid_C;
 
 	/**
 	 * Returns an ordered range of all the o auth client pr local metadatas where uuid = &#63; and companyId = &#63;.
@@ -261,16 +255,8 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 			OrderByComparator<OAuthClientPRLocalMetadata> orderByComparator)
 		throws NoSuchOAuthClientPRLocalMetadataException {
 
-		OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata =
-			fetchByUuid_C_First(uuid, companyId, orderByComparator);
-
-		if (oAuthClientPRLocalMetadata != null) {
-			return oAuthClientPRLocalMetadata;
-		}
-
-		throw new NoSuchOAuthClientPRLocalMetadataException(
-			_collectionPersistenceFinderByUuid_C.buildNoSuchKeyMessage(
-				_NO_SUCH_ENTITY_WITH_KEY, new Object[] {uuid, companyId}));
+		return _collectionPersistenceFinderByUuid_C.findFirst(
+			finderCache, new Object[] {uuid, companyId}, orderByComparator);
 	}
 
 	/**
@@ -352,8 +338,9 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 			finderCache, new Object[] {uuid, companyId}, companyId, 0);
 	}
 
-	private FilterCollectionPersistenceFinder<OAuthClientPRLocalMetadata>
-		_collectionPersistenceFinderByCompanyId;
+	private FilterCollectionPersistenceFinder
+		<OAuthClientPRLocalMetadata, NoSuchOAuthClientPRLocalMetadataException>
+			_collectionPersistenceFinderByCompanyId;
 
 	/**
 	 * Returns an ordered range of all the o auth client pr local metadatas where companyId = &#63;.
@@ -394,16 +381,8 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 			OrderByComparator<OAuthClientPRLocalMetadata> orderByComparator)
 		throws NoSuchOAuthClientPRLocalMetadataException {
 
-		OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata =
-			fetchByCompanyId_First(companyId, orderByComparator);
-
-		if (oAuthClientPRLocalMetadata != null) {
-			return oAuthClientPRLocalMetadata;
-		}
-
-		throw new NoSuchOAuthClientPRLocalMetadataException(
-			_collectionPersistenceFinderByCompanyId.buildNoSuchKeyMessage(
-				_NO_SUCH_ENTITY_WITH_KEY, new Object[] {companyId}));
+		return _collectionPersistenceFinderByCompanyId.findFirst(
+			finderCache, new Object[] {companyId}, orderByComparator);
 	}
 
 	/**
@@ -480,8 +459,9 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 			finderCache, new Object[] {companyId}, companyId, 0);
 	}
 
-	private FilterCollectionPersistenceFinder<OAuthClientPRLocalMetadata>
-		_collectionPersistenceFinderByUserId;
+	private FilterCollectionPersistenceFinder
+		<OAuthClientPRLocalMetadata, NoSuchOAuthClientPRLocalMetadataException>
+			_collectionPersistenceFinderByUserId;
 
 	/**
 	 * Returns an ordered range of all the o auth client pr local metadatas where userId = &#63;.
@@ -522,16 +502,8 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 			OrderByComparator<OAuthClientPRLocalMetadata> orderByComparator)
 		throws NoSuchOAuthClientPRLocalMetadataException {
 
-		OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata =
-			fetchByUserId_First(userId, orderByComparator);
-
-		if (oAuthClientPRLocalMetadata != null) {
-			return oAuthClientPRLocalMetadata;
-		}
-
-		throw new NoSuchOAuthClientPRLocalMetadataException(
-			_collectionPersistenceFinderByUserId.buildNoSuchKeyMessage(
-				_NO_SUCH_ENTITY_WITH_KEY, new Object[] {userId}));
+		return _collectionPersistenceFinderByUserId.findFirst(
+			finderCache, new Object[] {userId}, orderByComparator);
 	}
 
 	/**
@@ -607,8 +579,9 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 			finderCache, new Object[] {userId});
 	}
 
-	private FilterCollectionPersistenceFinder<OAuthClientPRLocalMetadata>
-		_collectionPersistenceFinderByC_L;
+	private FilterCollectionPersistenceFinder
+		<OAuthClientPRLocalMetadata, NoSuchOAuthClientPRLocalMetadataException>
+			_collectionPersistenceFinderByC_L;
 
 	/**
 	 * Returns an ordered range of all the o auth client pr local metadatas where companyId = &#63; and localWellKnownEnabled = &#63;.
@@ -651,18 +624,9 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 			OrderByComparator<OAuthClientPRLocalMetadata> orderByComparator)
 		throws NoSuchOAuthClientPRLocalMetadataException {
 
-		OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata =
-			fetchByC_L_First(
-				companyId, localWellKnownEnabled, orderByComparator);
-
-		if (oAuthClientPRLocalMetadata != null) {
-			return oAuthClientPRLocalMetadata;
-		}
-
-		throw new NoSuchOAuthClientPRLocalMetadataException(
-			_collectionPersistenceFinderByC_L.buildNoSuchKeyMessage(
-				_NO_SUCH_ENTITY_WITH_KEY,
-				new Object[] {companyId, localWellKnownEnabled}));
+		return _collectionPersistenceFinderByC_L.findFirst(
+			finderCache, new Object[] {companyId, localWellKnownEnabled},
+			orderByComparator);
 	}
 
 	/**
@@ -746,8 +710,9 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 			companyId, 0);
 	}
 
-	private UniquePersistenceFinder<OAuthClientPRLocalMetadata>
-		_uniquePersistenceFinderByC_LWKURI;
+	private UniquePersistenceFinder
+		<OAuthClientPRLocalMetadata, NoSuchOAuthClientPRLocalMetadataException>
+			_uniquePersistenceFinderByC_LWKURI;
 
 	/**
 	 * Returns the o auth client pr local metadata where companyId = &#63; and localWellKnownURI = &#63; or throws a <code>NoSuchOAuthClientPRLocalMetadataException</code> if it could not be found.
@@ -762,23 +727,8 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 			long companyId, String localWellKnownURI)
 		throws NoSuchOAuthClientPRLocalMetadataException {
 
-		OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata = fetchByC_LWKURI(
-			companyId, localWellKnownURI);
-
-		if (oAuthClientPRLocalMetadata == null) {
-			String message =
-				_uniquePersistenceFinderByC_LWKURI.buildNoSuchKeyMessage(
-					_NO_SUCH_ENTITY_WITH_KEY,
-					new Object[] {companyId, localWellKnownURI});
-
-			if (_log.isDebugEnabled()) {
-				_log.debug(message);
-			}
-
-			throw new NoSuchOAuthClientPRLocalMetadataException(message);
-		}
-
-		return oAuthClientPRLocalMetadata;
+		return _uniquePersistenceFinderByC_LWKURI.find(
+			finderCache, new Object[] {companyId, localWellKnownURI});
 	}
 
 	/**
@@ -829,8 +779,9 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 			finderCache, new Object[] {companyId, localWellKnownURI});
 	}
 
-	private UniquePersistenceFinder<OAuthClientPRLocalMetadata>
-		_uniquePersistenceFinderByC_R;
+	private UniquePersistenceFinder
+		<OAuthClientPRLocalMetadata, NoSuchOAuthClientPRLocalMetadataException>
+			_uniquePersistenceFinderByC_R;
 
 	/**
 	 * Returns the o auth client pr local metadata where companyId = &#63; and resource = &#63; or throws a <code>NoSuchOAuthClientPRLocalMetadataException</code> if it could not be found.
@@ -844,23 +795,8 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 	public OAuthClientPRLocalMetadata findByC_R(long companyId, String resource)
 		throws NoSuchOAuthClientPRLocalMetadataException {
 
-		OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata = fetchByC_R(
-			companyId, resource);
-
-		if (oAuthClientPRLocalMetadata == null) {
-			String message =
-				_uniquePersistenceFinderByC_R.buildNoSuchKeyMessage(
-					_NO_SUCH_ENTITY_WITH_KEY,
-					new Object[] {companyId, resource});
-
-			if (_log.isDebugEnabled()) {
-				_log.debug(message);
-			}
-
-			throw new NoSuchOAuthClientPRLocalMetadataException(message);
-		}
-
-		return oAuthClientPRLocalMetadata;
+		return _uniquePersistenceFinderByC_R.find(
+			finderCache, new Object[] {companyId, resource});
 	}
 
 	/**
@@ -910,8 +846,9 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 			finderCache, new Object[] {companyId, resource});
 	}
 
-	private UniquePersistenceFinder<OAuthClientPRLocalMetadata>
-		_uniquePersistenceFinderByERC_C;
+	private UniquePersistenceFinder
+		<OAuthClientPRLocalMetadata, NoSuchOAuthClientPRLocalMetadataException>
+			_uniquePersistenceFinderByERC_C;
 
 	/**
 	 * Returns the o auth client pr local metadata where externalReferenceCode = &#63; and companyId = &#63; or throws a <code>NoSuchOAuthClientPRLocalMetadataException</code> if it could not be found.
@@ -926,23 +863,8 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchOAuthClientPRLocalMetadataException {
 
-		OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata = fetchByERC_C(
-			externalReferenceCode, companyId);
-
-		if (oAuthClientPRLocalMetadata == null) {
-			String message =
-				_uniquePersistenceFinderByERC_C.buildNoSuchKeyMessage(
-					_NO_SUCH_ENTITY_WITH_KEY,
-					new Object[] {externalReferenceCode, companyId});
-
-			if (_log.isDebugEnabled()) {
-				_log.debug(message);
-			}
-
-			throw new NoSuchOAuthClientPRLocalMetadataException(message);
-		}
-
-		return oAuthClientPRLocalMetadata;
+		return _uniquePersistenceFinderByERC_C.find(
+			finderCache, new Object[] {externalReferenceCode, companyId});
 	}
 
 	/**
@@ -1328,20 +1250,8 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 				_SQL_COUNT_OAUTHCLIENTPRLOCALMETADATA_WHERE,
 				OAuthClientPRLocalMetadataModelImpl.ORDER_BY_JPQL,
 				_ENTITY_ALIAS_PREFIX, "",
-				new FilterCollectionPersistenceFinder.FilterMetadata<>(
-					OAuthClientPRLocalMetadataImpl.class,
-					OAuthClientPRLocalMetadata.class,
-					"oAuthClientPRLocalMetadata", "OAuthClientPRLocalMetadata",
-					"oAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId",
-					"SELECT DISTINCT {oAuthClientPRLocalMetadata.*} FROM OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata WHERE ",
-					"SELECT {OAuthClientPRLocalMetadata.*} FROM (SELECT DISTINCT oAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId FROM OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata WHERE ",
-					") TEMP_TABLE INNER JOIN OAuthClientPRLocalMetadata ON TEMP_TABLE.oAuthClientPRLocalMetadataId = OAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId",
-					"SELECT COUNT(DISTINCT oAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId) AS COUNT_VALUE FROM OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata WHERE ",
-					OAuthClientPRLocalMetadataModelImpl.ORDER_BY_SQL,
-					OAuthClientPRLocalMetadataModelImpl.
-						ORDER_BY_SQL_INLINE_DISTINCT),
 				new FinderColumn<>(
-					"oAuthClientPRLocalMetadata.", "uuid",
+					"oAuthClientPRLocalMetadata.", "uuid", "uuid_",
 					FinderColumn.Type.STRING, "=", true, true,
 					OAuthClientPRLocalMetadata::getUuid));
 
@@ -1368,20 +1278,8 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 				_SQL_COUNT_OAUTHCLIENTPRLOCALMETADATA_WHERE,
 				OAuthClientPRLocalMetadataModelImpl.ORDER_BY_JPQL,
 				_ENTITY_ALIAS_PREFIX, "",
-				new FilterCollectionPersistenceFinder.FilterMetadata<>(
-					OAuthClientPRLocalMetadataImpl.class,
-					OAuthClientPRLocalMetadata.class,
-					"oAuthClientPRLocalMetadata", "OAuthClientPRLocalMetadata",
-					"oAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId",
-					"SELECT DISTINCT {oAuthClientPRLocalMetadata.*} FROM OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata WHERE ",
-					"SELECT {OAuthClientPRLocalMetadata.*} FROM (SELECT DISTINCT oAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId FROM OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata WHERE ",
-					") TEMP_TABLE INNER JOIN OAuthClientPRLocalMetadata ON TEMP_TABLE.oAuthClientPRLocalMetadataId = OAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId",
-					"SELECT COUNT(DISTINCT oAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId) AS COUNT_VALUE FROM OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata WHERE ",
-					OAuthClientPRLocalMetadataModelImpl.ORDER_BY_SQL,
-					OAuthClientPRLocalMetadataModelImpl.
-						ORDER_BY_SQL_INLINE_DISTINCT),
 				new FinderColumn<>(
-					"oAuthClientPRLocalMetadata.", "uuid",
+					"oAuthClientPRLocalMetadata.", "uuid", "uuid_",
 					FinderColumn.Type.STRING, "=", true, true,
 					OAuthClientPRLocalMetadata::getUuid),
 				new FinderColumn<>(
@@ -1412,18 +1310,6 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 				_SQL_COUNT_OAUTHCLIENTPRLOCALMETADATA_WHERE,
 				OAuthClientPRLocalMetadataModelImpl.ORDER_BY_JPQL,
 				_ENTITY_ALIAS_PREFIX, "",
-				new FilterCollectionPersistenceFinder.FilterMetadata<>(
-					OAuthClientPRLocalMetadataImpl.class,
-					OAuthClientPRLocalMetadata.class,
-					"oAuthClientPRLocalMetadata", "OAuthClientPRLocalMetadata",
-					"oAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId",
-					"SELECT DISTINCT {oAuthClientPRLocalMetadata.*} FROM OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata WHERE ",
-					"SELECT {OAuthClientPRLocalMetadata.*} FROM (SELECT DISTINCT oAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId FROM OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata WHERE ",
-					") TEMP_TABLE INNER JOIN OAuthClientPRLocalMetadata ON TEMP_TABLE.oAuthClientPRLocalMetadataId = OAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId",
-					"SELECT COUNT(DISTINCT oAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId) AS COUNT_VALUE FROM OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata WHERE ",
-					OAuthClientPRLocalMetadataModelImpl.ORDER_BY_SQL,
-					OAuthClientPRLocalMetadataModelImpl.
-						ORDER_BY_SQL_INLINE_DISTINCT),
 				new FinderColumn<>(
 					"oAuthClientPRLocalMetadata.", "companyId",
 					FinderColumn.Type.LONG, "=", true, true,
@@ -1452,18 +1338,6 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 				_SQL_COUNT_OAUTHCLIENTPRLOCALMETADATA_WHERE,
 				OAuthClientPRLocalMetadataModelImpl.ORDER_BY_JPQL,
 				_ENTITY_ALIAS_PREFIX, "",
-				new FilterCollectionPersistenceFinder.FilterMetadata<>(
-					OAuthClientPRLocalMetadataImpl.class,
-					OAuthClientPRLocalMetadata.class,
-					"oAuthClientPRLocalMetadata", "OAuthClientPRLocalMetadata",
-					"oAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId",
-					"SELECT DISTINCT {oAuthClientPRLocalMetadata.*} FROM OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata WHERE ",
-					"SELECT {OAuthClientPRLocalMetadata.*} FROM (SELECT DISTINCT oAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId FROM OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata WHERE ",
-					") TEMP_TABLE INNER JOIN OAuthClientPRLocalMetadata ON TEMP_TABLE.oAuthClientPRLocalMetadataId = OAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId",
-					"SELECT COUNT(DISTINCT oAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId) AS COUNT_VALUE FROM OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata WHERE ",
-					OAuthClientPRLocalMetadataModelImpl.ORDER_BY_SQL,
-					OAuthClientPRLocalMetadataModelImpl.
-						ORDER_BY_SQL_INLINE_DISTINCT),
 				new FinderColumn<>(
 					"oAuthClientPRLocalMetadata.", "userId",
 					FinderColumn.Type.LONG, "=", true, true,
@@ -1496,18 +1370,6 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 				_SQL_COUNT_OAUTHCLIENTPRLOCALMETADATA_WHERE,
 				OAuthClientPRLocalMetadataModelImpl.ORDER_BY_JPQL,
 				_ENTITY_ALIAS_PREFIX, "",
-				new FilterCollectionPersistenceFinder.FilterMetadata<>(
-					OAuthClientPRLocalMetadataImpl.class,
-					OAuthClientPRLocalMetadata.class,
-					"oAuthClientPRLocalMetadata", "OAuthClientPRLocalMetadata",
-					"oAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId",
-					"SELECT DISTINCT {oAuthClientPRLocalMetadata.*} FROM OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata WHERE ",
-					"SELECT {OAuthClientPRLocalMetadata.*} FROM (SELECT DISTINCT oAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId FROM OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata WHERE ",
-					") TEMP_TABLE INNER JOIN OAuthClientPRLocalMetadata ON TEMP_TABLE.oAuthClientPRLocalMetadataId = OAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId",
-					"SELECT COUNT(DISTINCT oAuthClientPRLocalMetadata.oAuthClientPRLocalMetadataId) AS COUNT_VALUE FROM OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata WHERE ",
-					OAuthClientPRLocalMetadataModelImpl.ORDER_BY_SQL,
-					OAuthClientPRLocalMetadataModelImpl.
-						ORDER_BY_SQL_INLINE_DISTINCT),
 				new FinderColumn<>(
 					"oAuthClientPRLocalMetadata.", "companyId",
 					FinderColumn.Type.LONG, "=", true, true,
@@ -1643,4 +1505,4 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:960894681
+// LIFERAY-SERVICE-BUILDER-HASH:1935833865
