@@ -5,6 +5,9 @@
 
 package com.liferay.oauth2.provider.rest.internal.endpoint.dynamic.registration.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 import org.apache.cxf.rs.security.oauth2.services.ClientRegistrationResponse;
@@ -39,8 +42,18 @@ public class LiferayClientRegistrationResponse
 		return responseTypes;
 	}
 
+	@JsonIgnore
 	public List<String> getScope() {
 		return scope;
+	}
+
+	@JsonProperty("scope")
+	public String getScopeString() {
+		if ((scope == null) || scope.isEmpty()) {
+			return null;
+		}
+
+		return String.join(" ", scope);
 	}
 
 	public String getSoftwareId() {
