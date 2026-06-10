@@ -344,14 +344,38 @@ public class ToolSetUtil {
 			_getBaseURL(httpServletRequest) + openAPIBrief._basePath +
 				openAPIBrief._openAPIPath,
 			url -> {
+				String content = null;
+
 				try {
-					return JSONFactoryUtil.createJSONObject(
-						_get(httpServletRequest, url));
+					content = _get(httpServletRequest, url);
+
+					return JSONFactoryUtil.createJSONObject(content);
 				}
 				catch (Exception exception) {
-					throw new RuntimeException(exception);
+					throw new RuntimeException(
+						StringBundler.concat(
+							"Unable to read a valid OpenAPI document from ", url,
+							". The tool set's REST application may have denied ",
+							"the access token; verify the token's OAuth2 scopes ",
+							"grant that application. Response: ",
+							_truncate(content)),
+						exception);
 				}
 			});
+	}
+
+	private static String _truncate(String content) {
+		if (content == null) {
+			return "(no response)";
+		}
+
+		String trimmedContent = content.trim();
+
+		if (trimmedContent.length() > 200) {
+			return trimmedContent.substring(0, 200) + "...";
+		}
+
+		return trimmedContent;
 	}
 
 	private static String _getOpenAPIPath(ApplicationDTO applicationDTO) {
