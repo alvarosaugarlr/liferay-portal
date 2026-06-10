@@ -12,7 +12,7 @@ ResultRow row = (ResultRow)request.getAttribute(WebKeys.SEARCH_CONTAINER_RESULT_
 
 OAuthClientPRLocalMetadata oAuthClientPRLocalMetadata = (OAuthClientPRLocalMetadata)row.getObject();
 
-OAuthClientPRLocalMetadataActionDropdownItemsProvider oAuthClientPRLocalMetadataActionDropdownItemsProvider = new OAuthClientPRLocalMetadataActionDropdownItemsProvider(oAuthClientPRLocalMetadata, liferayPortletRequest, liferayPortletResponse);
+OAuthClientPRLocalMetadataActionDropdownItemsProvider oAuthClientPRLocalMetadataActionDropdownItemsProvider = new OAuthClientPRLocalMetadataActionDropdownItemsProvider(oAuthClientPRLocalMetadata, renderRequest, renderResponse);
 %>
 
 <clay:dropdown-actions
