@@ -33,11 +33,6 @@ public class OAuth2AuthorizationImpl extends OAuth2AuthorizationBaseImpl {
 	}
 
 	@Override
-	public List<String> getAudiencesList() {
-		return StringUtil.split(getAudiences(), CharPool.NEW_LINE);
-	}
-
-	@Override
 	public void setAccessTokenContent(String accessTokenContent) {
 		super.setAccessTokenContent(accessTokenContent);
 
@@ -47,15 +42,6 @@ public class OAuth2AuthorizationImpl extends OAuth2AuthorizationBaseImpl {
 		else {
 			setAccessTokenContentHash(0);
 		}
-	}
-
-	@Override
-	public void setAudiencesList(List<String> audiencesList) {
-		if (audiencesList == null) {
-			return;
-		}
-
-		setAudiences(StringUtil.merge(audiencesList, StringPool.NEW_LINE));
 	}
 
 	@Override
