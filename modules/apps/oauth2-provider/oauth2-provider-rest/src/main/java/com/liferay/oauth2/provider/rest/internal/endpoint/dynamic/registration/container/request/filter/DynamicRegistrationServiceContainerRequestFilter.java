@@ -180,7 +180,8 @@ public class DynamicRegistrationServiceContainerRequestFilter
 			_auditFailure(
 				clientHost, companyId,
 				OAuth2ProviderRESTEndpointConstants.ERROR_INVALID_TOKEN,
-				"Bearer token authorization failed", httpServletRequest,
+				"Authenticated registration authorization failed",
+				httpServletRequest,
 				OAuth2ProviderRESTEndpointConstants.
 					DYNAMIC_REGISTRATION_MODE_AUTHENTICATED);
 		}
