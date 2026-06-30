@@ -195,35 +195,29 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 		String allowedHost = RandomTestUtil.randomString();
 
 		_testOpenRegistrationEnforcesAllowedHosts(
-			allowedHost, allowedHost, 201);
+			allowedHost, 201, allowedHost);
 		_testOpenRegistrationEnforcesAllowedHosts(
-			allowedHost, RandomTestUtil.randomString(), 403);
-
-		String bracketedHost = RandomTestUtil.randomString();
+			allowedHost, 403, RandomTestUtil.randomString());
 
 		_testOpenRegistrationEnforcesAllowedHosts(
-			bracketedHost,
+			allowedHost, 201,
 			StringBundler.concat(
-				"[", bracketedHost, "]:",
-				PortalUtil.getPortalServerPort(false)),
-			201);
+				"[", allowedHost, "]:",
+				PortalUtil.getPortalServerPort(false)));
 		_testOpenRegistrationEnforcesAllowedHosts(
 			StringBundler.concat(
-				"[", bracketedHost, "]:",
+				"[", allowedHost, "]:",
 				PortalUtil.getPortalServerPort(false)),
-			bracketedHost, 201);
-
-		String portHost = RandomTestUtil.randomString();
+			201, allowedHost);
 
 		_testOpenRegistrationEnforcesAllowedHosts(
-			portHost, portHost + ":" + PortalUtil.getPortalServerPort(false),
-			201);
+			allowedHost, 201,
+			allowedHost + ":" + PortalUtil.getPortalServerPort(false));
 	}
 
 	@Test
 	public void testOpenRegistrationIsRejected() throws Exception {
 		_testOpenRegistrationIsRejected(
-			400, "invalid_client_metadata",
 			_createClientRegistrationJSONObject(
 				RandomTestUtil.randomString(), null, null,
 				new String[] {
@@ -231,10 +225,10 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 				},
 				null, null
 			).toString(),
+			"invalid_client_metadata", 400,
 			"dynamic.registration.allowed.grant.types",
 			new String[] {OAuthConstants.CLIENT_CREDENTIALS_GRANT});
 		_testOpenRegistrationIsRejected(
-			400, "invalid_client_metadata",
 			_createClientRegistrationJSONObject(
 				RandomTestUtil.randomString(),
 				new String[] {OAuthConstants.AUTHORIZATION_CODE_GRANT}, null,
@@ -243,52 +237,51 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 				},
 				new String[] {OAuthConstants.CODE_RESPONSE_TYPE}, null
 			).toString(),
+			"invalid_client_metadata", 400,
 			"dynamic.registration.allowed.scopes",
 			new String[] {"Liferay.Headless.Delivery.everything"});
 
 		_testOpenRegistrationIsRejected(
-			400, "invalid_redirect_uri",
 			_createClientRegistrationJSONObject(
 				RandomTestUtil.randomString(),
 				new String[] {OAuthConstants.AUTHORIZATION_CODE_GRANT}, null,
 				new String[] {StringPool.BLANK},
 				new String[] {OAuthConstants.CODE_RESPONSE_TYPE}, null
 			).toString(),
+			"invalid_redirect_uri", 400,
 			"dynamic.registration.allowed.redirect.uri.patterns",
 			new String[] {"https://*.example.org/*"});
 		_testOpenRegistrationIsRejected(
-			400, "invalid_redirect_uri",
 			_createClientRegistrationJSONObject(
 				RandomTestUtil.randomString(),
 				new String[] {OAuthConstants.AUTHORIZATION_CODE_GRANT}, null,
 				new String[] {"https://attacker.test/callback"},
 				new String[] {OAuthConstants.CODE_RESPONSE_TYPE}, null
 			).toString(),
+			"invalid_redirect_uri", 400,
 			"dynamic.registration.allowed.redirect.uri.patterns",
 			new String[] {"https://*.example.org/*"});
 		_testOpenRegistrationIsRejected(
-			400, "invalid_redirect_uri",
 			_createClientRegistrationJSONObject(
 				RandomTestUtil.randomString(),
 				new String[] {OAuthConstants.AUTHORIZATION_CODE_GRANT}, null,
 				new String[] {"https://attacker.test/foo.example.org/callback"},
 				new String[] {OAuthConstants.CODE_RESPONSE_TYPE}, null
 			).toString(),
+			"invalid_redirect_uri", 400,
 			"dynamic.registration.allowed.redirect.uri.patterns",
 			new String[] {"https://*.example.org/*"});
 
 		_testOpenRegistrationIsRejected(
-			400, "invalid_scope",
 			_createClientRegistrationJSONObject(
 				RandomTestUtil.randomString(),
 				new String[] {OAuthConstants.CLIENT_CREDENTIALS_GRANT}, null,
 				null, null, "Liferay.Headless.Admin.Site.everything"
 			).toString(),
-			"dynamic.registration.allowed.scopes",
+			"invalid_scope", 400, "dynamic.registration.allowed.scopes",
 			new String[] {"Liferay.Headless.Delivery.everything"});
 
 		_testOpenRegistrationIsRejected(
-			400, "invalid_client_metadata",
 			_createClientRegistrationJSONObject(
 				RandomTestUtil.randomString(),
 				new String[] {OAuthConstants.AUTHORIZATION_CODE_GRANT}, null,
@@ -297,15 +290,16 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 				},
 				new String[] {OAuthConstants.CODE_RESPONSE_TYPE}, null
 			).toString(),
+			"invalid_client_metadata", 400,
 			"dynamic.registration.allowed.scopes",
 			new String[] {StringPool.STAR});
 
 		_testOpenRegistrationIsRejected(
-			401, null,
 			_createClientRegistrationJSONObject(
 				RandomTestUtil.randomString(), null, null, null, null, null
 			).toString(),
-			"dynamic.registration.require.initial.access.token", true);
+			null, 401, "dynamic.registration.require.initial.access.token",
+			true);
 	}
 
 	@Test
@@ -639,7 +633,7 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 	}
 
 	private void _testOpenRegistrationEnforcesAllowedHosts(
-			String allowedHost, String requestHost, int expectedStatus)
+			String allowedHost, int expectedStatus, String requestHost)
 		throws Exception {
 
 		WebTarget registerWebTarget = getRegisterWebTarget();
@@ -680,7 +674,7 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 	}
 
 	private void _testOpenRegistrationIsRejected(
-			int expectedStatus, String expectedError, String body,
+			String body, String expectedError, int expectedStatus,
 			Object... keysAndValues)
 		throws Exception {
 
