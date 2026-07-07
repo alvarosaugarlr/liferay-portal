@@ -333,8 +333,18 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 	public void testRegisterInOpenModeEnforcesAllowedHosts() throws Exception {
 		String allowedHost = RandomTestUtil.randomString();
 
+		// Allow when the request host matches exactly
+
 		_testRegisterInOpenModeEnforcesAllowedHosts(
 			allowedHost, 201, allowedHost);
+
+		// Allow when the port is present on the request host
+
+		_testRegisterInOpenModeEnforcesAllowedHosts(
+			allowedHost, 201,
+			allowedHost + ":" + PortalUtil.getPortalServerPort(false));
+
+		// Allow when a bracketed IPv6 host is compared with or without a port
 
 		_testRegisterInOpenModeEnforcesAllowedHosts(
 			allowedHost, 201,
@@ -345,9 +355,7 @@ public class DynamicRegistrationServiceTest extends BaseClientTestCase {
 				"[", allowedHost, "]:", PortalUtil.getPortalServerPort(false)),
 			201, allowedHost);
 
-		_testRegisterInOpenModeEnforcesAllowedHosts(
-			allowedHost, 201,
-			allowedHost + ":" + PortalUtil.getPortalServerPort(false));
+		// Deny when the request host does not match
 
 		_testRegisterInOpenModeEnforcesAllowedHosts(
 			allowedHost, 403, RandomTestUtil.randomString());
