@@ -192,7 +192,7 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 							md="8"
 						>
 							<div class="cover-image-caption">
-								<small><%= entry.getCoverImageCaption() %></small>
+								<small><%= HtmlUtil.escape(entry.getCoverImageCaption()) %></small>
 							</div>
 						</clay:col>
 					</clay:row>
