@@ -116,6 +116,7 @@ import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.auth.FullNameGenerator;
 import com.liferay.portal.kernel.security.auth.FullNameGeneratorFactory;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
@@ -6109,8 +6110,24 @@ public class PortalImpl implements Portal {
 				servletContext.getRequestDispatcher(redirect);
 
 			if (requestDispatcher != null) {
-				requestDispatcher.forward(
-					httpServletRequest, httpServletResponse);
+
+				// LPP-65016
+
+				String principalName = PrincipalThreadLocal.getName();
+				PermissionChecker permissionChecker =
+					PermissionThreadLocal.getPermissionChecker();
+
+				try {
+					_initSecurityThreadLocals(httpServletRequest);
+
+					requestDispatcher.forward(
+						httpServletRequest, httpServletResponse);
+				}
+				finally {
+					PrincipalThreadLocal.setName(principalName);
+					PermissionThreadLocal.setPermissionChecker(
+						permissionChecker);
+				}
 			}
 		}
 		else if (exception != null) {
@@ -8128,6 +8145,27 @@ public class PortalImpl implements Portal {
 		Company company = themeDisplay.getCompany();
 
 		return company.getVirtualHostname();
+	}
+
+	private void _initSecurityThreadLocals(
+		HttpServletRequest httpServletRequest) {
+
+		if (Validator.isNotNull(PrincipalThreadLocal.getName())) {
+			return;
+		}
+
+		try {
+			User user = initUser(httpServletRequest);
+
+			PrincipalThreadLocal.setName(user.getUserId());
+
+			PermissionThreadLocal.getPermissionChecker(user, true);
+		}
+		catch (Exception exception) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(exception);
+			}
+		}
 	}
 
 	private boolean _isSignedIn(HttpServletRequest httpServletRequest) {
