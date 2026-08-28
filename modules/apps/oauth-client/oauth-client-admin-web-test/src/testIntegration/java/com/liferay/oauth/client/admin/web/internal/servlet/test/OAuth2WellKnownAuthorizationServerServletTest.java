@@ -274,6 +274,63 @@ public class OAuth2WellKnownAuthorizationServerServletTest {
 		Assert.assertTrue(tokenEndpointAuthMethods.contains("none"));
 	}
 
+	@FeatureFlag(enable = false, value = "LPD-63415")
+	@Test
+	public void testDoGetWhenFeatureFlagIsDisabled() throws Exception {
+		Http.Options options = new Http.Options();
+
+		options.setFollowRedirects(false);
+
+		Company company = _companyLocalService.getCompany(
+			TestPropsValues.getCompanyId());
+
+		String urlString = StringBundler.concat(
+			Http.HTTP_WITH_SLASH, company.getVirtualHostname(), ":",
+			PortalUtil.getPortalServerPort(false),
+			"/o/.well-known/oauth-authorization-server");
+
+		options.setLocation(urlString);
+
+		HttpUtil.URLtoString(options);
+
+		Http.Response response = options.getResponse();
+
+		Assert.assertEquals(
+			HttpServletResponse.SC_NOT_FOUND, response.getResponseCode());
+
+		String issuer = RandomTestUtil.randomString() + ".com";
+
+		String url = Http.HTTPS_WITH_SLASH + issuer;
+
+		String supported = RandomTestUtil.randomString();
+
+		_oAuthClientASLocalMetadataLocalService.addOAuthClientASLocalMetadata(
+			null, TestPropsValues.getUserId(), url, url, url, true, url,
+			new String[] {supported}, new String[] {supported},
+			new String[] {"public"}, url, url);
+
+		options.setLocation(urlString);
+
+		HttpUtil.URLtoString(options);
+
+		response = options.getResponse();
+
+		Assert.assertEquals(
+			HttpServletResponse.SC_NOT_FOUND, response.getResponseCode());
+
+		options.setLocation(
+			StringBundler.concat(
+				urlString, StringPool.SLASH,
+				URLEncoder.encode(issuer, StandardCharsets.UTF_8)));
+
+		HttpUtil.URLtoString(options);
+
+		response = options.getResponse();
+
+		Assert.assertEquals(
+			HttpServletResponse.SC_NOT_FOUND, response.getResponseCode());
+	}
+
 	@Inject
 	private CompanyLocalService _companyLocalService;
 
